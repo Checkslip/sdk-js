@@ -69,6 +69,57 @@ const PENDING_REMOVAL = {
   enums: { ExportColumn: ["latency_ms", "upstream_ms", "checked_elsewhere"] },
 };
 
+/**
+ * The API has these already and the published document has not caught up.
+ * Until it does, the SDK adds them here, so callers can write code for the
+ * shape the API actually serves. Generation stops once the document lists
+ * them, so this block and the matching test get deleted instead of rotting.
+ *
+ * free_no_credit and free_hold_expired stay in the types but stop being
+ * required. The API no longer counts them and drops both fields later, so
+ * code that reads them has to handle them being absent.
+ */
+const PENDING_ADDITION = {
+  schemas: {
+    UsageCounts: {
+      add: {
+        free_other: {
+          type: "integer",
+          minimum: 0,
+          description: "Lookups that were not charged with no reason given.",
+        },
+      },
+      optional: ["free_no_credit", "free_hold_expired"],
+    },
+  },
+  enums: { FreeReason: ["OTHER"] },
+};
+
+function applyPendingAddition(doc) {
+  for (const [name, { add, optional }] of Object.entries(PENDING_ADDITION.schemas)) {
+    const schema = doc.components?.schemas?.[name];
+    if (!schema?.properties) throw new Error(`PENDING_ADDITION names ${name}, which the spec does not have`);
+    for (const [field, definition] of Object.entries(add ?? {})) {
+      if (schema.properties[field])
+        throw new Error(`the spec now has ${name}.${field}: take it out of PENDING_ADDITION`);
+      schema.properties[field] = definition;
+    }
+    if (Array.isArray(schema.required) && optional) {
+      schema.required = schema.required.filter((r) => !optional.includes(r));
+    }
+  }
+  for (const [name, values] of Object.entries(PENDING_ADDITION.enums)) {
+    const schema = doc.components?.schemas?.[name];
+    if (!Array.isArray(schema?.enum))
+      throw new Error(`PENDING_ADDITION names the enum ${name}, which the spec does not have`);
+    for (const value of values) {
+      if (schema.enum.includes(value))
+        throw new Error(`the spec now lists ${name} ${value}: take it out of PENDING_ADDITION`);
+      schema.enum.push(value);
+    }
+  }
+}
+
 function applyPendingRemoval(doc) {
   // The lookup description ends with a paragraph about checked_elsewhere.
   // Hiding the field while documenting it would only confuse a reader.
@@ -120,6 +171,7 @@ function auditSpec(node, path) {
   for (const [key, value] of Object.entries(node)) auditSpec(value, `${path}.${key}`);
 }
 applyPendingRemoval(spec);
+applyPendingAddition(spec);
 auditSpec(spec, "$");
 if (reappeared.length > 0) {
   throw new Error(`fields that left the customer API are back in the spec: ${reappeared.join(", ")}`);
