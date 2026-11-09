@@ -5,6 +5,23 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.2.0](https://github.com/Checkslip/sdk-js/compare/v0.1.1...v0.2.0) (2026-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **usage:** free_no_credit and free_hold_expired are deprecated and will disappear. The API no longer counts either reason, so both are always 0 and both fields will be removed from the response. They are optional from this version, so code that reads them has to handle them being absent. The counts they used to carry are in free_other.
+
+### Features
+
+* **usage:** add free_other and retire two free counts ([c492ef4](https://github.com/Checkslip/sdk-js/commit/c492ef4f018c335c8c8c806a8d43b02cd88659a0))
+
+
+### Bug Fixes
+
+* **ci:** publish through the release workflow, never directly ([e920310](https://github.com/Checkslip/sdk-js/commit/e920310b2f4d67a26f220017937bdeb8d7d8c972))
+* **ci:** stop the publish job waiting for itself ([d54996f](https://github.com/Checkslip/sdk-js/commit/d54996f2c0cb5107e0e1709db215626a95a31540))
+
 ## [0.1.1](https://github.com/Checkslip/sdk-js/compare/v0.1.0...v0.1.1) (2026-11-09)
 
 
