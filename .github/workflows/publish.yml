@@ -1,11 +1,23 @@
 name: Publish
 
-# Runs when a GitHub Release appears, which release-please creates by merging
-# its release pull request. Publishing is deliberately dull: prove CI passed on
-# this exact commit, refuse a version npm already has, then publish without a
-# token and attach the tarball that was published.
+# Called by release-please.yml once it has cut a release, and usable on its own
+# if a release is ever published by hand.
+#
+# A release created with GITHUB_TOKEN does not trigger `on: release`, which is
+# GitHub's guard against workflows setting each other off. So the release job
+# calls this one directly rather than relying on the event.
+#
+# Publishing is deliberately dull: prove CI passed on this exact commit, skip a
+# version the registry already has, then publish without a token and attach the
+# tarball.
 
 on:
+  workflow_call:
+    inputs:
+      tag:
+        description: The tag to publish, for example v0.1.0.
+        required: true
+        type: string
   release:
     types: [published]
 
@@ -23,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.tag || github.event.release.tag_name }}
           persist-credentials: false
 
       - name: CI passed on this commit
@@ -59,19 +71,26 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - name: Tag matches package.json
+        env:
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
         run: |
           version="$(bun --print "require('./package.json').version")"
-          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
-            echo "::error::tag ${GITHUB_REF_NAME} does not match package.json ${version}"
+          if [ "v${version}" != "${TAG}" ]; then
+            echo "::error::tag ${TAG} does not match package.json ${version}"
             exit 1
           fi
 
-      - name: Version is not on npm yet
+      # Publishing twice is not an error worth failing a release over: 0.1.0
+      # went out by hand, and a re-run of this job should be harmless.
+      - name: Is this version already on npm?
+        id: published
         run: |
           version="$(bun --print "require('./package.json').version")"
           if npm view "@checkslip/sdk@${version}" version >/dev/null 2>&1; then
-            echo "::error::@checkslip/sdk@${version} is already published"
-            exit 1
+            echo "::notice::@checkslip/sdk@${version} is already on npm; skipping the publish"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
       - run: bun run generate:check
@@ -84,11 +103,13 @@ jobs:
       # No token: npm exchanges the GitHub OIDC token for publish rights, and
       # generates provenance by itself. NODE_AUTH_TOKEN must stay unset — a
       # stale one makes this fail with a misleading "token expired" error.
-      - run: npm publish --access public
+      - if: steps.published.outputs.skip != 'true'
+        run: npm publish --access public
 
       - name: Attach the published tarball to the release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
         run: |
           tarball="$(npm pack --silent)"
-          gh release upload "${GITHUB_REF_NAME}" "$tarball" --clobber
+          gh release upload "${TAG}" "$tarball" --clobber
