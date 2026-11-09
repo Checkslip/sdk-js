@@ -5,6 +5,15 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.1.1](https://github.com/Checkslip/sdk-js/compare/v0.1.0...v0.1.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **ci:** bump the version constant and stop CI cancelling itself ([503c8ce](https://github.com/Checkslip/sdk-js/commit/503c8ce78477d837d35a958155e60977ed9e6b22))
+* **ci:** call publish from the release job ([7c6817e](https://github.com/Checkslip/sdk-js/commit/7c6817e10f5caa34040be75bc4adee54dd51acda))
+* **ci:** check the release pull request before it is merged ([29f45e6](https://github.com/Checkslip/sdk-js/commit/29f45e6bb46bafc7d3adf3834d74be9ed8f64135))
+
 ## 0.1.0 (2026-11-09)
 
 
