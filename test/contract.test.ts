@@ -80,7 +80,13 @@ describe("tolerating fields the SDK does not model", () => {
 
 describe("202 is success, not an error", () => {
   it("resolves a lookup that answers 202 PENDING", async () => {
-    const pending = { ...FOUND, outcome: "PENDING", slip: null };
+    // The contract requires slip and does not make it nullable, so a pending
+    // answer carries the summary form rather than null.
+    const pending = {
+      ...FOUND,
+      outcome: "PENDING",
+      slip: { trans_ref: "630210534087", sender_bank: FOUND.slip.sender.bank },
+    };
     const { checkslip } = client([json(pending, 202)]);
     const check = await checkslip.slips.lookup({ qr: QR });
     expect(check.outcome).toBe("PENDING");
