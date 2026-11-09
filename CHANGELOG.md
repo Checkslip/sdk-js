@@ -5,6 +5,17 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.3.0](https://github.com/Checkslip/sdk-js/compare/v0.2.1...v0.3.0) (2026-11-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **audit:** the four request filters are typed as arrays instead of single values. A call that passed one value now passes an array of one.
+
+### Features
+
+* **audit:** take several values per request filter ([d5bebb3](https://github.com/Checkslip/sdk-js/commit/d5bebb3c292697fd31f07149605e5ff333ab4af5))
+
 ## [0.2.1](https://github.com/Checkslip/sdk-js/compare/v0.2.0...v0.2.1) (2026-11-09)
 
 
