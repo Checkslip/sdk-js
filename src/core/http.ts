@@ -4,6 +4,13 @@ import { VERSION } from "../version.js";
 import { type CheckslipError, ConnectionError, errorClassForStatus, RateLimitError } from "./errors.js";
 import { isBrowser, randomUUID, sleep } from "./runtime.js";
 
+/**
+ * A `fetch`-shaped function. Deliberately structural: a runtime's own `fetch`
+ * type carries extras (Bun's has `preconnect`, for example), and a caller
+ * passing a plain function should not have to satisfy those.
+ */
+export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
+
 /** Per-call options accepted as the last argument of every SDK method. */
 export interface RequestOptions {
   /**
@@ -28,7 +35,7 @@ export interface HttpClientConfig {
   baseUrl: string;
   timeoutMs: number;
   maxRetries: number;
-  fetch: typeof fetch;
+  fetch: FetchLike;
   defaultHeaders: Record<string, string>;
 }
 

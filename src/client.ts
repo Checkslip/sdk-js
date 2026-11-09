@@ -1,5 +1,5 @@
 import { CheckslipError } from "./core/errors.js";
-import { HttpClient } from "./core/http.js";
+import { type FetchLike, HttpClient } from "./core/http.js";
 import { isBrowser, readEnv } from "./core/runtime.js";
 import { Audit } from "./resources/audit.js";
 import { Banks } from "./resources/banks.js";
@@ -29,7 +29,7 @@ export interface ClientOptions {
   /** Retries after the first attempt, for errors that are safe to retry. Default 2. Set 0 to turn retries off. */
   maxRetries?: number;
   /** A `fetch` implementation. Defaults to the global `fetch`. */
-  fetch?: typeof fetch;
+  fetch?: FetchLike;
   /** Headers sent with every request. */
   defaultHeaders?: Record<string, string>;
   /**
@@ -80,7 +80,7 @@ export class Checkslip {
           "Call Checkslip from your server, or pass dangerouslyAllowBrowser: true if you accept that risk.",
       );
     }
-    const fetchImpl = options.fetch ?? (globalThis.fetch as typeof fetch | undefined);
+    const fetchImpl = options.fetch ?? (globalThis.fetch as FetchLike | undefined);
     if (typeof fetchImpl !== "function") {
       throw new CheckslipError("No fetch implementation found. Pass one as the fetch option.");
     }

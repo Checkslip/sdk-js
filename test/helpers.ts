@@ -1,4 +1,4 @@
-import { Checkslip, type ClientOptions } from "../src/index.js";
+import { Checkslip, type ClientOptions, type FetchLike } from "../src/index.js";
 
 /** One request the mocked fetch received. */
 export interface RecordedCall {
@@ -27,7 +27,7 @@ export function mockFetch(...replies: Reply[]) {
     if (typeof reply === "function") return reply(call);
     return reply;
   };
-  return { fetch: fetch as typeof globalThis.fetch, calls };
+  return { fetch: fetch as unknown as FetchLike, calls };
 }
 
 /** A JSON response. */

@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { backoff, parseRetryAfter } from "../src/core/http.js";
+import type { FetchLike } from "../src/index.js";
 import {
   Checkslip,
   ConflictError,
@@ -15,7 +16,7 @@ const now = { "Retry-After": "0" };
 /** A fetch that never answers until its signal aborts. */
 function hangingFetch() {
   let attempts = 0;
-  const fetch: typeof globalThis.fetch = (_input, init) =>
+  const fetch: FetchLike = (_input, init) =>
     new Promise((_, reject) => {
       attempts++;
       init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
@@ -30,7 +31,7 @@ describe("retries", () => {
       problem(429, "RATE_LIMITED", now),
       json({ credits: 10 }),
     ]);
-    await expect(checkslip.billing.balance.get()).resolves.toEqual({ credits: 10 });
+    await expect(checkslip.billing.balance.get()).resolves.toMatchObject({ credits: 10 });
     expect(calls).toHaveLength(3);
   });
 

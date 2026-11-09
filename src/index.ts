@@ -23,7 +23,7 @@ export {
   UnprocessableEntityError,
   WebhookVerificationError,
 } from "./core/errors.js";
-export { MAX_RETRY_AFTER_SECONDS, type RequestOptions } from "./core/http.js";
+export { type FetchLike, MAX_RETRY_AFTER_SECONDS, type RequestOptions } from "./core/http.js";
 export { type CursorPageBody, Page, PagePromise } from "./core/pagination.js";
 export type { ApiRequests, Audit, AuditEvents, EvidenceExports } from "./resources/audit.js";
 export type { Banks } from "./resources/banks.js";
