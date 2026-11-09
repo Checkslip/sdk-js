@@ -995,10 +995,10 @@
       "get": {
         "operationId": "listApiRequests",
         "summary": "List API requests",
-        "description": "Requests this account sent, by API key and in the web app, newest first. Each row has its request_id, route, http_status, outcome_code and the api_key_id used. Pass trans_ref or qr_sha256 to see whether a slip was sent before. Defaults to the last 24 hours; at most 31 days per call. Use next_cursor for the next page; there is no total. Uses no credit. Needs an API key with audit:read, or the web app sign-in. Records hold no names, phone numbers, emails or full account numbers. The caller IP is kept as a network range (/24 or /48) with a keyed hash of the full address, used only to match requests from the same machine; each row shows the range (client_ip_prefix) and the hash (client_ip_hmac), never the full address.",
+        "description": "Requests this account sent, by API key and in the web app, newest first. Each row has its request_id, route, http_status, outcome_code and the api_key_id used. Pass trans_ref or qr_sha256 to see whether a slip was sent before. Defaults to the last 24 hours; at most 31 days per call. Use next_cursor for the next page; there is no total. Uses no credit. Needs an API key with audit:read, or the web app sign-in. Records hold no names, phone numbers, emails or full account numbers. The caller IP is kept as a network range (/24 or /48) and a keyed hash of the full address, which lets you match requests from the same machine. Each row shows both (client_ip_prefix, client_ip_hmac); the full address is not stored.",
         "x-checkslip-th": {
           "summary": "ดูบันทึกคำขอ API",
-          "description": "แสดงคำขอที่บัญชีนี้ส่งเข้ามาทั้งผ่าน API key และเว็บแอป ใหม่สุดก่อน · แต่ละรายการมี request_id, route, http_status, outcome_code และ api_key_id ที่ใช้ · ส่ง trans_ref หรือ qr_sha256 เพื่อดูว่าเคยส่งสลิปใบนั้นมาแล้วหรือยัง · ค่าเริ่มต้นคือ 24 ชั่วโมงล่าสุด ดูได้ครั้งละไม่เกิน 31 วัน ใช้ next_cursor เพื่อดูหน้าถัดไป ไม่มียอดรวม · ไม่หักเครดิต · ใช้ API key ที่มีสิทธิ์ audit:read หรือเข้าสู่ระบบบนเว็บแอป · บันทึกไม่เก็บชื่อ เบอร์ อีเมล หรือเลขบัญชีแบบเต็ม · IP ของผู้เรียกเก็บเป็นช่วงเครือข่าย (/24 หรือ /48) พร้อมค่าแฮชมีกุญแจของ IP เต็มสำหรับจับคู่คำขอจากเครื่องเดียวกัน แต่ละรายการแสดงช่วงเครือข่าย (client_ip_prefix) และค่าแฮช (client_ip_hmac) ไม่แสดง IP เต็ม"
+          "description": "แสดงคำขอที่บัญชีนี้ส่งเข้ามาทั้งผ่าน API key และเว็บแอป ใหม่สุดก่อน · แต่ละรายการมี request_id, route, http_status, outcome_code และ api_key_id ที่ใช้ · ส่ง trans_ref หรือ qr_sha256 เพื่อดูว่าเคยส่งสลิปใบนั้นมาแล้วหรือยัง · ค่าเริ่มต้นคือ 24 ชั่วโมงล่าสุด ดูได้ครั้งละไม่เกิน 31 วัน ใช้ next_cursor เพื่อดูหน้าถัดไป ไม่มียอดรวม · ไม่หักเครดิต · ใช้ API key ที่มีสิทธิ์ audit:read หรือเข้าสู่ระบบบนเว็บแอป · บันทึกไม่เก็บชื่อ เบอร์ อีเมล หรือเลขบัญชีแบบเต็ม · IP ของผู้เรียกเก็บเป็นช่วงเครือข่าย (/24 หรือ /48) กับค่าแฮชมีกุญแจของ IP เต็ม ใช้จับคู่คำขอจากเครื่องเดียวกันได้ · แต่ละรายการแสดงทั้งสองค่า (client_ip_prefix, client_ip_hmac) · ไม่เก็บ IP เต็ม"
         },
         "x-docs": "https://checkslip.com/en/docs/list-api-requests",
         "tags": [
@@ -1216,7 +1216,7 @@
         "description": "One request of this account by request_id (the same value as the X-Request-Id header of its response). An unknown request_id and another account's request_id both answer 404 (we do not reveal whether it exists). Uses no credit. Needs an API key with audit:read, or the web app sign-in.",
         "x-checkslip-th": {
           "summary": "ดูบันทึกคำขอ API หนึ่งรายการ",
-          "description": "แสดงคำขอหนึ่งรายการของบัญชีนี้ตาม request_id (ค่าเดียวกับ header X-Request-Id ที่ได้ในคำตอบ) · request_id ที่ไม่มีอยู่ และ request_id ของบัญชีอื่น ตอบ 404 เหมือนกัน (ไม่บอกว่ามีอยู่จริงหรือไม่) · ไม่หักเครดิต · ใช้ API key ที่มีสิทธิ์ audit:read หรือเข้าสู่ระบบบนเว็บแอป"
+          "description": "แสดงคำขอหนึ่งรายการของบัญชีนี้ตาม request_id (ค่าเดียวกับ header X-Request-Id ที่ได้ในคำตอบ) · request_id ที่ไม่มีอยู่ และ request_id ของบัญชีอื่น ตอบ 404 เหมือนกัน (ไม่บอกว่ารายการนั้นมีอยู่หรือไม่) · ไม่หักเครดิต · ใช้ API key ที่มีสิทธิ์ audit:read หรือเข้าสู่ระบบบนเว็บแอป"
         },
         "x-docs": "https://checkslip.com/en/docs/get-api-request",
         "tags": [
@@ -1409,7 +1409,7 @@
       "get": {
         "operationId": "getBalance",
         "summary": "Get credit balance",
-        "description": "Returns the account's remaining credits, their expiry date, and whether they are running low (low and threshold). The low-credit threshold follows your account's own usage; show it as is rather than computing your own. Needs an API key with credit:read or billing:read.",
+        "description": "Returns the account's remaining credits, their expiry date, and whether they are running low (low and threshold). The low-credit threshold follows your account's own usage; show it as is; do not compute your own. Needs an API key with credit:read or billing:read.",
         "x-checkslip-th": {
           "summary": "ดูเครดิตคงเหลือ",
           "description": "แสดงเครดิตคงเหลือของบัญชี วันหมดอายุ และบอกว่าเครดิตใกล้หมดหรือยัง (low กับ threshold) เกณฑ์ใกล้หมดคิดจากการใช้งานจริงของบัญชีคุณ ใช้ค่านี้แสดงคำเตือนได้เลย ไม่ต้องคำนวณเอง ใช้ API key ที่มีสิทธิ์ credit:read หรือ billing:read"
@@ -1641,10 +1641,10 @@
       "put": {
         "operationId": "putBillingInfo",
         "summary": "Update buyer details for receipts",
-        "description": "Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits. Needs an API key with billing:write.",
+        "description": "Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits with a valid check digit. Needs an API key with billing:write.",
         "x-checkslip-th": {
           "summary": "แก้ไขข้อมูลผู้ซื้อสำหรับใบเสร็จ",
-          "description": "บันทึกข้อมูลผู้ซื้อที่จะพิมพ์บนใบเสร็จรับเงินฉบับต่อไป ใบเสร็จที่ออกไปแล้วไม่เปลี่ยน เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลัก ใช้ API key ที่มีสิทธิ์ billing:write"
+          "description": "บันทึกข้อมูลผู้ซื้อที่จะพิมพ์บนใบเสร็จรับเงินฉบับต่อไป ใบเสร็จที่ออกไปแล้วไม่เปลี่ยน เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลักที่หลักสุดท้ายถูกต้อง ใช้ API key ที่มีสิทธิ์ billing:write"
         },
         "x-docs": "https://checkslip.com/en/docs/put-billing-info",
         "tags": [
@@ -2315,7 +2315,7 @@
         "description": "Asks Stripe for the payment result now instead of waiting for its notice. If it is paid, the credits arrive then; if the payment page is closed but the money has not arrived, the order shows as confirming. Asking again within a few seconds returns the same result. Needs an API key with billing:read.",
         "x-checkslip-th": {
           "summary": "ถามผลการชำระเงินล่าสุดของคำสั่งซื้อ",
-          "description": "ถามผลการชำระเงินจาก Stripe ทันที แทนการรอการแจ้งผล ถ้าชำระแล้วเครดิตเข้าบัญชีตอนนั้น ถ้าปิดหน้าชำระเงินแล้วแต่เงินยังไม่เข้า คำสั่งซื้อจะอยู่ในสถานะกำลังยืนยันการชำระเงิน · ถามซ้ำในไม่กี่วินาทีได้ผลเดิม ใช้ API key ที่มีสิทธิ์ billing:read"
+          "description": "ถามผลการชำระเงินจาก Stripe ทันที แทนการรอการแจ้งผล ถ้าชำระแล้วเครดิตเข้าบัญชีตอนนั้น ถ้าปิดหน้าชำระเงินแล้วแต่เงินยังไม่เข้า คำสั่งซื้อจะอยู่ในสถานะกำลังยืนยันการชำระเงิน ถามซ้ำในไม่กี่วินาทีได้ผลเดิม ใช้ API key ที่มีสิทธิ์ billing:read"
         },
         "x-docs": "https://checkslip.com/en/docs/sync-order",
         "tags": [
@@ -4135,10 +4135,10 @@
       "post": {
         "operationId": "lookupSlip",
         "summary": "Look up a transfer with the bank",
-        "description": "Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup. The checked_elsewhere field is true when another Checkslip account has already looked up this transfer reference. True or false only: never which account, how many times, or when. Never read it as \"this slip was used\": we only know it was asked about, not that the money was accepted, and it changes neither the outcome nor the credit.",
+        "description": "Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.",
         "x-checkslip-th": {
           "summary": "ตรวจสอบรายการโอนกับธนาคาร",
-          "description": "ส่งข้อความ QR ที่อ่านได้จากสลิป หรือส่งรูปสลิป แล้วเราไปขอข้อมูลรายการโอนที่ธนาคารผู้โอนมีอยู่ และส่งข้อมูลนั้นกลับไป · เราส่งข้อมูลที่ธนาคารมีให้ ไม่ได้ตัดสินแทนคุณว่าจะรับเงินหรือไม่ คุณเอาข้อมูลไปเทียบกับออเดอร์ของคุณเอง · ผลอยู่ในฟิลด์ outcome เช่น FOUND (ธนาคารคืนข้อมูลรายการมา), NOT_FOUND (ธนาคารไม่มีรายการตามเลขนี้), DUPLICATE (บัญชีนี้เคยดึงรายการนี้แล้ว), PENDING (ธนาคารยังไม่ขึ้นรายการ ระบบลองใหม่ให้) · หัก 1 เครดิตเฉพาะเมื่อ outcome เป็น FOUND ผลอื่นไม่หักเครดิต · ไม่เก็บรูปสลิป เก็บเฉพาะข้อความใน QR · รูปไม่เกิน 10 MB และ 50 ล้านพิกเซล รับเฉพาะ JPEG, PNG และ WebP (HEIC, GIF และ PDF ได้ 422 invalid-file ไม่หักเครดิต) · ส่ง header Idempotency-Key ทุกครั้ง ส่งซ้ำด้วยค่าเดิมได้ผลเดิม และไม่หักเครดิตซ้ำ · ใช้ API key ที่มีสิทธิ์ slip:lookup · ฟิลด์ checked_elsewhere เป็น true เมื่อมีบัญชี Checkslip อื่นเคยตรวจเลขอ้างอิงรายการนี้มาก่อน บอกแค่ใช่หรือไม่ ไม่บอกว่าบัญชีไหน กี่ครั้ง หรือเมื่อไร · ห้ามอ่านว่าสลิปนี้ถูกใช้ไปแล้ว เพราะเรารู้แค่ว่ามีคนถาม ไม่รู้ว่ามีการรับเงินจริง และค่านี้ไม่เปลี่ยนผลและไม่เปลี่ยนการหักเครดิต"
+          "description": "ส่งข้อความ QR ที่อ่านได้จากสลิป หรือส่งรูปสลิป แล้วเราไปขอข้อมูลรายการโอนที่ธนาคารผู้โอนมีอยู่ และส่งข้อมูลนั้นกลับไป · เราส่งข้อมูลที่ธนาคารมีให้ ไม่ได้ตัดสินแทนคุณว่าจะรับเงินหรือไม่ คุณเอาข้อมูลไปเทียบกับออเดอร์ของคุณเอง · ผลอยู่ในฟิลด์ outcome เช่น FOUND (ธนาคารคืนข้อมูลรายการมา), NOT_FOUND (ธนาคารไม่มีรายการตามเลขนี้), DUPLICATE (บัญชีนี้เคยดึงรายการนี้แล้ว), PENDING (ธนาคารยังไม่ขึ้นรายการ ระบบลองใหม่ให้) · หัก 1 เครดิตเฉพาะเมื่อ outcome เป็น FOUND ผลอื่นไม่หักเครดิต · ไม่เก็บรูปสลิป เก็บเฉพาะข้อความใน QR · รูปไม่เกิน 10 MB และ 50 ล้านพิกเซล รับเฉพาะ JPEG, PNG และ WebP (HEIC, GIF และ PDF ได้ 422 invalid-file ไม่หักเครดิต) · ส่ง header Idempotency-Key ทุกครั้ง ส่งซ้ำด้วยค่าเดิมได้ผลเดิม และไม่หักเครดิตซ้ำ · ใช้ API key ที่มีสิทธิ์ slip:lookup"
         },
         "x-docs": "https://checkslip.com/en/docs/lookup-slip",
         "tags": [
@@ -4740,10 +4740,10 @@
       "get": {
         "operationId": "getUsage",
         "summary": "Get credit usage",
-        "description": "Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read.",
+        "description": "Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read. free_no_credit and free_hold_expired are retired: always 0, and those lookups now count in free_other.",
         "x-checkslip-th": {
           "summary": "ดูยอดการใช้เครดิต",
-          "description": "แสดงจำนวนครั้งที่ตรวจ จำนวนครั้งที่หักเครดิต และจำนวนครั้งที่ไม่หัก แยกเป็นช่องตามเหตุผล เช่น free_not_found หรือ free_too_old เป็นรายวันหรือรายเดือนตามเวลาประเทศไทย (interval=DAY หรือ MONTH) วันหรือเดือนที่ไม่มีการตรวจจะแสดงเป็นศูนย์ ไม่ถูกข้าม รายวันดูได้ครั้งละไม่เกิน 92 วัน รายเดือนไม่เกิน 24 เดือน ยอดนับตามวันที่คิดเครดิตเสร็จ (settled_at) ไม่ใช่วันที่ส่งตรวจ ปกติห่างกันไม่กี่วินาที การตรวจใกล้เที่ยงคืนจึงอาจไปนับวันถัดไป ยอดช้ากว่าเวลาจริงประมาณ 1 นาที (ดูเวลาของยอดที่ as_of) ถ้าต้องการผลทีละรายการที่ตรงทันทีให้ดูประวัติการตรวจ (ต้องมีสิทธิ์ slip:read) เรียกดูยอดไม่หักเครดิต ใช้ API key ที่มีสิทธิ์ usage:read"
+          "description": "แสดงจำนวนครั้งที่ตรวจ จำนวนครั้งที่หักเครดิต และจำนวนครั้งที่ไม่หัก แยกเป็นช่องตามเหตุผล เช่น free_not_found หรือ free_too_old เป็นรายวันหรือรายเดือนตามเวลาประเทศไทย (interval=DAY หรือ MONTH) วันหรือเดือนที่ไม่มีการตรวจจะแสดงเป็นศูนย์ ไม่ถูกข้าม รายวันดูได้ครั้งละไม่เกิน 92 วัน รายเดือนไม่เกิน 24 เดือน ยอดนับตามวันที่คิดเครดิตเสร็จ (settled_at) ไม่ใช่วันที่ส่งตรวจ ปกติห่างกันไม่กี่วินาที การตรวจใกล้เที่ยงคืนจึงอาจไปนับวันถัดไป ยอดช้ากว่าเวลาจริงประมาณ 1 นาที (ดูเวลาของยอดที่ as_of) ถ้าต้องการผลทีละรายการที่ตรงทันทีให้ดูประวัติการตรวจ (ต้องมีสิทธิ์ slip:read) เรียกดูยอดไม่หักเครดิต ใช้ API key ที่มีสิทธิ์ usage:read · free_no_credit กับ free_hold_expired เลิกใช้แล้ว ค่าเป็น 0 เสมอ จำนวนนั้นนับรวมใน free_other"
         },
         "x-docs": "https://checkslip.com/en/docs/get-usage",
         "tags": [
@@ -4965,7 +4965,8 @@
                                 "TOO_OLD",
                                 "NO_CREDIT",
                                 "HOLD_EXPIRED",
-                                "SYSTEM_ERROR"
+                                "SYSTEM_ERROR",
+                                "OTHER"
                               ]
                             },
                             {
@@ -7251,9 +7252,6 @@
           }
         }
       },
-      "CheckedElsewhere": {
-        "type": "boolean"
-      },
       "CheckOutcome": {
         "type": "string",
         "enum": [
@@ -7892,9 +7890,6 @@
           "checked_at",
           "channel",
           "api_key_id",
-          "latency_ms",
-          "upstream_ms",
-          "checked_elsewhere",
           "client_reference",
           "duplicate_of.request_id",
           "charge_confirmed",
@@ -8112,7 +8107,8 @@
           "TOO_OLD",
           "NO_CREDIT",
           "HOLD_EXPIRED",
-          "SYSTEM_ERROR"
+          "SYSTEM_ERROR",
+          "OTHER"
         ]
       },
       "MessageEnvelope": {
@@ -8895,20 +8891,6 @@
             "type": "string",
             "format": "date-time"
           },
-          "latency_ms": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "upstream_ms": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "minimum": 0
-          },
-          "checked_elsewhere": {
-            "$ref": "#/components/schemas/CheckedElsewhere"
-          },
           "slip": {
             "oneOf": [
               {
@@ -9044,20 +9026,6 @@
           "checked_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "latency_ms": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "upstream_ms": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "minimum": 0
-          },
-          "checked_elsewhere": {
-            "$ref": "#/components/schemas/CheckedElsewhere"
           },
           "api_key_id": {
             "type": [
@@ -9515,9 +9483,10 @@
           "free_invalid_file",
           "free_qr_tampered",
           "free_too_old",
+          "free_system_error",
+          "free_other",
           "free_no_credit",
-          "free_hold_expired",
-          "free_system_error"
+          "free_hold_expired"
         ],
         "properties": {
           "checks": {
@@ -9556,17 +9525,25 @@
             "type": "integer",
             "minimum": 0
           },
-          "free_no_credit": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "free_hold_expired": {
-            "type": "integer",
-            "minimum": 0
-          },
           "free_system_error": {
             "type": "integer",
             "minimum": 0
+          },
+          "free_other": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "free_no_credit": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 0,
+            "deprecated": true
+          },
+          "free_hold_expired": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 0,
+            "deprecated": true
           }
         }
       },

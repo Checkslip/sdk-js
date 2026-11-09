@@ -50,49 +50,48 @@ const WITHDRAWN_FIELDS = new Set([
   "source_domain",
   "redactions",
   "causation_id",
+  "upstream_ms",
 ]);
 
+// Two of the fields withdrawn with upstream_ms cannot be audited by name:
+// APIRequestRecord.latency_ms is contractual and stays, and the webhook
+// payload still declares checked_elsewhere (see PENDING_REMOVAL). Listing
+// either here would stop generation on a field the API is entitled to send.
+
 /**
- * These three are being withdrawn from the Checkslip API. Until the published
- * document stops listing them, the SDK removes them here, so a caller never
- * builds on a field that is about to disappear. Delete this block, the call
- * below and the matching test once the document no longer lists them.
+ * The published document has dropped latency_ms, upstream_ms and
+ * checked_elsewhere from the lookup types and from the export columns, so
+ * nothing is hidden there any more.
+ *
+ * What is left is the webhook payload, which still declares
+ * checked_elsewhere. The Go, PHP and Rust clients do not carry it either, so
+ * the four stay in step. Delete this block and the matching test once the
+ * document drops it from SlipCheckedData too.
  */
 const PENDING_REMOVAL = {
   schemas: {
-    SlipCheck: ["latency_ms", "upstream_ms", "checked_elsewhere"],
-    SlipCheckRecord: ["latency_ms", "upstream_ms", "checked_elsewhere"],
-    // The spec already marks this one deprecated, and the Go and PHP clients
-    // do not carry it either.
     SlipCheckedData: ["checked_elsewhere"],
   },
-  enums: { ExportColumn: ["latency_ms", "upstream_ms", "checked_elsewhere"] },
+  enums: {},
 };
 
 /**
- * The API serves these fields; the published document lists them in a later
- * release. The SDK types them now so callers can use them, and generation
- * drops this block once the document has them: it stops with an error naming
- * the field, so the block and its test get deleted instead of rotting.
+ * free_other and OTHER now come from the published document, so the SDK no
+ * longer adds them.
  *
- * free_no_credit and free_hold_expired stay in the types but stop being
- * required. The API no longer counts them and drops both fields later, so
- * code that reads them has to handle them being absent.
+ * free_no_credit and free_hold_expired are a different matter: the document
+ * still lists both as required, marked deprecated with maximum 0, and drops
+ * them in a later release. Generating them as required would promise a
+ * reader two fields that are about to disappear, so they stay optional here.
+ * Delete this block once the document stops listing them.
  */
 const PENDING_ADDITION = {
   schemas: {
     UsageCounts: {
-      add: {
-        free_other: {
-          type: "integer",
-          minimum: 0,
-          description: "Lookups that were not charged with no reason given.",
-        },
-      },
       optional: ["free_no_credit", "free_hold_expired"],
     },
   },
-  enums: { FreeReason: ["OTHER"] },
+  enums: {},
 };
 
 function applyPendingAddition(doc) {
@@ -121,14 +120,6 @@ function applyPendingAddition(doc) {
 }
 
 function applyPendingRemoval(doc) {
-  // The lookup description ends with a paragraph about checked_elsewhere.
-  // Hiding the field while documenting it would only confuse a reader.
-  const lookup = doc.paths?.["/api/slips/lookup"]?.post;
-  if (typeof lookup?.description === "string") {
-    const cut = lookup.description.indexOf(" The checked_elsewhere field");
-    if (cut !== -1) lookup.description = lookup.description.slice(0, cut);
-  }
-
   for (const [name, fields] of Object.entries(PENDING_REMOVAL.schemas)) {
     const schema = doc.components?.schemas?.[name];
     if (!schema?.properties) throw new Error(`PENDING_REMOVAL names ${name}, which the spec no longer has`);
