@@ -95,8 +95,10 @@ export type CreditEntry = Schemas["CreditEntry"];
 /**
  * Why a lookup used no credit.
  *
- * `OTHER` means it was not charged and no reason was given. The API no longer
- * sends `NO_CREDIT` or `HOLD_EXPIRED`: both arrive as `OTHER`.
+ * `OTHER` means it was not charged and no reason was given. A customer
+ * receives NOT_FOUND, DUPLICATE, UNAVAILABLE, INVALID_QR, INVALID_FILE, QR_TAMPERED, TOO_OLD, SYSTEM_ERROR and OTHER. The
+ * other values in this union exist inside the API and do not reach you, so
+ * `NO_CREDIT`, `HOLD_EXPIRED` and `PENDING` need no handling of their own.
  */
 export type FreeReason = Schemas["FreeReason"];
 /** Filters for `billing.ledger.list()`. */
