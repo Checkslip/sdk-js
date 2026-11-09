@@ -994,7 +994,7 @@ export interface components {
              *       "AUDIT_EVENTS"
              *     ]
              */
-            streams: components["schemas"]["Stream"][];
+            streams?: components["schemas"]["Stream"][];
             /** Format: date */
             to_day: string;
         };

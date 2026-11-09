@@ -62,7 +62,7 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.18.2",
+    "@arethetypeswrong/cli": "0.18.5",
     "@biomejs/biome": "2.6.3",
     "@types/node": "18.19.130",
     "openapi-typescript": "7.13.0",

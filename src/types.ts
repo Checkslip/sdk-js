@@ -146,13 +146,22 @@ export type WebhookDeliveryDetail = Schemas["DeliveryDetail"];
 export type WebhookDeliveryAttempt = Schemas["DeliveryAttempt"];
 /** Filters for `webhooks.deliveries.list()`. */
 export type WebhookDeliveryListParams = QueryOf<"listDeliveries">;
+/** Data of a `slip.checked` message. */
+export type SlipCheckedData = Schemas["SlipCheckedData"];
 /** The `slip.checked` message sent when a lookup finishes. */
-export type SlipCheckedEvent = Schemas["SlipCheckedMessage"] & {
+export interface SlipCheckedEvent {
   type: "slip.checked";
-  data: Schemas["SlipCheckedData"];
-};
+  /** When Checkslip created the message. */
+  timestamp: string;
+  data: SlipCheckedData;
+}
 /** The `webhook.test` message sent by `webhooks.endpoints.sendTest()`. */
-export type WebhookTestEvent = Schemas["TestMessage"] & { type: "webhook.test" };
+export interface WebhookTestEvent {
+  type: "webhook.test";
+  /** When Checkslip created the message. */
+  timestamp: string;
+  data: { endpoint_id: Schemas["EndpointId"] };
+}
 /** Any message Checkslip sends to a webhook endpoint. */
 export type WebhookEvent = SlipCheckedEvent | WebhookTestEvent;
 
