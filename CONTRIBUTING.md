@@ -5,7 +5,7 @@ https://github.com/Checkslip/sdk-js.
 
 ## Setup
 
-You need Node.js 20 or later for the tooling (the package itself supports Node 18). Bun is optional.
+You need Node.js 22 or later. Bun is optional, and the test suite runs on both.
 
 ```sh
 npm ci

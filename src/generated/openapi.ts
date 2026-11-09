@@ -482,7 +482,7 @@ export interface paths {
         put?: never;
         /**
          * Look up a transfer with the bank
-         * @description Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup. The checked_elsewhere field is true when another Checkslip account has already looked up this transfer reference. True or false only: never which account, how many times, or when. Never read it as "this slip was used": we only know it was asked about, not that the money was accepted, and it changes neither the outcome nor the credit.
+         * @description Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.
          */
         post: operations["lookupSlip"];
         delete?: never;
@@ -993,7 +993,7 @@ export interface components {
             to_day: string;
         };
         /** @enum {string} */
-        ExportColumn: "request_id" | "outcome" | "status" | "checked_at" | "channel" | "api_key_id" | "latency_ms" | "upstream_ms" | "checked_elsewhere" | "client_reference" | "duplicate_of.request_id" | "charge_confirmed" | "charged" | "free_reason" | "slip.trans_ref" | "slip.transferred_at" | "slip.amount.satang" | "slip.amount.currency" | "slip.sender.bank.code" | "slip.sender.bank.bot_code" | "slip.sender.name_th" | "slip.sender.name_en" | "slip.sender.account" | "slip.receiver.bank.code" | "slip.receiver.bank.bot_code" | "slip.receiver.name_th" | "slip.receiver.name_en" | "slip.receiver.account";
+        ExportColumn: "request_id" | "outcome" | "status" | "checked_at" | "channel" | "api_key_id" | "client_reference" | "duplicate_of.request_id" | "charge_confirmed" | "charged" | "free_reason" | "slip.trans_ref" | "slip.transferred_at" | "slip.amount.satang" | "slip.amount.currency" | "slip.sender.bank.code" | "slip.sender.bank.bot_code" | "slip.sender.name_th" | "slip.sender.name_en" | "slip.sender.account" | "slip.receiver.bank.code" | "slip.receiver.bank.bot_code" | "slip.receiver.name_th" | "slip.receiver.name_en" | "slip.receiver.account";
         ExportCreator: {
             /** Format: uuid */
             id?: string | null;
@@ -1245,24 +1245,19 @@ export interface components {
         SlipCheck: {
             /** Format: date-time */
             checked_at: string;
-            checked_elsewhere?: components["schemas"]["CheckedElsewhere"];
             client_reference?: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
-            latency_ms?: number;
             /** @enum {string} */
             outcome: "FOUND" | "NOT_FOUND" | "DUPLICATE" | "PENDING";
             /** Format: uuid */
             request_id: string;
             slip: components["schemas"]["Slip"] | components["schemas"]["SlipSummary"];
-            upstream_ms?: number | null;
         };
         SlipCheckedData: {
             /** @enum {string} */
             channel: "API" | "DASHBOARD" | "ASSISTANT";
             /** Format: date-time */
             checked_at: string;
-            /** @deprecated */
-            checked_elsewhere?: boolean;
             client_reference: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
             outcome: components["schemas"]["CheckOutcome"];
@@ -1288,18 +1283,15 @@ export interface components {
             charged?: boolean | null;
             /** Format: date-time */
             checked_at: string;
-            checked_elsewhere?: components["schemas"]["CheckedElsewhere"];
             client_reference?: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
             free_reason?: string | null;
-            latency_ms?: number;
             outcome: components["schemas"]["CheckOutcome"];
             /** Format: uuid */
             request_id: string;
             slip?: components["schemas"]["Slip"] | components["schemas"]["SlipSummary"];
             /** @example 200 */
             status?: number;
-            upstream_ms?: number | null;
         };
         SlipCounts: {
             /** Format: date-time */

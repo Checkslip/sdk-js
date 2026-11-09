@@ -47,15 +47,22 @@ describe("generated types", () => {
     expect(true).toBe(true);
   });
 
-  it("keeps the fields the contract still documents", () => {
-    // latency_ms is required on ApiRequestRecord in the contract, so the SDK
-    // carries it. Reading these must type-check.
+  it("keeps latency_ms on ApiRequestRecord, which the contract requires", () => {
     const request = {} as ApiRequestRecord;
-    const check = {} as SlipCheck;
     const ms: number = request.latency_ms;
     void ms;
+    expect(true).toBe(true);
+  });
+
+  it("holds back the three fields verify 0.61.0 is removing", () => {
+    // TEMPORARY, remove with the deny-list in scripts/generate.mjs when
+    // verify 0.61.0 is live (checkslip/pm h-mw94dkac8a0, 9 Nov 2026).
+    const check = {} as SlipCheck;
+    // @ts-expect-error held back until verify 0.61.0 deploys
     void check.latency_ms;
+    // @ts-expect-error held back until verify 0.61.0 deploys
     void check.upstream_ms;
+    // @ts-expect-error held back until verify 0.61.0 deploys
     void check.checked_elsewhere;
     expect(true).toBe(true);
   });

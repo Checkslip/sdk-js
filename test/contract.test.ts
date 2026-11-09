@@ -70,7 +70,7 @@ describe("tolerating fields the SDK does not model", () => {
     expect(WITHDRAWN_FIELDS).toHaveLength(7);
   });
 
-  it("does carry latency_ms, which the contract requires", () => {
+  it("does carry latency_ms on a request record, which the contract requires", () => {
     const request = {} as ApiRequestRecord;
     const ms: number = request.latency_ms;
     void ms;

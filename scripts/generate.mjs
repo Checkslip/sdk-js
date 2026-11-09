@@ -52,6 +52,51 @@ const WITHDRAWN_FIELDS = new Set([
   "causation_id",
 ]);
 
+/**
+ * TEMPORARY, remove when verify 0.61.0 is live (checkslip/pm h-mw94dkac8a0,
+ * 9 Nov 2026). verify took these three out of the contract, but that has not
+ * reached main or deploy yet, so the public spec still lists them. They stay
+ * out of the SDK until pm sends the regenerated spec. Delete this block, the
+ * call below and the matching test when that happens.
+ */
+const PENDING_REMOVAL = {
+  schemas: {
+    SlipCheck: ["latency_ms", "upstream_ms", "checked_elsewhere"],
+    SlipCheckRecord: ["latency_ms", "upstream_ms", "checked_elsewhere"],
+    // The spec already marks this one deprecated, and the Go and PHP clients
+    // do not carry it either.
+    SlipCheckedData: ["checked_elsewhere"],
+  },
+  enums: { ExportColumn: ["latency_ms", "upstream_ms", "checked_elsewhere"] },
+};
+
+function applyPendingRemoval(doc) {
+  // The lookup description ends with a paragraph about checked_elsewhere.
+  // Hiding the field while documenting it would only confuse a reader.
+  const lookup = doc.paths?.["/api/slips/lookup"]?.post;
+  if (typeof lookup?.description === "string") {
+    const cut = lookup.description.indexOf(" The checked_elsewhere field");
+    if (cut !== -1) lookup.description = lookup.description.slice(0, cut);
+  }
+
+  for (const [name, fields] of Object.entries(PENDING_REMOVAL.schemas)) {
+    const schema = doc.components?.schemas?.[name];
+    if (!schema?.properties) throw new Error(`PENDING_REMOVAL names ${name}, which the spec no longer has`);
+    for (const field of fields) {
+      delete schema.properties[field];
+      if (Array.isArray(schema.required)) {
+        schema.required = schema.required.filter((r) => r !== field);
+      }
+    }
+  }
+  for (const [name, values] of Object.entries(PENDING_REMOVAL.enums)) {
+    const schema = doc.components?.schemas?.[name];
+    if (!Array.isArray(schema?.enum))
+      throw new Error(`PENDING_REMOVAL names the enum ${name}, which the spec no longer has`);
+    schema.enum = schema.enum.filter((v) => !values.includes(v));
+  }
+}
+
 const spec = JSON.parse(readFileSync(specPath, "utf8"));
 
 const reappeared = [];
@@ -75,6 +120,7 @@ function auditSpec(node, path) {
   }
   for (const [key, value] of Object.entries(node)) auditSpec(value, `${path}.${key}`);
 }
+applyPendingRemoval(spec);
 auditSpec(spec, "$");
 if (reappeared.length > 0) {
   throw new Error(`fields that left the customer API are back in the spec: ${reappeared.join(", ")}`);
