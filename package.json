@@ -15,10 +15,10 @@
   "homepage": "https://checkslip.com/docs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Checkslip/checkslip-js.git"
+    "url": "git+https://github.com/Checkslip/sdk-js.git"
   },
   "bugs": {
-    "url": "https://github.com/Checkslip/checkslip-js/issues"
+    "url": "https://github.com/Checkslip/sdk-js/issues"
   },
   "type": "module",
   "sideEffects": false,

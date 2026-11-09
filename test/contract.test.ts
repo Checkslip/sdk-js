@@ -116,12 +116,8 @@ describe("envelope unwrapping", () => {
     expect(banks[0]?.code).toBe("KKP");
   });
 
-  it("unwraps the latest checkpoints and the event types", async () => {
-    const { checkslip } = client([
-      json({ items: [{ day: "2026-11-08" }] }),
-      json({ items: [{ type: "slip.checked" }] }),
-    ]);
-    await expect(checkslip.audit.checkpoints.listLatest()).resolves.toHaveLength(1);
+  it("unwraps the event types", async () => {
+    const { checkslip } = client([json({ items: [{ type: "slip.checked" }] })]);
     await expect(checkslip.webhooks.eventTypes.list()).resolves.toHaveLength(1);
   });
 
@@ -144,8 +140,10 @@ describe("envelope unwrapping", () => {
 });
 
 describe("naming parity with docs/sdk-naming.md", () => {
-  // Every canonical resource.method, spelled the JavaScript way. 43 API
-  // operations + 10 listAll iterators + the local webhooks.verify = 54.
+  // Every canonical resource.method, spelled the JavaScript way. 39 API
+  // operations + 9 listAll iterators + the local webhooks.verify = 49.
+  // Audit checkpoints, chain checks and signing keys left the customer API on
+  // 9 Nov 2026, so they are not here.
   const CANONICAL = [
     "slips.lookup",
     "slips.get",
@@ -176,16 +174,11 @@ describe("naming parity with docs/sdk-naming.md", () => {
     "audit.requests.list",
     "audit.requests.listAll",
     "audit.requests.get",
-    "audit.checkpoints.list",
-    "audit.checkpoints.listAll",
-    "audit.checkpoints.listLatest",
-    "audit.chain.check",
     "audit.exports.list",
     "audit.exports.listAll",
     "audit.exports.create",
     "audit.exports.get",
     "audit.exports.download",
-    "audit.signingKeys.get",
     "webhooks.endpoints.list",
     "webhooks.endpoints.listAll",
     "webhooks.endpoints.create",
@@ -214,8 +207,8 @@ describe("naming parity with docs/sdk-naming.md", () => {
       );
   }
 
-  it("has 54 canonical names, one per table row plus the iterators", () => {
-    expect(new Set(CANONICAL).size).toBe(54);
+  it("has 49 canonical names, one per table row plus the iterators", () => {
+    expect(new Set(CANONICAL).size).toBe(49);
   });
 
   it.each(CANONICAL)("exposes %s", (path) => {

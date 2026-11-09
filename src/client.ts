@@ -61,7 +61,7 @@ export class Checkslip {
   readonly banks: Banks;
   /** Webhook endpoints, deliveries and signature checks. */
   readonly webhooks: Webhooks;
-  /** Audit log, request log, checkpoints and evidence exports. */
+  /** Audit log, request log and evidence exports. */
   readonly audit: Audit;
 
   /** The API address this client sends to. */
