@@ -26,7 +26,7 @@ import { Checkslip } from "npm:@checkslip/sdk";
 
 ## เริ่มใช้งาน
 
-สร้าง API key ในหน้า dashboard ของ Checkslip แล้วเก็บไว้ฝั่งเซิร์ฟเวอร์ ถ้าไม่ส่ง `apiKey` ไลบรารีจะอ่านจาก environment variable `CHECKSLIP_API_KEY`
+ออก API key ในหน้า dashboard ของ Checkslip แล้วเก็บไว้ฝั่งเซิร์ฟเวอร์ ถ้าไม่ส่ง `apiKey` ไลบรารีจะอ่านจาก environment variable `CHECKSLIP_API_KEY`
 
 ```ts
 import { Checkslip } from "@checkslip/sdk";
