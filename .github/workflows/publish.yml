@@ -100,9 +100,28 @@ jobs:
       - run: bun run test:dist
       - run: bun run check:package
 
-      # No token: npm exchanges the GitHub OIDC token for publish rights, and
-      # generates provenance by itself. NODE_AUTH_TOKEN must stay unset — a
-      # stale one makes this fail with a misleading "token expired" error.
+      # Trusted publishing is easy to get wrong in ways that produce a
+      # confusing error, so say out loud what the publish is about to use.
+      # Nothing secret is printed: only whether a variable is set.
+      - name: What will npm authenticate with?
+        run: |
+          npm --version
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "::warning::NODE_AUTH_TOKEN is set, which overrides OIDC. Trusted publishing wants it unset."
+          else
+            echo "NODE_AUTH_TOKEN is not set, so npm will use the OIDC token."
+          fi
+          if [ -f .npmrc ]; then
+            echo "repository .npmrc:"; sed -E 's/(_authToken=).*/\1<redacted>/' .npmrc
+          fi
+          if [ -f "$HOME/.npmrc" ]; then
+            echo "runner .npmrc:"; sed -E 's/(_authToken=).*/\1<redacted>/' "$HOME/.npmrc"
+          fi
+
+      # No token of ours: npm exchanges the GitHub OIDC token for publish
+      # rights and attaches provenance by itself. A 403 here almost always
+      # means the workflow filename or environment in the npm trusted publisher
+      # settings does not match this run; see RELEASING.md.
       - if: steps.published.outputs.skip != 'true'
         run: npm publish --access public
 
