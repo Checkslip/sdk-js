@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!src/generated", "!spec", "!dist", "!CHANGELOG.md"]
+    "includes": ["**", "!src/generated", "!spec", "!dist", "!CHANGELOG.md", "!.release-please-manifest.json"]
   },
   "formatter": {
     "enabled": true,
