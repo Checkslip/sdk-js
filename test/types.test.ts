@@ -1,10 +1,8 @@
+import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
 import type { ApiRequestRecord, AuditEvent, SlipCheck } from "../src/index.js";
 
-// Fields that left the customer API. The public spec is the arbiter
-// (checkslip/pm, 9 Nov 2026), so the list is what the contract dropped, not
-// what an older brief listed. latency_ms stayed, and is required on
+// Fields that left the Checkslip API. latency_ms stayed, and is required on
 // ApiRequestRecord, so it is deliberately absent here.
 const WITHDRAWN = [
   "recorded_by",
@@ -25,7 +23,7 @@ describe("generated types", () => {
   });
 
   it("rejects the withdrawn fields at compile time", () => {
-    // The public spec decides what a customer sees (checkslip/pm, 9 Nov 2026).
+    // The published OpenAPI document decides what the SDK exposes.
     // These seven left the contract, so each line below fails `tsc --noEmit`
     // if one comes back into the types.
     const request = {} as ApiRequestRecord;
@@ -54,15 +52,13 @@ describe("generated types", () => {
     expect(true).toBe(true);
   });
 
-  it("holds back the three fields verify 0.61.0 is removing", () => {
-    // TEMPORARY, remove with the deny-list in scripts/generate.mjs when
-    // verify 0.61.0 is live (checkslip/pm h-mw94dkac8a0, 9 Nov 2026).
+  it("holds back the fields being withdrawn from the API", () => {
     const check = {} as SlipCheck;
-    // @ts-expect-error held back until verify 0.61.0 deploys
+    // @ts-expect-error being withdrawn from the Checkslip API
     void check.latency_ms;
-    // @ts-expect-error held back until verify 0.61.0 deploys
+    // @ts-expect-error being withdrawn from the Checkslip API
     void check.upstream_ms;
-    // @ts-expect-error held back until verify 0.61.0 deploys
+    // @ts-expect-error being withdrawn from the Checkslip API
     void check.checked_elsewhere;
     expect(true).toBe(true);
   });

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { sniffImageType } from "../src/resources/slips.js";
 import { client, FOUND, json, problem } from "./helpers.js";
 

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "bun:test";
 import { Checkslip, CheckslipError, VERSION } from "../src/index.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
 

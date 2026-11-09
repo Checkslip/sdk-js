@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { Page } from "../src/index.js";
 import { client, json } from "./helpers.js";
 

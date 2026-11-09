@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { Checkslip } from "../src/index.js";
 import type { ApiRequestRecord, AuditEvent } from "../src/types.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
 
 /**
- * These tests guard the cross-language SDK contract in docs/sdk-naming.md.
+ * These tests guard the surface the four Checkslip SDKs share.
  * They are not about JavaScript behaviour: they exist so the four SDKs cannot
  * drift apart again, which is what happened in the first drafts.
  */
@@ -21,7 +21,7 @@ const WITHDRAWN_FIELDS = [
 ] as const;
 
 describe("tolerating fields the SDK does not model", () => {
-  // The public spec decides what a customer sees (checkslip/pm, 9 Nov 2026).
+  // The published OpenAPI document decides what the SDK exposes.
   // A response may still carry something the SDK does not model, so parsing
   // must not depend on the exact set of fields.
   const withExtras = {
@@ -138,7 +138,7 @@ describe("envelope unwrapping", () => {
   });
 });
 
-describe("naming parity with docs/sdk-naming.md", () => {
+describe("naming parity across the four SDKs", () => {
   // Every canonical resource.method, spelled the JavaScript way. 39 API
   // operations + 9 listAll iterators + the local webhooks.verify = 49.
   // Audit checkpoints, chain checks and signing keys left the customer API on

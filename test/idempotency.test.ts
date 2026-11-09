@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { client, FOUND, json, QR, UUID_RE } from "./helpers.js";
 
 describe("idempotency", () => {

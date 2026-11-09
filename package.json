@@ -1,6 +1,7 @@
 {
   "name": "@checkslip/sdk",
   "version": "0.1.0",
+  "packageManager": "bun@1.4.4",
   "description": "Official JavaScript and TypeScript client for the Checkslip API: look up Thai bank transfers from slip QR codes or images.",
   "keywords": [
     "checkslip",
@@ -50,17 +51,16 @@
     "SECURITY.md"
   ],
   "scripts": {
-    "generate": "node scripts/generate.mjs",
-    "generate:check": "node scripts/generate.mjs --check",
+    "generate": "bun scripts/generate.mjs",
+    "generate:check": "bun scripts/generate.mjs --check",
     "build": "tsup",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "test": "vitest run",
-    "test:bun": "bun test",
+    "test": "bun test",
     "test:dist": "node test/dist/smoke.mjs && node test/dist/smoke.cjs",
     "check:package": "publint --strict && attw --pack .",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "bun run build"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
@@ -70,6 +70,6 @@
     "publint": "0.3.15",
     "tsup": "8.5.1",
     "typescript": "5.9.3",
-    "vitest": "3.2.7"
+    "@types/bun": "^1.4.4"
   }
 }

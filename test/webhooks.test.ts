@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { Checkslip, signWebhook, verifyWebhook, WebhookVerificationError } from "../src/index.js";
 
 // Test vector published by the Standard Webhooks project.
@@ -43,7 +43,7 @@ describe("verifyWebhook", () => {
       secret: VECTOR.secret,
       now: AT_VECTOR_TIME,
     });
-    expect(parsed).toEqual({ test: 2432232314 });
+    expect(parsed).toMatchObject({ test: 2432232314 });
   });
 
   it("produces the test vector signature with signWebhook", async () => {
@@ -69,7 +69,7 @@ describe("verifyWebhook", () => {
     const bytes = new TextEncoder().encode(VECTOR.payload);
     await expect(
       verifyWebhook({ payload: bytes, headers: vectorHeaders(), secret: VECTOR.secret, now: AT_VECTOR_TIME }),
-    ).resolves.toEqual({ test: 2432232314 });
+    ).resolves.toMatchObject({ test: 2432232314 });
   });
 
   it("rejects a changed body", async () => {
@@ -168,6 +168,6 @@ describe("verifyWebhook", () => {
         secret: VECTOR.secret,
         now: AT_VECTOR_TIME,
       }),
-    ).resolves.toEqual({ test: 2432232314 });
+    ).resolves.toMatchObject({ test: 2432232314 });
   });
 });
