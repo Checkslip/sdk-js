@@ -36,55 +36,49 @@ const specPath = join(root, "spec/openapi.json");
 const outPath = join(root, "src/generated/openapi.ts");
 const queryOutPath = join(root, "src/generated/query-style.ts");
 
-/** Fields the API is removing from customer responses. Kept out of SDK types. */
-export const REMOVED_FIELDS = new Set([
-  "upstream_ms",
+/**
+ * Fields that left the customer API. The public spec is the arbiter now
+ * (checkslip/pm, 9 Nov 2026), so generation does not strip anything: it only
+ * checks that these have not come back. If one reappears in the spec, that is
+ * a contract question, not something to hide quietly, so generation stops.
+ */
+const WITHDRAWN_FIELDS = new Set([
+  "trace_id",
   "recorded_by",
   "chain",
-  "trace_id",
-  "checked_elsewhere",
-  "latency_ms",
   "build",
   "source_domain",
+  "redactions",
+  "causation_id",
 ]);
 
-/** Schemas that only existed to describe a removed field. */
-const REMOVED_SCHEMAS = new Set(["Build", "CheckedElsewhere"]);
+const spec = JSON.parse(readFileSync(specPath, "utf8"));
 
-function strip(node) {
+const reappeared = [];
+function auditSpec(node, path) {
   if (Array.isArray(node)) {
-    for (const item of node) strip(item);
+    for (const [i, item] of node.entries()) {
+      auditSpec(item, `${path}[${i}]`);
+    }
     return;
   }
   if (node === null || typeof node !== "object") return;
   if (node.properties && typeof node.properties === "object") {
     for (const field of Object.keys(node.properties)) {
-      if (REMOVED_FIELDS.has(field)) delete node.properties[field];
+      if (WITHDRAWN_FIELDS.has(field)) reappeared.push(`${path}.properties.${field}`);
     }
   }
-  if (Array.isArray(node.required)) {
-    node.required = node.required.filter((field) => !REMOVED_FIELDS.has(field));
-  }
   if (Array.isArray(node.parameters)) {
-    node.parameters = node.parameters.filter((p) => !(p && p.in === "query" && REMOVED_FIELDS.has(p.name)));
+    for (const prm of node.parameters) {
+      if (prm && WITHDRAWN_FIELDS.has(prm.name)) reappeared.push(`${path}.parameters.${prm.name}`);
+    }
   }
-  if (Array.isArray(node.enum) && node.enum.every((v) => typeof v === "string")) {
-    node.enum = node.enum.filter((v) => !REMOVED_FIELDS.has(v));
-  }
-  if (typeof node.description === "string") {
-    // The lookup description ends with a paragraph about checked_elsewhere.
-    const cut = node.description.indexOf(" The checked_elsewhere field");
-    if (cut !== -1) node.description = node.description.slice(0, cut);
-  }
-  for (const value of Object.values(node)) strip(value);
+  for (const [key, value] of Object.entries(node)) auditSpec(value, `${path}.${key}`);
 }
-
-const spec = JSON.parse(readFileSync(specPath, "utf8"));
-strip(spec);
-for (const name of REMOVED_SCHEMAS) delete spec.components.schemas[name];
-
-const leftover = JSON.stringify(spec).match(/#\/components\/schemas\/(Build|CheckedElsewhere)"/);
-if (leftover) throw new Error(`a removed schema is still referenced: ${leftover[1]}`);
+auditSpec(spec, "$");
+if (reappeared.length > 0) {
+  throw new Error(`fields that left the customer API are back in the spec: ${reappeared.join(", ")}`);
+}
 
 // defaultNonNullable: false keeps fields with a default optional (they are optional in requests).
 const ast = await openapiTS(spec, { alphabetize: true, defaultNonNullable: false });

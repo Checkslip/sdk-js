@@ -175,21 +175,9 @@ export type AuditEventListParams = QueryOf<"listAuditEvents">;
 export type ApiRequestRecord = Schemas["ApiRequestRecord"];
 /** Filters for `audit.requests.list()`. */
 export type ApiRequestListParams = QueryOf<"listApiRequests">;
-/** A signed daily checkpoint of the audit log. */
-export type Checkpoint = Schemas["Checkpoint"];
-/** Filters for `audit.checkpoints.list()`. */
-export type CheckpointListParams = QueryOf<"listCheckpoints">;
-/** Body of `audit.chain.check()`. */
-export type ChainCheckParams = BodyOf<"checkChain">;
-/** Result of checking one day of the audit hash chain. */
-export type ChainCheck = Schemas["ChainCheck"];
 /** An evidence export of audit records. */
 export type EvidenceExport = Schemas["EvidenceExport"];
 /** Body of `audit.exports.create()`. */
 export type EvidenceExportCreateParams = Schemas["CreateExportRequest"];
 /** Parameters for `audit.exports.list()`. */
 export type EvidenceExportListParams = QueryOf<"listEvidenceExports">;
-/** Public keys that sign audit checkpoints. */
-export type JwkSet = Schemas["JwkSet"];
-/** An audit stream. */
-export type Stream = Schemas["Stream"];

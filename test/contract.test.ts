@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Checkslip } from "../src/index.js";
-import type { ApiRequestRecord, AuditEvent, ExportColumn, SlipCheck } from "../src/types.js";
+import type { ApiRequestRecord, AuditEvent } from "../src/types.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
 
 /**
@@ -9,79 +9,72 @@ import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
  * drift apart again, which is what happened in the first drafts.
  */
 
-/** Fields the API is removing. They must never appear in SDK types. */
-const HIDDEN_FIELDS = [
-  "latency_ms",
-  "upstream_ms",
-  "checked_elsewhere",
+/** Fields that left the customer API. They must never come back into the types. */
+const WITHDRAWN_FIELDS = [
   "trace_id",
   "recorded_by",
-  "build",
   "chain",
+  "build",
   "source_domain",
+  "redactions",
+  "causation_id",
 ] as const;
 
-describe("tolerate but hide", () => {
-  // The same lookup, once as the API answers today and once as it will answer
-  // after the fields are removed.
-  const withHidden = {
+describe("tolerating fields the SDK does not model", () => {
+  // The public spec decides what a customer sees (checkslip/pm, 9 Nov 2026).
+  // A response may still carry something the SDK does not model, so parsing
+  // must not depend on the exact set of fields.
+  const withExtras = {
     ...FOUND,
-    latency_ms: 812,
-    upstream_ms: 640,
-    checked_elsewhere: false,
+    trace_id: "0af7651916cd43dd8448eb211c80319c",
+    recorded_by: "gw-1",
+    chain: {},
+    build: "2026.11.9",
   };
-  const withoutHidden = FOUND;
 
-  it("parses a payload that still carries the hidden fields", async () => {
-    const { checkslip } = client([json(withHidden)]);
+  it("parses a payload carrying fields the SDK does not model", async () => {
+    const { checkslip } = client([json(withExtras)]);
     const check = await checkslip.slips.lookup({ qr: QR });
     expect(check.request_id).toBe(FOUND.request_id);
     expect(check.outcome).toBe("FOUND");
   });
 
-  it("parses a payload with the hidden fields already gone", async () => {
-    const { checkslip } = client([json(withoutHidden)]);
+  it("parses the same payload without them", async () => {
+    const { checkslip } = client([json(FOUND)]);
     const check = await checkslip.slips.lookup({ qr: QR });
     expect(check.request_id).toBe(FOUND.request_id);
-    expect(check.outcome).toBe("FOUND");
   });
 
   it("gives the same documented result either way", async () => {
-    const a = await client([json(withHidden)]).checkslip.slips.lookup({ qr: QR });
-    const b = await client([json(withoutHidden)]).checkslip.slips.lookup({ qr: QR });
-    // Compare only what the SDK documents: every field it declares.
+    const a = await client([json(withExtras)]).checkslip.slips.lookup({ qr: QR });
+    const b = await client([json(FOUND)]).checkslip.slips.lookup({ qr: QR });
     for (const key of Object.keys(b) as (keyof typeof b)[]) {
       expect(a[key]).toEqual(b[key]);
     }
     expect(a.slip).toEqual(b.slip);
   });
 
-  it("keeps the hidden fields out of the generated types", () => {
-    // Compile-time half of the rule. Each @ts-expect-error fails the build if
-    // the field ever becomes typed again, so this test cannot rot quietly.
-    // @ts-expect-error latency_ms is hidden from customers
-    type _Latency = SlipCheck["latency_ms"];
-    // @ts-expect-error upstream_ms is hidden from customers
-    type _Upstream = SlipCheck["upstream_ms"];
-    // @ts-expect-error checked_elsewhere is hidden from customers
-    type _Elsewhere = SlipCheck["checked_elsewhere"];
-    // @ts-expect-error trace_id is hidden from customers
-    type _Trace = ApiRequestRecord["trace_id"];
-    // @ts-expect-error recorded_by is hidden from customers
-    type _RecordedBy = ApiRequestRecord["recorded_by"];
-    // @ts-expect-error build is hidden from customers
-    type _Build = ApiRequestRecord["build"];
-    // @ts-expect-error source_domain is hidden from customers
-    type _SourceDomain = AuditEvent["source_domain"];
-    expect(HIDDEN_FIELDS).toHaveLength(8);
+  it("keeps the withdrawn fields out of the generated types", () => {
+    const request = {} as ApiRequestRecord;
+    const audit = {} as AuditEvent;
+    // @ts-expect-error trace_id left the customer API
+    void request.trace_id;
+    // @ts-expect-error recorded_by left the customer API
+    void request.recorded_by;
+    // @ts-expect-error chain left the customer API
+    void request.chain;
+    // @ts-expect-error redactions left the customer API
+    void request.redactions;
+    // @ts-expect-error source_domain left the customer API
+    void audit.source_domain;
+    expect(WITHDRAWN_FIELDS).toHaveLength(7);
   });
 
-  it("does not offer the hidden fields as export columns", () => {
-    const allowed: ExportColumn = "slip.trans_ref";
-    // @ts-expect-error latency_ms was dropped from ExportColumn
-    const hidden: ExportColumn = "latency_ms";
-    expect(allowed).toBe("slip.trans_ref");
-    expect(hidden).toBe("latency_ms");
+  it("does carry latency_ms, which the contract requires", () => {
+    const request = {} as ApiRequestRecord;
+    const ms: number = request.latency_ms;
+    void ms;
+    expect(WITHDRAWN_FIELDS).not.toContain("latency_ms");
   });
 });
 

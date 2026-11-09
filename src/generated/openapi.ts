@@ -3,66 +3,6 @@
  * Do not edit it by hand. Run `npm run generate` after updating the spec.
  */
 export interface paths {
-    "/api/audit/chain/checks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Recompute one day's chain
-         * @description We recompute the hash chain of one record type for one UTC day and compare it with the signed checkpoint. The result is in intact; when false, first_broken_seq names the first record that does not match. A mismatch still answers 200, not an error. A day with more than 200,000 records answers 422 RANGE_TOO_LARGE; export that day and recompute it yourself. Uses no credit. Needs an API key with audit:read, or the web app sign-in. This check runs on our side; for proof that does not rely on us, recompute from the evidence file yourself.
-         */
-        post: operations["checkChain"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/audit/checkpoints": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List sealed checkpoints
-         * @description Checkpoints signed after their day closed, one per record type per UTC day, newest day first. Filter by from_day, to_day and stream; the day range is at most 92 days. Use next_cursor for the next page. Uses no credit. Needs an API key with audit:read, or the web app sign-in.
-         */
-        get: operations["listCheckpoints"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/audit/checkpoints/latest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the latest checkpoints
-         * @description The latest checkpoint we signed for each record type (API_REQUESTS, AUDIT_EVENTS): today's (sealed is false while the day is open), or the last closed day's when today has no records yet. You can store checkpoints yourself; if later records do not extend a checkpoint you stored, an old record was changed. No records at all answers 404. Uses no credit. Needs an API key with audit:read, or the web app sign-in.
-         */
-        get: operations["getLatestCheckpoint"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/audit/events": {
         parameters: {
             query?: never;
@@ -118,7 +58,7 @@ export interface paths {
         put?: never;
         /**
          * Request an evidence file
-         * @description Builds an evidence file of the account for the chosen UTC days, for an auditor, a bank or a court. Answers 202 with status QUEUED; poll GET with the export_id until it is READY or FAILED. Pick request records (API_REQUESTS), activity (AUDIT_EVENTS), or both. The file holds every record of each day from the first one, so you can recompute the hash chain yourself and compare it with the checkpoint we signed. Only closed days can be exported: not today, and yesterday only from 10 minutes after midnight UTC (schedule a nightly job after 00:10 UTC), at most 31 days per file. The file is deleted after expires_at, while the manifest stays; download it before then. Uses no credit. Send an Idempotency-Key; a retry with the same value returns the same file and builds nothing new. Needs an API key with both audit:read and audit:export, or the web app sign-in. Through the Checkslip assistant, confirm your password first and send the step_up_proof.
+         * @description Builds an evidence file of the account for the chosen UTC days, for an auditor, a bank or a court. Answers 202 with status QUEUED; poll GET with the export_id until it is READY or FAILED. The file holds every activity record (AUDIT_EVENTS) of each day, each line as GET /api/audit/events gives it. Only closed days can be exported: not today, and yesterday only from 10 minutes after midnight UTC (schedule a nightly job after 00:10 UTC), at most 31 days per file. The file is deleted after expires_at, while the manifest stays; download it before then. Uses no credit. Send an Idempotency-Key; a retry with the same value returns the same file and builds nothing new. Needs an API key with both audit:read and audit:export, or the web app sign-in. Through the Checkslip assistant, confirm your password first and send the step_up_proof.
          */
         post: operations["createEvidenceExport"];
         delete?: never;
@@ -136,7 +76,7 @@ export interface paths {
         };
         /**
          * Get one evidence file
-         * @description The status of one evidence file by export_id. Once READY it carries the manifest (the file sha256 and the chain heads of each day) and expires_at. An EXPIRED file still shows its manifest but can no longer be downloaded. Another account's export_id answers 404. Uses no credit. Needs an API key with audit:read, or the web app sign-in.
+         * @description The status of one evidence file by export_id. Once READY it carries the manifest (the record count and the file sha256) and expires_at. An EXPIRED file still shows its manifest but can no longer be downloaded. Another account's export_id answers 404. Uses no credit. Needs an API key with audit:read, or the web app sign-in.
          */
         get: operations["getEvidenceExport"];
         put?: never;
@@ -156,7 +96,7 @@ export interface paths {
         };
         /**
          * Download an evidence file
-         * @description The evidence file as NDJSON, one record per line, ordered by chain and seq. The last line is the manifest; its sha256 covers every byte before that line and is also sent in the Repr-Digest header. Not READY yet answers 409; after expires_at it answers 410 and you request a new file. Every download is written to the account activity. Uses no credit. Needs an API key with both audit:read and audit:export, or the web app sign-in.
+         * @description The evidence file as NDJSON, one record per line, ordered by day. The last line is the manifest; its sha256 covers every byte before that line and is also sent in the Repr-Digest header. Not READY yet answers 409; after expires_at it answers 410 and you request a new file. Every download is written to the account activity. Uses no credit. Needs an API key with both audit:read and audit:export, or the web app sign-in.
          */
         get: operations["downloadEvidenceExport"];
         put?: never;
@@ -199,26 +139,6 @@ export interface paths {
          * @description One request of this account by request_id (the same value as the X-Request-Id header of its response). An unknown request_id and another account's request_id both answer 404 (we do not reveal whether it exists). Uses no credit. Needs an API key with audit:read, or the web app sign-in.
          */
         get: operations["getApiRequest"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/audit/signing-keys": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the checkpoint signing keys
-         * @description The Ed25519 public keys that sign checkpoints, as a JWK Set. No sign-in needed, so an auditor, a bank or a court can check the signatures in an evidence file without a Checkslip account. Retired keys stay listed, so old signatures always check out. A new key is listed at least 1 hour before it signs anything. Uses no credit.
-         */
-        get: operations["getSigningKeys"];
         put?: never;
         post?: never;
         delete?: never;
@@ -562,7 +482,7 @@ export interface paths {
         put?: never;
         /**
          * Look up a transfer with the bank
-         * @description Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.
+         * @description Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup. The checked_elsewhere field is true when another Checkslip account has already looked up this transfer reference. True or false only: never which account, how many times, or when. Never read it as "this slip was used": we only know it was asked about, not that the money was accepted, and it changes neither the outcome nor the credit.
          */
         post: operations["lookupSlip"];
         delete?: never;
@@ -642,7 +562,7 @@ export interface paths {
         put?: never;
         /**
          * Resend one delivery
-         * @description Sends the same payload, byte for byte, again with the original webhook-id but a new webhook-timestamp and signature, and starts the retry schedule over. Works on FAILED and SUCCEEDED deliveries. Your system receives the message again; without deduplication on webhook-id it records it twice. An Idempotency-Key is required; the same key for the same delivery returns the first result and does not queue again. It cannot be resent when the endpoint is disabled (ENDPOINT_DISABLED), deleted (ENDPOINT_DELETED) or the source data to rebuild the message is gone (PAYLOAD_EXPIRED). Needs an API key with webhook:manage.
+         * @description Sends the same payload, byte for byte, again with the original webhook-id but a new webhook-timestamp and signature, and starts the retry schedule over. Works on FAILED and SUCCEEDED deliveries. Your system receives the message again; without deduplication on webhook-id it records it twice. An Idempotency-Key is required; the same key for the same delivery returns the first result and does not queue again. It cannot be resent when the endpoint is disabled (ENDPOINT_DISABLED), deleted (ENDPOINT_DELETED) the source data to rebuild the message is gone (PAYLOAD_EXPIRED), or the original message was not kept (PAYLOAD_INTEGRITY_MISMATCH). Needs an API key with webhook:manage.
          */
         post: operations["redeliverDelivery"];
         delete?: never;
@@ -797,12 +717,12 @@ export interface components {
             client_ip_prefix?: string;
             fingerprint?: components["schemas"]["Fingerprint"] | null;
             http_status: number;
+            latency_ms: number;
             /** @enum {string} */
             method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
             outcome_code?: components["schemas"]["OutcomeCode"];
             /** Format: date-time */
             received_at: string;
-            redactions?: components["schemas"]["Redactions"];
             request_id: components["schemas"]["RecordId"];
             route: string;
             user_agent?: string;
@@ -817,7 +737,6 @@ export interface components {
              */
             action: string;
             actor: {
-                assurance?: string | null;
                 /** Format: uuid */
                 id?: string | null;
                 /** Format: uuid */
@@ -828,8 +747,6 @@ export interface components {
             before?: Record<string, never> | null;
             /** @enum {string} */
             category: "MONEY" | "ACCESS" | "DATA_CHANGE" | "SENSITIVE_READ" | "SECURITY";
-            /** Format: uuid */
-            causation_id?: string | null;
             channel: components["schemas"]["Channel"];
             event_id: components["schemas"]["RecordId"];
             /** Format: date-time */
@@ -837,7 +754,6 @@ export interface components {
             /** @enum {string} */
             outcome: "SUCCESS" | "FAILURE" | "DENIED";
             reason?: string | null;
-            redactions?: components["schemas"]["Redactions"];
             /** Format: uuid */
             request_id?: string | null;
             target: {
@@ -851,14 +767,13 @@ export interface components {
             /** Format: uuid */
             account_id: string;
             credits: number;
+            credits_per_year: number | null;
             /** Format: date-time */
             expires_at: string | null;
             /** Format: uuid */
             last_entry_id?: string | null;
             low: boolean;
             threshold: number;
-            /** @enum {string} */
-            threshold_basis: "AVG_7_DAYS" | "FALLBACK_10_PERCENT" | "NONE";
             /** Format: date-time */
             updated_at: string;
         };
@@ -875,7 +790,7 @@ export interface components {
         "billing.Problem": {
             action?: string;
             /** @enum {string} */
-            code: "PHONE_NOT_VERIFIED" | "ORDER_NOT_FOUND" | "RECEIPT_NOT_FOUND" | "PACKAGE_NOT_FOUND" | "CHARGE_NOT_FOUND" | "PACKAGE_NOT_FOR_SALE" | "ORDER_PENDING" | "ORDER_ALREADY_PAID" | "ORDER_CANCELLED" | "NO_CREDIT" | "CREDIT_EXPIRED" | "PAYMENTS_UNAVAILABLE" | "BAD_SIGNATURE" | "DEADLINE_PASSED" | "HOLD_NOT_ACTIVE" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NOT_VIA_API_KEY" | "NOT_A_SERVICE" | "STEP_UP_REQUIRED" | "IDEMPOTENCY_KEY_REQUIRED" | "IDEMPOTENCY_KEY_INVALID" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_FLIGHT" | "RATE_LIMITED" | "CREDIT_UNAVAILABLE" | "STEP_UP_UNAVAILABLE" | "FORBIDDEN" | "INTERNAL";
+            code: "PHONE_NOT_VERIFIED" | "BILLING_INFO_REQUIRED" | "ORDER_NOT_FOUND" | "RECEIPT_NOT_FOUND" | "PACKAGE_NOT_FOUND" | "CHARGE_NOT_FOUND" | "PACKAGE_NOT_FOR_SALE" | "ORDER_PENDING" | "ORDER_ALREADY_PAID" | "ORDER_CANCELLED" | "NO_CREDIT" | "CREDIT_EXPIRED" | "PAYMENTS_UNAVAILABLE" | "BAD_SIGNATURE" | "DEADLINE_PASSED" | "HOLD_NOT_ACTIVE" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NOT_VIA_API_KEY" | "NOT_A_SERVICE" | "STEP_UP_REQUIRED" | "IDEMPOTENCY_KEY_REQUIRED" | "IDEMPOTENCY_KEY_INVALID" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_FLIGHT" | "RATE_LIMITED" | "CREDIT_UNAVAILABLE" | "STEP_UP_UNAVAILABLE" | "FORBIDDEN" | "INTERNAL";
             detail?: string;
             errors?: {
                 /**
@@ -909,31 +824,6 @@ export interface components {
             name?: string;
             tax_id?: string;
         };
-        ChainCheck: {
-            /** Format: int64 */
-            checked: number;
-            /** Format: date */
-            day: string;
-            intact: boolean;
-            lanes: {
-                /** Format: int64 */
-                first_broken_seq?: number | null;
-                intact: boolean;
-                lane: number;
-                matches_checkpoint?: boolean | null;
-            }[];
-            stream: components["schemas"]["Stream"];
-        };
-        ChainLink: {
-            /** Format: date */
-            day: string;
-            lane: number;
-            prev_hash: components["schemas"]["Sha256Hex"];
-            row_hash: components["schemas"]["Sha256Hex"];
-            /** Format: int64 */
-            seq: number;
-            stream: components["schemas"]["Stream"];
-        };
         /** @enum {string} */
         Channel: "API" | "DASHBOARD" | "ASSISTANT" | "STAFF" | "SYSTEM";
         Check: {
@@ -952,27 +842,9 @@ export interface components {
             /** Format: date-time */
             settled_at: string;
         };
+        CheckedElsewhere: boolean;
         /** @enum {string} */
         CheckOutcome: "FOUND" | "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD";
-        Checkpoint: {
-            /** Format: uuid */
-            account_id: string;
-            checkpoint_id: components["schemas"]["RecordId"];
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date */
-            day: string;
-            key_id: string;
-            lanes: {
-                lane: number;
-                row_hash: components["schemas"]["Sha256Hex"];
-                /** Format: int64 */
-                seq: number;
-            }[];
-            sealed: boolean;
-            signature: string;
-            stream: components["schemas"]["Stream"];
-        };
         CheckSlipRequest: {
             client_reference?: components["schemas"]["ClientReference"];
             qr: string;
@@ -990,11 +862,10 @@ export interface components {
             step_up_proof?: string;
             /**
              * @default [
-             *       "API_REQUESTS",
              *       "AUDIT_EVENTS"
              *     ]
              */
-            streams?: components["schemas"]["Stream"][];
+            streams?: components["schemas"]["ExportStream"][];
             /** Format: date */
             to_day: string;
         };
@@ -1031,6 +902,8 @@ export interface components {
             message_id: components["schemas"]["MessageId"];
             /** Format: date-time */
             next_attempt_at: string | null;
+            /** Format: uuid */
+            request_id: string | null;
             status: components["schemas"]["DeliveryStatus"];
         };
         DeliveryAttempt: {
@@ -1115,22 +988,18 @@ export interface components {
             ready_at?: string | null;
             /** @enum {string} */
             status: "QUEUED" | "RUNNING" | "READY" | "FAILED" | "EXPIRED";
-            streams: components["schemas"]["Stream"][];
+            streams: components["schemas"]["ExportStream"][];
             /** Format: date */
             to_day: string;
         };
         /** @enum {string} */
-        ExportColumn: "request_id" | "outcome" | "status" | "checked_at" | "channel" | "api_key_id" | "client_reference" | "duplicate_of.request_id" | "charge_confirmed" | "charged" | "free_reason" | "slip.trans_ref" | "slip.transferred_at" | "slip.amount.satang" | "slip.amount.currency" | "slip.sender.bank.code" | "slip.sender.bank.bot_code" | "slip.sender.name_th" | "slip.sender.name_en" | "slip.sender.account" | "slip.receiver.bank.code" | "slip.receiver.bank.bot_code" | "slip.receiver.name_th" | "slip.receiver.name_en" | "slip.receiver.account";
+        ExportColumn: "request_id" | "outcome" | "status" | "checked_at" | "channel" | "api_key_id" | "latency_ms" | "upstream_ms" | "checked_elsewhere" | "client_reference" | "duplicate_of.request_id" | "charge_confirmed" | "charged" | "free_reason" | "slip.trans_ref" | "slip.transferred_at" | "slip.amount.satang" | "slip.amount.currency" | "slip.sender.bank.code" | "slip.sender.bank.bot_code" | "slip.sender.name_th" | "slip.sender.name_en" | "slip.sender.account" | "slip.receiver.bank.code" | "slip.receiver.bank.bot_code" | "slip.receiver.name_th" | "slip.receiver.name_en" | "slip.receiver.account";
         ExportCreator: {
             /** Format: uuid */
             id?: string | null;
             type: components["schemas"]["ActorType"];
         };
         ExportLine: {
-            /** @constant */
-            kind: "API_REQUEST";
-            record: components["schemas"]["ApiRequestRecord"];
-        } | {
             /** @constant */
             kind: "AUDIT_EVENT";
             record: components["schemas"]["AuditEventRecord"];
@@ -1141,21 +1010,9 @@ export interface components {
         };
         ExportManifest: {
             /** @constant */
-            canonicalization: "RFC8785";
-            chains: {
-                /** Format: date */
-                day: string;
-                lane: number;
-                last_row_hash: components["schemas"]["Sha256Hex"];
-                /** Format: int64 */
-                record_count: number;
-                stream: components["schemas"]["Stream"];
-            }[];
-            checkpoints?: components["schemas"]["Checkpoint"][];
-            /** @constant */
-            format: "checkslip-audit-export/2";
-            /** @constant */
-            hash_algorithm: "sha-256";
+            format: "checkslip-audit-export/3";
+            /** Format: int64 */
+            record_count: number;
             sha256: components["schemas"]["Sha256Hex"];
             /** Format: int64 */
             size_bytes: number;
@@ -1176,28 +1033,14 @@ export interface components {
             to?: string;
             trans_ref?: components["schemas"]["verify.TransRef"];
         };
+        /** @enum {string} */
+        ExportStream: "AUDIT_EVENTS";
         Fingerprint: {
             qr_sha256?: components["schemas"]["Sha256Hex"];
             trans_ref?: components["schemas"]["TransRef"];
         };
         /** @enum {string} */
         FreeReason: "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "NO_CREDIT" | "HOLD_EXPIRED" | "SYSTEM_ERROR";
-        JwkSet: {
-            keys: {
-                /** @constant */
-                alg?: "EdDSA";
-                /** @constant */
-                crv: "Ed25519";
-                kid: string;
-                /** @constant */
-                kty: "OKP";
-                /** @enum {string} */
-                status?: "ACTIVE" | "RETIRED";
-                /** @constant */
-                use: "sig";
-                x: string;
-            }[];
-        };
         MessageEnvelope: {
             data: Record<string, never>;
             /** Format: date-time */
@@ -1380,11 +1223,6 @@ export interface components {
             /** Format: date-time */
             until: string;
         };
-        Redactions: {
-            /** @example /after/note */
-            path: string;
-            reason: string;
-        }[] | null;
         SecretRotation: {
             /** Format: date-time */
             previous_secret_expires_at: string;
@@ -1407,19 +1245,24 @@ export interface components {
         SlipCheck: {
             /** Format: date-time */
             checked_at: string;
+            checked_elsewhere?: components["schemas"]["CheckedElsewhere"];
             client_reference?: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
+            latency_ms?: number;
             /** @enum {string} */
             outcome: "FOUND" | "NOT_FOUND" | "DUPLICATE" | "PENDING";
             /** Format: uuid */
             request_id: string;
             slip: components["schemas"]["Slip"] | components["schemas"]["SlipSummary"];
+            upstream_ms?: number | null;
         };
         SlipCheckedData: {
             /** @enum {string} */
             channel: "API" | "DASHBOARD" | "ASSISTANT";
             /** Format: date-time */
             checked_at: string;
+            /** @deprecated */
+            checked_elsewhere?: boolean;
             client_reference: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
             outcome: components["schemas"]["CheckOutcome"];
@@ -1445,15 +1288,18 @@ export interface components {
             charged?: boolean | null;
             /** Format: date-time */
             checked_at: string;
+            checked_elsewhere?: components["schemas"]["CheckedElsewhere"];
             client_reference?: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
             free_reason?: string | null;
+            latency_ms?: number;
             outcome: components["schemas"]["CheckOutcome"];
             /** Format: uuid */
             request_id: string;
             slip?: components["schemas"]["Slip"] | components["schemas"]["SlipSummary"];
             /** @example 200 */
             status?: number;
+            upstream_ms?: number | null;
         };
         SlipCounts: {
             /** Format: date-time */
@@ -1508,8 +1354,6 @@ export interface components {
             /** Format: date-time */
             transferred_at?: string;
         };
-        /** @enum {string} */
-        Stream: "API_REQUESTS" | "AUDIT_EVENTS";
         SupportedBank: {
             /** @example 069 */
             bot_code: string;
@@ -1655,214 +1499,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    checkChain: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    /** Format: date */
-                    day: string;
-                    stream: components["schemas"]["Stream"];
-                };
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ChainCheck"];
-                };
-            };
-            400: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            401: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            403: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            422: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            429: {
-                headers: {
-                    "Retry-After"?: number;
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    listCheckpoints: {
-        parameters: {
-            query?: {
-                cursor?: string;
-                from_day?: string;
-                limit?: number;
-                stream?: components["schemas"]["Stream"];
-                to_day?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        items: components["schemas"]["Checkpoint"][];
-                        next_cursor: components["schemas"]["NextCursor"];
-                    };
-                };
-            };
-            400: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            401: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            403: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            422: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            429: {
-                headers: {
-                    "Retry-After"?: number;
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    getLatestCheckpoint: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        items: components["schemas"]["Checkpoint"][];
-                    };
-                };
-            };
-            401: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            403: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            404: {
-                headers: {
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            429: {
-                headers: {
-                    "Retry-After"?: number;
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
     listAuditEvents: {
         parameters: {
             query?: {
@@ -2393,37 +2029,6 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            429: {
-                headers: {
-                    "Retry-After"?: number;
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    getSigningKeys: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    "Cache-Control"?: string;
-                    "X-Request-Id": string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/jwk-set+json": components["schemas"]["JwkSet"];
                 };
             };
             429: {
@@ -3784,7 +3389,9 @@ export interface operations {
             header?: {
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                delivery_id: components["schemas"]["DeliveryId"];
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -3834,7 +3441,9 @@ export interface operations {
                 "Idempotency-Key": string;
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                delivery_id: components["schemas"]["DeliveryId"];
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -3903,15 +3512,6 @@ export interface operations {
                 };
             };
             422: {
-                headers: {
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["webhook.Problem"];
-                };
-            };
-            500: {
                 headers: {
                     "X-Request-Id"?: string;
                     [name: string]: unknown;
@@ -4055,7 +3655,9 @@ export interface operations {
             header?: {
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                endpoint_id: components["schemas"]["EndpointId"];
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -4104,7 +3706,9 @@ export interface operations {
             header?: {
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                endpoint_id: components["schemas"]["EndpointId"];
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -4151,7 +3755,9 @@ export interface operations {
             header?: {
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                endpoint_id: components["schemas"]["EndpointId"];
+            };
             cookie?: never;
         };
         requestBody: {
@@ -4223,7 +3829,9 @@ export interface operations {
                 "Idempotency-Key": string;
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                endpoint_id: components["schemas"]["EndpointId"];
+            };
             cookie?: never;
         };
         requestBody: {
@@ -4304,7 +3912,9 @@ export interface operations {
                 "Idempotency-Key": string;
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                endpoint_id: components["schemas"]["EndpointId"];
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -4381,7 +3991,9 @@ export interface operations {
                 "Idempotency-Key": string;
                 traceparent?: string;
             };
-            path?: never;
+            path: {
+                endpoint_id: components["schemas"]["EndpointId"];
+            };
             cookie?: never;
         };
         requestBody?: never;
