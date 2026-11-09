@@ -108,10 +108,10 @@ describe("client", () => {
 
   it("routes each resource method to the path in the spec", async () => {
     const routes: Array<[string, string, (c: Checkslip) => Promise<unknown>]> = [
-      ["GET", "/api/billing/balance", (c) => c.billing.balance()],
-      ["GET", "/api/billing/billing-info", (c) => c.billing.getInfo()],
-      ["PUT", "/api/billing/billing-info", (c) => c.billing.updateInfo({} as never)],
-      ["GET", "/api/billing/packages", (c) => c.billing.packages()],
+      ["GET", "/api/billing/balance", (c) => c.billing.balance.get()],
+      ["GET", "/api/billing/billing-info", (c) => c.billing.info.get()],
+      ["PUT", "/api/billing/billing-info", (c) => c.billing.info.update({} as never)],
+      ["GET", "/api/billing/packages", (c) => c.billing.packages.list()],
       ["GET", "/api/billing/orders/o1", (c) => c.billing.orders.get("o1")],
       ["POST", "/api/billing/orders/o1/sync", (c) => c.billing.orders.sync("o1")],
       ["GET", "/api/billing/receipts/r1", (c) => c.billing.receipts.get("r1")],
@@ -119,7 +119,7 @@ describe("client", () => {
       ["GET", "/api/slips/counts", (c) => c.slips.counts({ from: "a", to: "b", bucket: "DAY" } as never)],
       ["POST", "/api/slips/exports", (c) => c.slips.exports.create({ columns: ["request_id"] })],
       ["GET", "/api/slips/exports/e1", (c) => c.slips.exports.get("e1")],
-      ["GET", "/api/webhooks/event-types", (c) => c.webhooks.eventTypes()],
+      ["GET", "/api/webhooks/event-types", (c) => c.webhooks.eventTypes.list()],
       [
         "POST",
         "/api/webhooks/endpoints",
@@ -129,7 +129,7 @@ describe("client", () => {
       ["GET", "/api/webhooks/deliveries/d1", (c) => c.webhooks.deliveries.get("d1")],
       ["GET", "/api/audit/events/ev1", (c) => c.audit.events.get("ev1")],
       ["GET", "/api/audit/requests/rq1", (c) => c.audit.requests.get("rq1")],
-      ["GET", "/api/audit/checkpoints/latest", (c) => c.audit.checkpoints.latest()],
+      ["GET", "/api/audit/checkpoints/latest", (c) => c.audit.checkpoints.listLatest()],
       [
         "POST",
         "/api/audit/chain/checks",
@@ -137,7 +137,7 @@ describe("client", () => {
       ],
       ["GET", "/api/audit/exports/x1", (c) => c.audit.exports.get("x1")],
       ["GET", "/api/audit/exports/x1/file", (c) => c.audit.exports.download("x1")],
-      ["GET", "/api/audit/signing-keys", (c) => c.audit.signingKeys()],
+      ["GET", "/api/audit/signing-keys", (c) => c.audit.signingKeys.get()],
     ];
     for (const [method, path, call] of routes) {
       const { checkslip, calls } = client([json({})]);

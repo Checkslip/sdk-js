@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { backoff, parseRetryAfter } from "../src/core/http.js";
 import {
-  APIConnectionError,
-  APITimeoutError,
   Checkslip,
   ConflictError,
-  InternalServerError,
+  ConnectionError,
   RateLimitError,
+  ServerError,
+  ServiceUnavailableError,
 } from "../src/index.js";
 import { client, FOUND, json, problem, QR } from "./helpers.js";
 
@@ -30,7 +30,7 @@ describe("retries", () => {
       problem(429, "RATE_LIMITED", now),
       json({ credits: 10 }),
     ]);
-    await expect(checkslip.billing.balance()).resolves.toEqual({ credits: 10 });
+    await expect(checkslip.billing.balance.get()).resolves.toEqual({ credits: 10 });
     expect(calls).toHaveLength(3);
   });
 
@@ -49,13 +49,13 @@ describe("retries", () => {
       [problem(429, "RATE_LIMITED", now), problem(429, "RATE_LIMITED", now)],
       { maxRetries: 1 },
     );
-    await expect(checkslip.billing.balance()).rejects.toBeInstanceOf(RateLimitError);
+    await expect(checkslip.billing.balance.get()).rejects.toBeInstanceOf(RateLimitError);
     expect(calls).toHaveLength(2);
   });
 
   it("does not wait out a Retry-After longer than 60 seconds", async () => {
     const { checkslip, calls } = client([problem(429, "RATE_LIMITED", { "Retry-After": "3600" })]);
-    const err = (await checkslip.billing.balance().catch((e: unknown) => e)) as RateLimitError;
+    const err = (await checkslip.billing.balance.get().catch((e: unknown) => e)) as RateLimitError;
     expect(err.retryAfter).toBe(3600);
     expect(calls).toHaveLength(1);
   });
@@ -83,7 +83,7 @@ describe("retries", () => {
     const { checkslip, calls } = client([problem(500, "INTERNAL", now)]);
     await expect(
       checkslip.webhooks.endpoints.create({ url: "https://example.com/hook", event_types: ["slip.checked"] }),
-    ).rejects.toBeInstanceOf(InternalServerError);
+    ).rejects.toBeInstanceOf(ServerError);
     expect(calls).toHaveLength(1);
   });
 
@@ -119,8 +119,8 @@ describe("retries", () => {
     const { checkslip, calls } = client([new TypeError("fetch failed"), new TypeError("fetch failed")], {
       maxRetries: 1,
     });
-    const err = (await checkslip.banks.list().catch((e: unknown) => e)) as APIConnectionError;
-    expect(err).toBeInstanceOf(APIConnectionError);
+    const err = (await checkslip.banks.list().catch((e: unknown) => e)) as ConnectionError;
+    expect(err).toBeInstanceOf(ConnectionError);
     expect(err.status).toBeUndefined();
     expect((err.cause as Error).message).toBe("fetch failed");
     expect(calls).toHaveLength(2);
@@ -128,36 +128,36 @@ describe("retries", () => {
 
   it("does not retry network errors on a POST without an Idempotency-Key", async () => {
     const { checkslip, calls } = client([new TypeError("socket hang up")]);
-    await expect(checkslip.billing.orders.sync("ord_1")).rejects.toBeInstanceOf(APIConnectionError);
+    await expect(checkslip.billing.orders.sync("ord_1")).rejects.toBeInstanceOf(ConnectionError);
     expect(calls).toHaveLength(1);
   });
 
   it("turns maxRetries: 0 into a single attempt", async () => {
     const { checkslip, calls } = client([problem(503, "UNAVAILABLE", now)], { maxRetries: 0 });
-    await expect(checkslip.banks.list()).rejects.toBeInstanceOf(InternalServerError);
+    await expect(checkslip.banks.list()).rejects.toBeInstanceOf(ServiceUnavailableError);
     expect(calls).toHaveLength(1);
   });
 
   it("lets one call override maxRetries", async () => {
     const { checkslip, calls } = client([problem(503, "UNAVAILABLE", now)]);
-    await expect(checkslip.banks.list({ maxRetries: 0 })).rejects.toBeInstanceOf(InternalServerError);
+    await expect(checkslip.banks.list({ maxRetries: 0 })).rejects.toBeInstanceOf(ServiceUnavailableError);
     expect(calls).toHaveLength(1);
   });
 
-  it("throws APITimeoutError when an attempt runs past timeoutMs", async () => {
+  it("throws ConnectionError when an attempt runs past timeoutMs", async () => {
     const timed = new Checkslip({
       apiKey: "csk_x",
       fetch: hangingFetch().fetch,
       timeoutMs: 20,
       maxRetries: 0,
     });
-    await expect(timed.banks.list()).rejects.toBeInstanceOf(APITimeoutError);
+    await expect(timed.banks.list()).rejects.toBeInstanceOf(ConnectionError);
   });
 
   it("retries a timed-out GET", async () => {
     const hanging = hangingFetch();
     const timed = new Checkslip({ apiKey: "csk_x", fetch: hanging.fetch, timeoutMs: 20, maxRetries: 1 });
-    await expect(timed.banks.list()).rejects.toBeInstanceOf(APITimeoutError);
+    await expect(timed.banks.list()).rejects.toBeInstanceOf(ConnectionError);
     expect(hanging.attempts()).toBe(2);
   });
 
@@ -172,7 +172,7 @@ describe("retries", () => {
       const pending = call(c, controller.signal);
       controller.abort();
       const err = await pending.catch((e: unknown) => e);
-      expect(err).not.toBeInstanceOf(APIConnectionError);
+      expect(err).not.toBeInstanceOf(ConnectionError);
       expect((err as Error).name).toBe("AbortError");
       expect(hanging.attempts()).toBe(1);
     }

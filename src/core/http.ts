@@ -1,13 +1,7 @@
 import { commaSeparatedQuery } from "../generated/query-style.js";
 import type { Problem } from "../types.js";
 import { VERSION } from "../version.js";
-import {
-  APIConnectionError,
-  APITimeoutError,
-  type CheckslipError,
-  errorClassForStatus,
-  RateLimitError,
-} from "./errors.js";
+import { type CheckslipError, ConnectionError, errorClassForStatus, RateLimitError } from "./errors.js";
 import { isBrowser, randomUUID, sleep } from "./runtime.js";
 
 /** Per-call options accepted as the last argument of every SDK method. */
@@ -116,9 +110,9 @@ export class HttpClient {
       } catch (err) {
         if (options.signal?.aborted) throw err;
         const error =
-          err instanceof APITimeoutError
+          err instanceof ConnectionError
             ? err
-            : new APIConnectionError(`Request to ${req.method} ${req.path} failed: ${describe(err)}`, {
+            : new ConnectionError(`Request to ${req.method} ${req.path} failed: ${describe(err)}`, {
                 cause: err,
               });
         if (retryable && attempt < maxRetries) {
@@ -164,7 +158,10 @@ export class HttpClient {
       return await this.config.fetch(url, { ...init, signal: controller.signal });
     } catch (err) {
       if (timedOut) {
-        throw new APITimeoutError(`Request timed out after ${timeoutMs} ms.`, { cause: err });
+        throw new ConnectionError(`Request timed out after ${timeoutMs} ms.`, {
+          cause: err,
+          timeout: true,
+        });
       }
       throw err;
     } finally {

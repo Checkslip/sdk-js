@@ -6,18 +6,20 @@ export {
   DEFAULT_TIMEOUT_MS,
 } from "./client.js";
 export {
-  APIConnectionError,
-  APITimeoutError,
   AuthenticationError,
   BadRequestError,
   CheckslipError,
   type CheckslipErrorOptions,
   ConflictError,
+  ConnectionError,
+  GoneError,
   InsufficientCreditError,
-  InternalServerError,
   NotFoundError,
   PermissionDeniedError,
   RateLimitError,
+  ServerError,
+  ServiceUnavailableError,
+  UnexpectedResponseError,
   UnprocessableEntityError,
   WebhookVerificationError,
 } from "./core/errors.js";
@@ -30,9 +32,18 @@ export type {
   Chain,
   Checkpoints,
   EvidenceExports,
+  SigningKeys,
 } from "./resources/audit.js";
 export type { Banks } from "./resources/banks.js";
-export type { Billing, Ledger, Orders, Receipts } from "./resources/billing.js";
+export type {
+  BalanceResource,
+  Billing,
+  BillingInfoResource,
+  Ledger,
+  Orders,
+  Packages,
+  Receipts,
+} from "./resources/billing.js";
 export type {
   LookupByImageParams,
   LookupByQrParams,
@@ -42,7 +53,12 @@ export type {
   Slips,
 } from "./resources/slips.js";
 export type { Usage } from "./resources/usage.js";
-export type { WebhookDeliveries, WebhookEndpoints, Webhooks } from "./resources/webhooks.js";
+export type {
+  EventTypes,
+  WebhookDeliveries,
+  WebhookEndpoints,
+  Webhooks,
+} from "./resources/webhooks.js";
 export type * from "./types.js";
 export { VERSION } from "./version.js";
 export {

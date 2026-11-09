@@ -11,15 +11,19 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: read
-      id-token: write # npm provenance
+      id-token: write # OIDC trusted publishing; also signs provenance
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or newer. Node 22 ships npm 10.
+      - name: Use an npm that can publish with OIDC
+        run: npm install -g npm@^11.5.1
       - run: npm ci
       - name: Tag matches package.json version
         run: |
@@ -35,6 +39,7 @@ jobs:
       - run: npm run build
       - run: npm run test:dist
       - run: npm run check:package
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # No token: npm exchanges the GitHub OIDC token for publish rights, and
+      # generates provenance by itself. NODE_AUTH_TOKEN must stay unset — a
+      # stale one makes this fail with a misleading "token expired" error.
+      - run: npm publish --access public
