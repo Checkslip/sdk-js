@@ -92,6 +92,13 @@ export type Balance = Schemas["Balance"];
 export type BillingInfo = Schemas["BillingInfo"];
 /** One credit ledger entry. */
 export type CreditEntry = Schemas["CreditEntry"];
+/**
+ * Why a lookup used no credit.
+ *
+ * `OTHER` means it was not charged and no reason was given. The API no longer
+ * sends `NO_CREDIT` or `HOLD_EXPIRED`: both arrive as `OTHER`.
+ */
+export type FreeReason = Schemas["FreeReason"];
 /** Filters for `billing.ledger.list()`. */
 export type LedgerListParams = QueryOf<"listLedger">;
 /** A credit package order. */
@@ -113,7 +120,14 @@ export type ReceiptListParams = QueryOf<"listReceipts">;
 export type UsageReport = Schemas["Usage"];
 /** Parameters for `usage.get()`. */
 export type UsageParams = QueryOf<"getUsage">;
-/** Counts of lookups by how they were charged. */
+/**
+ * Counts of lookups by how they were charged.
+ *
+ * `free_other` counts lookups that were not charged with no reason given.
+ * `free_no_credit` and `free_hold_expired` are optional because the API no
+ * longer counts them and drops both fields later, so handle them being
+ * absent.
+ */
 export type UsageCounts = Schemas["UsageCounts"];
 
 // Webhooks

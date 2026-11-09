@@ -1040,7 +1040,7 @@ export interface components {
             trans_ref?: components["schemas"]["TransRef"];
         };
         /** @enum {string} */
-        FreeReason: "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "NO_CREDIT" | "HOLD_EXPIRED" | "SYSTEM_ERROR";
+        FreeReason: "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "NO_CREDIT" | "HOLD_EXPIRED" | "SYSTEM_ERROR" | "OTHER";
         MessageEnvelope: {
             data: Record<string, never>;
             /** Format: date-time */
@@ -1397,11 +1397,13 @@ export interface components {
             charged: number;
             checks: number;
             free_duplicate: number;
-            free_hold_expired: number;
+            free_hold_expired?: number;
             free_invalid_file: number;
             free_invalid_qr: number;
-            free_no_credit: number;
+            free_no_credit?: number;
             free_not_found: number;
+            /** @description Lookups that were not charged with no reason given. */
+            free_other?: number;
             free_qr_tampered: number;
             free_system_error: number;
             free_too_old: number;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { Checkslip } from "../src/index.js";
-import type { ApiRequestRecord, AuditEvent } from "../src/types.js";
+import type { ApiRequestRecord, AuditEvent, FreeReason, UsageCounts } from "../src/types.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
 
 /**
@@ -75,6 +75,61 @@ describe("tolerating fields the SDK does not model", () => {
     const ms: number = request.latency_ms;
     void ms;
     expect(WITHDRAWN_FIELDS).not.toContain("latency_ms");
+  });
+});
+
+describe("usage counts, now that free_other exists", () => {
+  // The API added free_other, stopped counting free_no_credit and
+  // free_hold_expired, and drops those two fields later. The SDK and the API
+  // are deployed separately, so both shapes have to work.
+  it("types the new count and the two deprecated ones as optional", () => {
+    const counts = {} as UsageCounts;
+    const other: number | undefined = counts.free_other;
+    const noCredit: number | undefined = counts.free_no_credit;
+    const holdExpired: number | undefined = counts.free_hold_expired;
+    void [other, noCredit, holdExpired];
+    const required: number = counts.free_system_error;
+    void required;
+  });
+
+  it("names OTHER as a free reason", () => {
+    const reason: FreeReason = "OTHER";
+    expect(reason).toBe("OTHER");
+  });
+
+  it("reads a report whether or not the deprecated counts are there", async () => {
+    const common = {
+      checks: 12,
+      charged: 7,
+      free_not_found: 1,
+      free_duplicate: 0,
+      free_unavailable: 0,
+      free_invalid_qr: 0,
+      free_invalid_file: 0,
+      free_qr_tampered: 0,
+      free_too_old: 0,
+      free_system_error: 0,
+    };
+    const report = (totals: Record<string, number>) => ({
+      interval: "day",
+      as_of: "2026-11-09T10:00:00+07:00",
+      from: "2026-11-01",
+      to: "2026-11-09",
+      timezone: "Asia/Bangkok",
+      buckets: [{ start: "2026-11-01", ...totals }],
+      totals,
+    });
+
+    const before = client([json(report({ ...common, free_no_credit: 3, free_hold_expired: 2 }))]);
+    const old = await before.checkslip.usage.get({ from: "2026-11-01", to: "2026-11-09" });
+    expect(old.totals.free_no_credit).toBe(3);
+    expect(old.totals.free_other).toBeUndefined();
+
+    const after = client([json(report({ ...common, free_other: 5 }))]);
+    const now = await after.checkslip.usage.get({ from: "2026-11-01", to: "2026-11-09" });
+    expect(now.totals.free_other).toBe(5);
+    expect(now.totals.free_no_credit).toBeUndefined();
+    expect(now.buckets[0]?.free_other).toBe(5);
   });
 });
 
