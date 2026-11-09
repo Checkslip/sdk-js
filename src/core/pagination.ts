@@ -78,6 +78,7 @@ export class PagePromise<Item> implements PromiseLike<Page<Item>>, AsyncIterable
     this.first.catch(() => {});
   }
 
+  /** Resolves to the first page. */
   // biome-ignore lint/suspicious/noThenProperty: PagePromise is meant to be awaited.
   then<A = Page<Item>, B = never>(
     onfulfilled?: ((value: Page<Item>) => A | PromiseLike<A>) | null,
@@ -91,6 +92,7 @@ export class PagePromise<Item> implements PromiseLike<Page<Item>>, AsyncIterable
     return this.first.catch(onrejected);
   }
 
+  /** Yields every item on every page, fetching pages as needed. */
   async *[Symbol.asyncIterator](): AsyncIterator<Item> {
     const page = await this.first;
     yield* page;

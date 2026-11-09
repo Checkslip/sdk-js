@@ -46,7 +46,8 @@
     "README.md",
     "README.th.md",
     "CHANGELOG.md",
-    "LICENSE"
+    "LICENSE",
+    "SECURITY.md"
   ],
   "scripts": {
     "generate": "node scripts/generate.mjs",
