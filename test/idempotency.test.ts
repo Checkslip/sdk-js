@@ -32,7 +32,7 @@ describe("idempotency", () => {
   it("sends no key where the spec has none", async () => {
     const { checkslip, calls } = client([json({}), json({})]);
     await checkslip.slips.exports.create({ columns: ["request_id", "outcome"] });
-    await checkslip.billing.balance();
+    await checkslip.billing.balance.get();
     for (const call of calls) expect(call.headers.has("idempotency-key")).toBe(false);
   });
 });

@@ -24,16 +24,8 @@ export class Webhooks extends APIResource {
   readonly endpoints: WebhookEndpoints = new WebhookEndpoints(this.http);
   /** Messages queued for endpoints, with every send attempt. */
   readonly deliveries: WebhookDeliveries = new WebhookDeliveries(this.http);
-
-  /** Lists every event type Checkslip can send, such as `slip.checked`. */
-  eventTypes(options?: RequestOptions): Promise<{ items: EventTypeInfo[] }> {
-    return this.http.request({
-      method: "GET",
-      path: "/api/webhooks/event-types",
-      operationId: "listEventTypes",
-      options,
-    });
-  }
+  /** The event types Checkslip can send. */
+  readonly eventTypes: EventTypes = new EventTypes(this.http);
 
   /**
    * Checks a webhook's signature and returns the parsed event. Same as the
@@ -41,6 +33,25 @@ export class Webhooks extends APIResource {
    */
   verify(options: VerifyWebhookOptions): Promise<WebhookEvent> {
     return verifyWebhook(options);
+  }
+}
+
+/** The event types Checkslip can send. */
+export class EventTypes extends APIResource {
+  /**
+   * Lists every event type Checkslip can send, such as `slip.checked`.
+   *
+   * The API wraps the list in an object with nothing else in it, so the SDK
+   * hands back the event types themselves.
+   */
+  async list(options?: RequestOptions): Promise<EventTypeInfo[]> {
+    const body = await this.http.request<{ items: EventTypeInfo[] }>({
+      method: "GET",
+      path: "/api/webhooks/event-types",
+      operationId: "listEventTypes",
+      options,
+    });
+    return body.items;
   }
 }
 
@@ -59,6 +70,11 @@ export class WebhookEndpoints extends APIResource {
         }),
       params.cursor,
     );
+  }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: WebhookEndpointListParams = {}, options?: RequestOptions): AsyncIterable<WebhookEndpoint> {
+    return this.list(params, options);
   }
 
   /**
@@ -173,6 +189,11 @@ export class WebhookDeliveries extends APIResource {
         }),
       params.cursor,
     );
+  }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: WebhookDeliveryListParams = {}, options?: RequestOptions): AsyncIterable<WebhookDelivery> {
+    return this.list(params, options);
   }
 
   /** Gets one delivery with its payload and every attempt. */

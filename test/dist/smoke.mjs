@@ -8,9 +8,12 @@ const checkslip = new Checkslip({
   apiKey: "csk_smoke",
   fetch: async (url, init) => {
     seen.push({ url: String(url), init });
-    return new Response(JSON.stringify({ request_id: "r1", outcome: "NOT_FOUND", checked_at: "x", slip: {} }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ request_id: "r1", outcome: "NOT_FOUND", checked_at: "x", slip: {} }),
+      {
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   },
 });
 const result = await checkslip.slips.lookup({ qr: "00330006000001010306902126302105340875102TH9104F86F" });

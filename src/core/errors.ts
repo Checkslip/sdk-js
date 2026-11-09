@@ -14,6 +14,8 @@ export interface CheckslipErrorOptions {
   headers?: Headers | undefined;
   /** The underlying error, for network failures. */
   cause?: unknown;
+  /** True when the request was cut off by `timeoutMs` rather than failing outright. */
+  timeout?: boolean | undefined;
 }
 
 /**
@@ -86,14 +88,36 @@ export class RateLimitError extends CheckslipError {
   }
 }
 
-/** 5xx: the API or a bank behind it failed. Safe to retry with the same Idempotency-Key. */
-export class InternalServerError extends CheckslipError {}
+/** 410: the resource existed but is gone for good, for example an expired export. */
+export class GoneError extends CheckslipError {}
 
-/** The request never got a response: DNS, TLS, connection reset, and similar. */
-export class APIConnectionError extends CheckslipError {}
+/** 5xx other than 503: the API or a bank behind it failed. Safe to retry with the same Idempotency-Key. */
+export class ServerError extends CheckslipError {}
 
-/** The request took longer than `timeoutMs`. */
-export class APITimeoutError extends APIConnectionError {}
+/** 503: the API is up but temporarily cannot serve the request. Retry after a pause. */
+export class ServiceUnavailableError extends CheckslipError {}
+
+/**
+ * The request never got a response: DNS, TLS, connection reset, and similar.
+ *
+ * A request cut off by `timeoutMs` is also a `ConnectionError`, with
+ * {@link ConnectionError.timeout} set to `true`.
+ */
+export class ConnectionError extends CheckslipError {
+  /** True when `timeoutMs` elapsed, rather than the connection failing outright. */
+  readonly timeout: boolean;
+
+  constructor(message: string, options: CheckslipErrorOptions = {}) {
+    super(message, options);
+    this.timeout = options.timeout === true;
+  }
+}
+
+/**
+ * The response did not match anything the SDK knows how to handle: a status it
+ * has no class for, or a body that is not the problem shape the API documents.
+ */
+export class UnexpectedResponseError extends CheckslipError {}
 
 /** A webhook payload failed signature or timestamp checks. Reject the request. */
 export class WebhookVerificationError extends CheckslipError {}
@@ -115,9 +139,13 @@ export function errorClassForStatus(status: number): typeof CheckslipError {
       return ConflictError;
     case 422:
       return UnprocessableEntityError;
+    case 410:
+      return GoneError;
     case 429:
       return RateLimitError;
+    case 503:
+      return ServiceUnavailableError;
     default:
-      return status >= 500 ? InternalServerError : CheckslipError;
+      return status >= 500 ? ServerError : UnexpectedResponseError;
   }
 }

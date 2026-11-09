@@ -115,6 +115,11 @@ export class Slips extends APIResource {
     );
   }
 
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: SlipListParams = {}, options?: RequestOptions): AsyncIterable<SlipCheckRecord> {
+    return this.list(params, options);
+  }
+
   /** Gets one past lookup by its `request_id`. */
   get(requestId: string, options?: RequestOptions): Promise<SlipCheckRecord> {
     return this.http.request({

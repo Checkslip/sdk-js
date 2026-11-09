@@ -6,7 +6,7 @@
 
 Checkslip ถามธนาคารผู้โอนว่ามีรายการโอนตามสลิปหรือไม่ คุณส่งข้อความใน QR บนสลิป หรือส่งรูปสลิปมา แล้ว Checkslip ส่งข้อมูลที่ธนาคารมีกลับไป ได้แก่ ยอดเงิน เวลา ผู้โอน และผู้รับ ส่วนการตัดสินใจว่าจะรับเงินหรือไม่ เป็นของคุณ โดยเทียบกับออเดอร์ของคุณเอง
 
-ใช้ได้บน Node.js 18 ขึ้นไป, Bun, Deno, Cloudflare Workers, Vercel Edge และ runtime อื่นที่มี `fetch` ไม่มี dependency ตอน runtime มีทั้ง ESM, CommonJS และ type ของ TypeScript
+ใช้ได้บน Node.js 22 ขึ้นไป, Bun, Deno, Cloudflare Workers, Vercel Edge และ runtime อื่นที่มี `fetch` ไม่มี dependency ตอน runtime มีทั้ง ESM, CommonJS และ type ของ TypeScript
 
 ## ติดตั้ง
 
@@ -122,11 +122,13 @@ try {
 | `PermissionDeniedError`    | 403 key ไม่มีสิทธิ์ที่คำขอนี้ต้องใช้                                      |
 | `NotFoundError`            | 404                                                            |
 | `ConflictError`            | 409                                                            |
+| `GoneError`                | 410 ของหายไปแล้วถาวร เช่น export ที่หมดอายุ                         |
 | `UnprocessableEntityError` | 422 เช่น `INVALID_QR`, `QR_TAMPERED`, `TOO_OLD`, `INVALID_FILE` |
 | `RateLimitError`           | 429 มี `retryAfter` เป็นวินาที                                     |
-| `InternalServerError`      | 5xx                                                            |
-| `APIConnectionError`       | ไม่ได้รับคำตอบเลย (DNS, TLS, การเชื่อมต่อหลุด)                        |
-| `APITimeoutError`          | รอนานเกิน `timeoutMs`                                           |
+| `ServerError`              | 5xx ที่ไม่ใช่ 503                                                  |
+| `ServiceUnavailableError`  | 503 ระบบยังอยู่ แต่ตอบไม่ได้ชั่วคราว                                   |
+| `ConnectionError`          | ไม่ได้รับคำตอบเลย (DNS, TLS, การเชื่อมต่อหลุด หรือเกิน `timeoutMs`)     |
+| `UnexpectedResponseError`  | สถานะที่ไม่มีคลาสของตัวเอง เช่น 413 หรือ 415                          |
 | `CheckslipError`           | status อื่น เช่น 413 หรือ 415                                      |
 
 รหัส error ทั้งหมดและวิธีแก้: [checkslip.com/docs/errors](https://checkslip.com/docs/errors)
@@ -155,15 +157,15 @@ await checkslip.slips.lookup({ qr }, { idempotencyKey: `order-${order.id}-slip-1
 
 ## การแบ่งหน้า
 
-เมธอดที่คืนรายการจะคืน `PagePromise` ใช้ `for await` เพื่อวนทุกรายการข้ามทุกหน้า ไลบรารีตาม `next_cursor` ให้เอง
+รายการทุกชุดมีเมธอดคู่กัน `listAll()` ไล่ทุกหน้าและคืนทีละรายการ โดยตาม `next_cursor` ให้เอง ส่วน `list()` คืนมาหน้าเดียว
 
 ```ts
-for await (const record of checkslip.slips.list({ outcome: ["FOUND"], limit: 100 })) {
+for await (const record of checkslip.slips.listAll({ outcome: ["FOUND"], limit: 100 })) {
   console.log(record.request_id, record.slip?.trans_ref);
 }
 ```
 
-ถ้าต้องการทีละหน้า ให้ await:
+ถ้าต้องการทีละหน้า ให้ await `list()`:
 
 ```ts
 let page = await checkslip.slips.list({ trans_ref: "630210534087" });
@@ -241,7 +243,7 @@ for await (const delivery of checkslip.webhooks.deliveries.list({ status: "FAILE
 ## คำขออื่น ๆ
 
 ```ts
-await checkslip.billing.balance(); // เครดิตคงเหลือ และสถานะเครดิตใกล้หมด
+await checkslip.billing.balance.get(); // เครดิตคงเหลือ และสถานะเครดิตใกล้หมด
 await checkslip.usage.get({ from: "2026-11-01", to: "2026-11-30" });
 await checkslip.banks.list(); // ธนาคารที่รองรับ
 await checkslip.slips.get(requestId); // ผลตรวจสอบครั้งก่อน
@@ -279,7 +281,7 @@ await checkslip.slips.lookup(
     timeoutMs: 10_000,
     maxRetries: 0,
     signal: AbortSignal.timeout(15_000),
-    headers: { traceparent: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01" },
+    headers: { "X-My-App": "shop" },
   },
 );
 ```

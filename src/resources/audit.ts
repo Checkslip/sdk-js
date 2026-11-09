@@ -28,9 +28,19 @@ export class Audit extends APIResource {
   readonly chain: Chain = new Chain(this.http);
   /** Evidence files for auditors. */
   readonly exports: EvidenceExports = new EvidenceExports(this.http);
+  /** The public keys that sign checkpoints. */
+  readonly signingKeys: SigningKeys = new SigningKeys(this.http);
+}
 
-  /** Returns the Ed25519 public keys that sign checkpoints, as a JWK Set. */
-  signingKeys(options?: RequestOptions): Promise<JwkSet> {
+/** The public keys that sign checkpoints. */
+export class SigningKeys extends APIResource {
+  /**
+   * Returns the Ed25519 public keys that sign checkpoints, as a JWK Set.
+   *
+   * This is a standard JWKS, so it is handed back whole rather than unwrapped
+   * to its `keys`.
+   */
+  get(options?: RequestOptions): Promise<JwkSet> {
     return this.http.request({
       method: "GET",
       path: "/api/audit/signing-keys",
@@ -55,6 +65,11 @@ export class AuditEvents extends APIResource {
         }),
       params.cursor,
     );
+  }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: AuditEventListParams = {}, options?: RequestOptions): AsyncIterable<AuditEvent> {
+    return this.list(params, options);
   }
 
   /** Gets one activity record. */
@@ -85,6 +100,11 @@ export class ApiRequests extends APIResource {
     );
   }
 
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: ApiRequestListParams = {}, options?: RequestOptions): AsyncIterable<ApiRequestRecord> {
+    return this.list(params, options);
+  }
+
   /** Gets one request by its request id (the `X-Request-Id` of its response). */
   get(requestId: string, options?: RequestOptions): Promise<ApiRequestRecord> {
     return this.http.request({
@@ -113,14 +133,25 @@ export class Checkpoints extends APIResource {
     );
   }
 
-  /** Returns the latest checkpoint for each record type. */
-  latest(options?: RequestOptions): Promise<{ items: Checkpoint[] }> {
-    return this.http.request({
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: CheckpointListParams = {}, options?: RequestOptions): AsyncIterable<Checkpoint> {
+    return this.list(params, options);
+  }
+
+  /**
+   * Returns the latest checkpoint for each record type.
+   *
+   * The API wraps these in an object with nothing else in it, so the SDK hands
+   * back the checkpoints themselves.
+   */
+  async listLatest(options?: RequestOptions): Promise<Checkpoint[]> {
+    const body = await this.http.request<{ items: Checkpoint[] }>({
       method: "GET",
       path: "/api/audit/checkpoints/latest",
       operationId: "getLatestCheckpoint",
       options,
     });
+    return body.items;
   }
 }
 
@@ -157,6 +188,11 @@ export class EvidenceExports extends APIResource {
         }),
       params.cursor,
     );
+  }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: EvidenceExportListParams = {}, options?: RequestOptions): AsyncIterable<EvidenceExport> {
+    return this.list(params, options);
   }
 
   /**

@@ -6,7 +6,7 @@ The official JavaScript and TypeScript client for the [Checkslip API](https://ch
 
 Checkslip looks up a Thai bank transfer with the sending bank. You send the text of the QR code on a slip, or a photo of the slip, and Checkslip returns what the bank holds for that transfer: amount, time, sender and receiver. Whether to accept the payment is your decision, made against your own order.
 
-The package runs on Node.js 18 or later, Bun, Deno, Cloudflare Workers, Vercel Edge and other runtimes that have `fetch`. It has no runtime dependencies and ships ESM, CommonJS and TypeScript types.
+The package runs on Node.js 22 or later, Bun, Deno, Cloudflare Workers, Vercel Edge and other runtimes that have `fetch`. It has no runtime dependencies and ships ESM, CommonJS and TypeScript types.
 
 ## Install
 
@@ -124,12 +124,19 @@ try {
 | `PermissionDeniedError`    | 403, the key lacks the scope this call needs                            |
 | `NotFoundError`            | 404                                                                     |
 | `ConflictError`            | 409                                                                     |
+| `GoneError`                | 410, the resource is gone for good, such as an expired export           |
 | `UnprocessableEntityError` | 422, for example `INVALID_QR`, `QR_TAMPERED`, `TOO_OLD`, `INVALID_FILE` |
 | `RateLimitError`           | 429, with `retryAfter` in seconds                                       |
-| `InternalServerError`      | 5xx                                                                     |
-| `APIConnectionError`       | no response arrived (DNS, TLS, reset connection)                        |
-| `APITimeoutError`          | an attempt ran past `timeoutMs`                                         |
-| `CheckslipError`           | any other status, such as 413 or 415                                    |
+| `ServerError`              | 5xx other than 503                                                      |
+| `ServiceUnavailableError`  | 503, up but temporarily unable to serve                                 |
+| `ConnectionError`          | no response arrived (DNS, TLS, reset connection, or `timeoutMs`)        |
+| `UnexpectedResponseError`  | a status with no class of its own, such as 413 or 415                   |
+| `WebhookVerificationError` | a webhook signature or timestamp did not check out                      |
+
+A request cut off by `timeoutMs` is a `ConnectionError` with `timeout` set to `true`, so you can tell a
+timeout from a refused connection without catching a second class.
+
+`CheckslipError` is the base class of all of them: catch it when you only want one branch.
 
 Every error code and what to do about it: [checkslip.com/docs/errors](https://checkslip.com/en/docs/errors).
 
@@ -157,15 +164,15 @@ The calls the API requires a key for (`webhooks.endpoints.rotateSecret`, `sendTe
 
 ## Pagination
 
-List methods return a `PagePromise`. Iterate it with `for await` to get every item across all pages; the SDK follows `next_cursor` for you.
+Every list has a pair of methods. `listAll()` walks every page and yields each item, following `next_cursor` for you:
 
 ```ts
-for await (const record of checkslip.slips.list({ outcome: ["FOUND"], limit: 100 })) {
+for await (const record of checkslip.slips.listAll({ outcome: ["FOUND"], limit: 100 })) {
   console.log(record.request_id, record.slip?.trans_ref);
 }
 ```
 
-Await it to get one page at a time:
+`list()` gives you one page at a time:
 
 ```ts
 let page = await checkslip.slips.list({ trans_ref: "630210534087" });
@@ -243,13 +250,16 @@ for await (const delivery of checkslip.webhooks.deliveries.list({ status: "FAILE
 ## Other resources
 
 ```ts
-await checkslip.billing.balance(); // credits left, low-credit flag
+await checkslip.billing.balance.get(); // credits left, low-credit flag
 await checkslip.usage.get({ from: "2026-11-01", to: "2026-11-30" });
 await checkslip.banks.list(); // supported banks
 await checkslip.slips.get(requestId); // one past lookup
 await checkslip.slips.counts({ from, to, bucket: "DAY" });
 await checkslip.slips.exports.create({ columns: ["request_id", "outcome", "slip.trans_ref"] });
-await checkslip.audit.events.list(); // account activity
+await checkslip.audit.events.list(); // account activity, one page
+for await (const event of checkslip.audit.events.listAll()) {
+  /* every page */
+}
 await checkslip.audit.requests.list({ trans_ref }); // request log
 await checkslip.audit.exports.create({ from_day, to_day });
 ```
@@ -281,7 +291,7 @@ await checkslip.slips.lookup(
     timeoutMs: 10_000,
     maxRetries: 0,
     signal: AbortSignal.timeout(15_000),
-    headers: { traceparent: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01" },
+    headers: { "X-My-App": "shop" },
   },
 );
 ```

@@ -15,15 +15,24 @@ import { APIResource } from "./resource.js";
 
 /** Credits, orders, receipts and billing details. */
 export class Billing extends APIResource {
+  /** The credit balance on this account. */
+  readonly balance: BalanceResource = new BalanceResource(this.http);
+  /** The billing details printed on receipts. */
+  readonly info: BillingInfoResource = new BillingInfoResource(this.http);
+  /** The credit packages on sale. */
+  readonly packages: Packages = new Packages(this.http);
   /** The credit ledger: every top-up, charge and expiry. */
   readonly ledger: Ledger = new Ledger(this.http);
   /** Orders for credit packages. */
   readonly orders: Orders = new Orders(this.http);
   /** Receipts for paid orders. */
   readonly receipts: Receipts = new Receipts(this.http);
+}
 
+/** The credit balance on this account. */
+export class BalanceResource extends APIResource {
   /** Returns the current credit balance and whether it is running low. */
-  balance(options?: RequestOptions): Promise<Balance> {
+  get(options?: RequestOptions): Promise<Balance> {
     return this.http.request({
       method: "GET",
       path: "/api/billing/balance",
@@ -31,9 +40,12 @@ export class Billing extends APIResource {
       options,
     });
   }
+}
 
+/** The billing details printed on receipts. */
+export class BillingInfoResource extends APIResource {
   /** Returns the billing details printed on receipts. */
-  getInfo(options?: RequestOptions): Promise<BillingInfo> {
+  get(options?: RequestOptions): Promise<BillingInfo> {
     return this.http.request({
       method: "GET",
       path: "/api/billing/billing-info",
@@ -43,7 +55,7 @@ export class Billing extends APIResource {
   }
 
   /** Replaces the billing details printed on receipts. */
-  updateInfo(params: BillingInfo, options?: RequestOptions): Promise<BillingInfo> {
+  update(params: BillingInfo, options?: RequestOptions): Promise<BillingInfo> {
     return this.http.request({
       method: "PUT",
       path: "/api/billing/billing-info",
@@ -52,9 +64,17 @@ export class Billing extends APIResource {
       options,
     });
   }
+}
 
-  /** Lists the credit packages on sale. */
-  packages(options?: RequestOptions): Promise<PackageList> {
+/** The credit packages on sale. */
+export class Packages extends APIResource {
+  /**
+   * Lists the credit packages on sale.
+   *
+   * The response is kept whole rather than unwrapped to the items, because it
+   * also carries `prices_include_vat` and `checkout_open`.
+   */
+  list(options?: RequestOptions): Promise<PackageList> {
     return this.http.request({
       method: "GET",
       path: "/api/billing/packages",
@@ -80,6 +100,11 @@ export class Ledger extends APIResource {
       params.cursor,
     );
   }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: LedgerListParams = {}, options?: RequestOptions): AsyncIterable<CreditEntry> {
+    return this.list(params, options);
+  }
 }
 
 /** Orders for credit packages. */
@@ -97,6 +122,11 @@ export class Orders extends APIResource {
         }),
       params.cursor,
     );
+  }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: OrderListParams = {}, options?: RequestOptions): AsyncIterable<Order> {
+    return this.list(params, options);
   }
 
   /** Gets one order. */
@@ -135,6 +165,11 @@ export class Receipts extends APIResource {
         }),
       params.cursor,
     );
+  }
+
+  /** Walks every page and yields each item, fetching pages as it goes. */
+  listAll(params: ReceiptListParams = {}, options?: RequestOptions): AsyncIterable<Receipt> {
+    return this.list(params, options);
   }
 
   /** Gets one receipt. */
