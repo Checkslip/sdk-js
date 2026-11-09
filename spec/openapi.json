@@ -1024,32 +1024,56 @@
           {
             "name": "http_status",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "schema": {
-              "type": "integer",
-              "minimum": 100,
-              "maximum": 599
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 599
+              }
             }
           },
           {
             "name": "outcome_code",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "schema": {
-              "$ref": "#/components/schemas/OutcomeCode"
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "$ref": "#/components/schemas/OutcomeCode"
+              }
             }
           },
           {
             "name": "route",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "schema": {
-              "type": "string",
-              "maxLength": 200
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "string",
+                "maxLength": 200
+              }
             }
           },
           {
             "name": "channel",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "schema": {
-              "$ref": "#/components/schemas/Channel"
+              "type": "array",
+              "maxItems": 5,
+              "items": {
+                "$ref": "#/components/schemas/Channel"
+              }
             }
           },
           {
@@ -2159,10 +2183,10 @@
       "get": {
         "operationId": "getOrder",
         "summary": "Get an order",
-        "description": "Returns one order and its current status. After returning from Stripe, check here whether payment has gone through; the status becomes PAID once the credits are on the account. Needs an API key with billing:read.",
+        "description": "Returns one order and its current status. After returning from the payment page, check here whether payment has gone through; the status becomes PAID once the credits are on the account. Needs an API key with billing:read.",
         "x-checkslip-th": {
           "summary": "ดูคำสั่งซื้อ",
-          "description": "แสดงคำสั่งซื้อหนึ่งรายการและสถานะล่าสุด หลังกลับจากหน้า Stripe ให้ดูที่นี่ว่าชำระแล้วหรือยัง สถานะจะเป็น PAID เมื่อเครดิตเข้าบัญชีแล้ว ใช้ API key ที่มีสิทธิ์ billing:read"
+          "description": "แสดงคำสั่งซื้อหนึ่งรายการและสถานะล่าสุด หลังกลับจากหน้าชำระเงิน ให้ดูที่นี่ว่าชำระแล้วหรือยัง สถานะจะเป็น PAID เมื่อเครดิตเข้าบัญชีแล้ว ใช้ API key ที่มีสิทธิ์ billing:read"
         },
         "x-docs": "https://checkslip.com/en/docs/get-order",
         "tags": [
@@ -2312,10 +2336,10 @@
       "post": {
         "operationId": "syncOrder",
         "summary": "Refresh an order's payment result",
-        "description": "Asks Stripe for the payment result now instead of waiting for its notice. If it is paid, the credits arrive then; if the payment page is closed but the money has not arrived, the order shows as confirming. Asking again within a few seconds returns the same result. Needs an API key with billing:read.",
+        "description": "Checks the payment result now instead of waiting for it to arrive. If it is paid, the credits arrive then; if the payment page is closed but the money has not arrived, the order shows as confirming. Asking again within a few seconds returns the same result. Needs an API key with billing:read.",
         "x-checkslip-th": {
           "summary": "ถามผลการชำระเงินล่าสุดของคำสั่งซื้อ",
-          "description": "ถามผลการชำระเงินจาก Stripe ทันที แทนการรอการแจ้งผล ถ้าชำระแล้วเครดิตเข้าบัญชีตอนนั้น ถ้าปิดหน้าชำระเงินแล้วแต่เงินยังไม่เข้า คำสั่งซื้อจะอยู่ในสถานะกำลังยืนยันการชำระเงิน ถามซ้ำในไม่กี่วินาทีได้ผลเดิม ใช้ API key ที่มีสิทธิ์ billing:read"
+          "description": "ตรวจผลการชำระเงินทันที แทนการรอผลที่จะแจ้งมาเอง ถ้าชำระแล้วเครดิตเข้าบัญชีตอนนั้น ถ้าปิดหน้าชำระเงินแล้วแต่เงินยังไม่เข้า คำสั่งซื้อจะอยู่ในสถานะกำลังยืนยันการชำระเงิน ถามซ้ำในไม่กี่วินาทีได้ผลเดิม ใช้ API key ที่มีสิทธิ์ billing:read"
         },
         "x-docs": "https://checkslip.com/en/docs/sync-order",
         "tags": [
@@ -7378,7 +7402,7 @@
           "free_reason": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/FreeReason"
+                "$ref": "#/components/schemas/CustomerFreeReason"
               },
               {
                 "type": "string",
@@ -7436,6 +7460,20 @@
           "STAFF_ADJUST",
           "ACCOUNT_DELETED",
           "DEV_GRANT"
+        ]
+      },
+      "CustomerFreeReason": {
+        "type": "string",
+        "enum": [
+          "NOT_FOUND",
+          "DUPLICATE",
+          "UNAVAILABLE",
+          "INVALID_QR",
+          "INVALID_FILE",
+          "QR_TAMPERED",
+          "TOO_OLD",
+          "SYSTEM_ERROR",
+          "OTHER"
         ]
       },
       "Delivery": {

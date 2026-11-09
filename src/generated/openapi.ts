@@ -260,7 +260,7 @@ export interface paths {
         };
         /**
          * Get an order
-         * @description Returns one order and its current status. After returning from Stripe, check here whether payment has gone through; the status becomes PAID once the credits are on the account. Needs an API key with billing:read.
+         * @description Returns one order and its current status. After returning from the payment page, check here whether payment has gone through; the status becomes PAID once the credits are on the account. Needs an API key with billing:read.
          */
         get: operations["getOrder"];
         put?: never;
@@ -282,7 +282,7 @@ export interface paths {
         put?: never;
         /**
          * Refresh an order's payment result
-         * @description Asks Stripe for the payment result now instead of waiting for its notice. If it is paid, the credits arrive then; if the payment page is closed but the money has not arrived, the order shows as confirming. Asking again within a few seconds returns the same result. Needs an API key with billing:read.
+         * @description Checks the payment result now instead of waiting for it to arrive. If it is paid, the credits arrive then; if the payment page is closed but the money has not arrived, the order shows as confirming. Asking again within a few seconds returns the same result. Needs an API key with billing:read.
          */
         post: operations["syncOrder"];
         delete?: never;
@@ -875,7 +875,7 @@ export interface components {
             delta: number;
             /** Format: date-time */
             expires_at_after?: string | null;
-            free_reason?: components["schemas"]["FreeReason"] | string;
+            free_reason?: components["schemas"]["CustomerFreeReason"] | string;
             /** Format: uuid */
             id: string;
             reason: components["schemas"]["CreditReason"];
@@ -888,6 +888,8 @@ export interface components {
         };
         /** @enum {string} */
         CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "DEV_GRANT";
+        /** @enum {string} */
+        CustomerFreeReason: "NOT_FOUND" | "DUPLICATE" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "SYSTEM_ERROR" | "OTHER";
         Delivery: {
             attempt_count: number;
             /** Format: date-time */
@@ -1910,14 +1912,14 @@ export interface operations {
         parameters: {
             query?: {
                 api_key_id?: components["schemas"]["ApiKeyId"];
-                channel?: components["schemas"]["Channel"];
+                channel?: components["schemas"]["Channel"][];
                 cursor?: string;
                 from?: string;
-                http_status?: number;
+                http_status?: number[];
                 limit?: number;
-                outcome_code?: components["schemas"]["OutcomeCode"];
+                outcome_code?: components["schemas"]["OutcomeCode"][];
                 qr_sha256?: components["schemas"]["Sha256Hex"];
-                route?: string;
+                route?: string[];
                 to?: string;
                 trans_ref?: components["schemas"]["TransRef"];
             };

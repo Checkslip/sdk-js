@@ -82,6 +82,22 @@ describe("client", () => {
     expect(url.searchParams.has("cursor")).toBe(false);
   });
 
+  it("repeats a key for the audit request filters, which take many values", async () => {
+    const { checkslip, calls } = client([json({ items: [], next_cursor: null })]);
+    await checkslip.audit.requests.list({
+      route: ["/api/slips/lookup", "/api/usage"],
+      http_status: [200, 429],
+      channel: ["API", "DASHBOARD"],
+      outcome_code: ["FOUND", "NOT_FOUND"],
+    });
+    const url = calls[0]!.url;
+    // style=form with explode=true, so one key per value, not a joined string.
+    expect(url.searchParams.getAll("route")).toEqual(["/api/slips/lookup", "/api/usage"]);
+    expect(url.searchParams.getAll("http_status")).toEqual(["200", "429"]);
+    expect(url.searchParams.getAll("channel")).toEqual(["API", "DASHBOARD"]);
+    expect(url.searchParams.getAll("outcome_code")).toEqual(["FOUND", "NOT_FOUND"]);
+  });
+
   it("returns undefined for 204 No Content", async () => {
     const { checkslip, calls } = client([new Response(null, { status: 204 })]);
     await expect(checkslip.webhooks.endpoints.delete("ep_1")).resolves.toBeUndefined();
