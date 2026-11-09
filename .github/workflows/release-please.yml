@@ -1,0 +1,24 @@
+name: Release please
+
+# Keeps a release pull request up to date from the Conventional Commits on
+# main: it works out the next version, writes the changelog and bumps
+# package.json. Merging that pull request tags vX.Y.Z and publishes a GitHub
+# Release, which is what publish.yml waits for.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: googleapis/release-please-action@a02a34c4d625f9f7136db1b9aae108d97dbd7a87 # v4.3.0
+        with:
+          release-type: node
