@@ -1,6 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { Checkslip } from "../src/index.js";
-import type { ApiRequestRecord, AuditEvent, FreeReason, UsageCounts } from "../src/types.js";
+import type {
+  ApiRequestRecord,
+  AuditEvent,
+  FreeReason,
+  SlipCheck,
+  SlipCheckRecord,
+  UsageCounts,
+} from "../src/types.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
 
 /**
@@ -18,6 +25,7 @@ const WITHDRAWN_FIELDS = [
   "source_domain",
   "redactions",
   "causation_id",
+  "upstream_ms",
 ] as const;
 
 describe("tolerating fields the SDK does not model", () => {
@@ -67,7 +75,26 @@ describe("tolerating fields the SDK does not model", () => {
     void request.redactions;
     // @ts-expect-error source_domain left the customer API
     void audit.source_domain;
-    expect(WITHDRAWN_FIELDS).toHaveLength(7);
+    expect(WITHDRAWN_FIELDS).toHaveLength(8);
+  });
+
+  it("keeps the fields the API dropped off the lookup types", () => {
+    // The published document no longer lists these, so the types must not
+    // either. This is now the document's doing, not a local strip.
+    const check = {} as SlipCheck;
+    const record = {} as SlipCheckRecord;
+    // @ts-expect-error latency_ms left the lookup types
+    void check.latency_ms;
+    // @ts-expect-error upstream_ms left the lookup types
+    void check.upstream_ms;
+    // @ts-expect-error checked_elsewhere left the lookup types
+    void check.checked_elsewhere;
+    // @ts-expect-error latency_ms left the stored record too
+    void record.latency_ms;
+    // @ts-expect-error upstream_ms left the stored record too
+    void record.upstream_ms;
+    // @ts-expect-error checked_elsewhere left the stored record too
+    void record.checked_elsewhere;
   });
 
   it("does carry latency_ms on a request record, which the contract requires", () => {
@@ -82,14 +109,19 @@ describe("usage counts, now that free_other exists", () => {
   // The API added free_other, stopped counting free_no_credit and
   // free_hold_expired, and drops those two fields later. The SDK and the API
   // are deployed separately, so both shapes have to work.
-  it("types the new count and the two deprecated ones as optional", () => {
+  it("types free_other as always present and the deprecated pair as optional", () => {
     const counts = {} as UsageCounts;
-    const other: number | undefined = counts.free_other;
-    const noCredit: number | undefined = counts.free_no_credit;
-    const holdExpired: number | undefined = counts.free_hold_expired;
-    void [other, noCredit, holdExpired];
+    // The document lists free_other as required, so reading it needs no guard.
+    const other: number = counts.free_other;
     const required: number = counts.free_system_error;
-    void required;
+    void [other, required];
+    // The deprecated pair is still required in the document, but it is
+    // going away, so the SDK keeps both optional on purpose.
+    // @ts-expect-error free_no_credit may be absent, so it is not a plain number
+    const noCredit: number = counts.free_no_credit;
+    // @ts-expect-error free_hold_expired may be absent, so it is not a plain number
+    const holdExpired: number = counts.free_hold_expired;
+    void [noCredit, holdExpired];
   });
 
   it("names OTHER as a free reason", () => {

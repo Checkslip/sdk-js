@@ -116,7 +116,7 @@ export interface paths {
         };
         /**
          * List API requests
-         * @description Requests this account sent, by API key and in the web app, newest first. Each row has its request_id, route, http_status, outcome_code and the api_key_id used. Pass trans_ref or qr_sha256 to see whether a slip was sent before. Defaults to the last 24 hours; at most 31 days per call. Use next_cursor for the next page; there is no total. Uses no credit. Needs an API key with audit:read, or the web app sign-in. Records hold no names, phone numbers, emails or full account numbers. The caller IP is kept as a network range (/24 or /48) with a keyed hash of the full address, used only to match requests from the same machine; each row shows the range (client_ip_prefix) and the hash (client_ip_hmac), never the full address.
+         * @description Requests this account sent, by API key and in the web app, newest first. Each row has its request_id, route, http_status, outcome_code and the api_key_id used. Pass trans_ref or qr_sha256 to see whether a slip was sent before. Defaults to the last 24 hours; at most 31 days per call. Use next_cursor for the next page; there is no total. Uses no credit. Needs an API key with audit:read, or the web app sign-in. Records hold no names, phone numbers, emails or full account numbers. The caller IP is kept as a network range (/24 or /48) and a keyed hash of the full address, which lets you match requests from the same machine. Each row shows both (client_ip_prefix, client_ip_hmac); the full address is not stored.
          */
         get: operations["listApiRequests"];
         put?: never;
@@ -176,7 +176,7 @@ export interface paths {
         };
         /**
          * Get credit balance
-         * @description Returns the account's remaining credits, their expiry date, and whether they are running low (low and threshold). The low-credit threshold follows your account's own usage; show it as is rather than computing your own. Needs an API key with credit:read or billing:read.
+         * @description Returns the account's remaining credits, their expiry date, and whether they are running low (low and threshold). The low-credit threshold follows your account's own usage; show it as is; do not compute your own. Needs an API key with credit:read or billing:read.
          */
         get: operations["getBalance"];
         put?: never;
@@ -201,7 +201,7 @@ export interface paths {
         get: operations["getBillingInfo"];
         /**
          * Update buyer details for receipts
-         * @description Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits. Needs an API key with billing:write.
+         * @description Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits with a valid check digit. Needs an API key with billing:write.
          */
         put: operations["putBillingInfo"];
         post?: never;
@@ -500,7 +500,7 @@ export interface paths {
         };
         /**
          * Get credit usage
-         * @description Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read.
+         * @description Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read. free_no_credit and free_hold_expired are retired: always 0, and those lookups now count in free_other.
          */
         get: operations["getUsage"];
         put?: never;
@@ -842,7 +842,6 @@ export interface components {
             /** Format: date-time */
             settled_at: string;
         };
-        CheckedElsewhere: boolean;
         /** @enum {string} */
         CheckOutcome: "FOUND" | "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD";
         CheckSlipRequest: {
@@ -1397,13 +1396,14 @@ export interface components {
             charged: number;
             checks: number;
             free_duplicate: number;
+            /** @deprecated */
             free_hold_expired?: number;
             free_invalid_file: number;
             free_invalid_qr: number;
+            /** @deprecated */
             free_no_credit?: number;
             free_not_found: number;
-            /** @description Lookups that were not charged with no reason given. */
-            free_other?: number;
+            free_other: number;
             free_qr_tampered: number;
             free_system_error: number;
             free_too_old: number;
@@ -3289,7 +3289,7 @@ export interface operations {
                             charged: boolean;
                             /** Format: uuid */
                             credit_entry_id?: string | null;
-                            free_reason: ("NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "NO_CREDIT" | "HOLD_EXPIRED" | "SYSTEM_ERROR") | string | null;
+                            free_reason: ("NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "NO_CREDIT" | "HOLD_EXPIRED" | "SYSTEM_ERROR" | "OTHER") | string | null;
                             outcome: ("FOUND" | "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD") | string;
                             /** Format: uuid */
                             request_id: string;
