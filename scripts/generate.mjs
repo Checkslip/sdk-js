@@ -37,10 +37,10 @@ const outPath = join(root, "src/generated/openapi.ts");
 const queryOutPath = join(root, "src/generated/query-style.ts");
 
 /**
- * Fields that left the customer API. The public spec is the arbiter now
- * (checkslip/pm, 9 Nov 2026), so generation does not strip anything: it only
- * checks that these have not come back. If one reappears in the spec, that is
- * a contract question, not something to hide quietly, so generation stops.
+ * Fields that left the Checkslip API. The published OpenAPI document is the
+ * arbiter, so generation does not strip anything: it only checks that these
+ * have not come back. If one reappears, that is a question about the API, not
+ * something to hide quietly, so generation stops.
  */
 const WITHDRAWN_FIELDS = new Set([
   "trace_id",
@@ -53,11 +53,10 @@ const WITHDRAWN_FIELDS = new Set([
 ]);
 
 /**
- * TEMPORARY, remove when verify 0.61.0 is live (checkslip/pm h-mw94dkac8a0,
- * 9 Nov 2026). verify took these three out of the contract, but that has not
- * reached main or deploy yet, so the public spec still lists them. They stay
- * out of the SDK until pm sends the regenerated spec. Delete this block, the
- * call below and the matching test when that happens.
+ * These three are being withdrawn from the Checkslip API. Until the published
+ * document stops listing them, the SDK removes them here, so a caller never
+ * builds on a field that is about to disappear. Delete this block, the call
+ * below and the matching test once the document no longer lists them.
  */
 const PENDING_REMOVAL = {
   schemas: {
