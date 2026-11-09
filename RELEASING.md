@@ -25,8 +25,16 @@ footer a major one. Before 1.0.0 a breaking change bumps the minor.
 - **0.1.0 is published by hand**, from a commit whose CI is green, by whoever
   holds the npm account. release-please takes over from 0.1.1.
 - **npm trusted publishing** has to be configured once on npmjs.com for
-  `@checkslip/sdk`: the publisher is this repository and the workflow is
-  `.github/workflows/publish.yml`. No token is created.
+  `@checkslip/sdk`. Fill it in as:
+  - repository: `Checkslip/sdk-js`
+  - workflow: `release-please.yml`
+  - environment: `release`
+
+  The workflow is **`release-please.yml`, not `publish.yml`**, even though the
+  publish happens in `publish.yml`. The OIDC token's `workflow_ref` claim names
+  the workflow that started the run, and `publish.yml` is a reusable workflow
+  called by the release job. Naming the reusable file makes npm reject the
+  token. No token is created either way.
 - **Provenance needs a public repository.** On a private repository the publish
   still works, but without a provenance attestation.
 - Allow GitHub Actions to create pull requests in the repository settings, or
