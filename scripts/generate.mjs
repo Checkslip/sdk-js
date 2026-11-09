@@ -70,10 +70,10 @@ const PENDING_REMOVAL = {
 };
 
 /**
- * The API has these already and the published document has not caught up.
- * Until it does, the SDK adds them here, so callers can write code for the
- * shape the API actually serves. Generation stops once the document lists
- * them, so this block and the matching test get deleted instead of rotting.
+ * The API serves these fields; the published document lists them in a later
+ * release. The SDK types them now so callers can use them, and generation
+ * drops this block once the document has them: it stops with an error naming
+ * the field, so the block and its test get deleted instead of rotting.
  *
  * free_no_credit and free_hold_expired stay in the types but stop being
  * required. The API no longer counts them and drops both fields later, so
