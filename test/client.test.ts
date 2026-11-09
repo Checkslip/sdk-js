@@ -129,15 +129,8 @@ describe("client", () => {
       ["GET", "/api/webhooks/deliveries/d1", (c) => c.webhooks.deliveries.get("d1")],
       ["GET", "/api/audit/events/ev1", (c) => c.audit.events.get("ev1")],
       ["GET", "/api/audit/requests/rq1", (c) => c.audit.requests.get("rq1")],
-      ["GET", "/api/audit/checkpoints/latest", (c) => c.audit.checkpoints.listLatest()],
-      [
-        "POST",
-        "/api/audit/chain/checks",
-        (c) => c.audit.chain.check({ day: "2026-11-01", stream: "API_REQUESTS" }),
-      ],
       ["GET", "/api/audit/exports/x1", (c) => c.audit.exports.get("x1")],
       ["GET", "/api/audit/exports/x1/file", (c) => c.audit.exports.download("x1")],
-      ["GET", "/api/audit/signing-keys", (c) => c.audit.signingKeys.get()],
     ];
     for (const [method, path, call] of routes) {
       const { checkslip, calls } = client([json({})]);

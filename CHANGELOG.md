@@ -22,4 +22,4 @@ include breaking changes; they are listed under "Changed".
 - Cursor pagination with `for await` over every item, or page by page.
 - Types generated from the Checkslip OpenAPI document.
 
-[0.1.0]: https://github.com/Checkslip/checkslip-js/releases/tag/v0.1.0
+[0.1.0]: https://github.com/Checkslip/sdk-js/releases/tag/v0.1.0

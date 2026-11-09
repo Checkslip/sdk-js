@@ -1,7 +1,7 @@
 # Contributing
 
 Thanks for helping. Bug reports and pull requests are welcome at
-https://github.com/Checkslip/checkslip-js.
+https://github.com/Checkslip/sdk-js.
 
 ## Setup
 
