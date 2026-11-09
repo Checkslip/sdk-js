@@ -139,7 +139,7 @@ export class Orders extends APIResource {
     });
   }
 
-  /** Asks Stripe for the payment result now instead of waiting for its notice, and returns the order. */
+  /** Asks the payment provider for the result now instead of waiting for its notice, and returns the order. */
   sync(orderId: string, options?: RequestOptions): Promise<Order> {
     return this.http.request({
       method: "POST",
