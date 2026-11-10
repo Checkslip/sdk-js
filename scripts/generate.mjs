@@ -71,6 +71,11 @@ const WITHDRAWN_FIELDS = new Set([
  * This fired for real on 11 Nov 2026: SlipCheckRecord.free_reason was
  * narrowed to oneOf[CustomerFreeReason, null] by accident (verify 5a7be823,
  * reopened on pm's order), which a refresh would have pulled in silently.
+ *
+ * Only response fields belong here. A request filter may be closed on
+ * purpose, because a caller can only send a value that exists today
+ * (metering, who owns the vocabulary, 11 Nov 2026). Adding a filter to this
+ * list would block a narrowing the API is entitled to make.
  */
 const MUST_STAY_OPEN = {
   CreditEntry: ["free_reason"],
