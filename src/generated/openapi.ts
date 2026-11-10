@@ -500,7 +500,7 @@ export interface paths {
         };
         /**
          * Get credit usage
-         * @description Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read.
+         * @description Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read. free_no_credit and free_hold_expired are retired: always 0, and those lookups now count in free_other.
          */
         get: operations["getUsage"];
         put?: never;
@@ -562,7 +562,7 @@ export interface paths {
         put?: never;
         /**
          * Resend one delivery
-         * @description Sends the same payload, byte for byte, again with the original webhook-id but a new webhook-timestamp and signature, and starts the retry schedule over. Works on FAILED and SUCCEEDED deliveries. Your system receives the message again; without deduplication on webhook-id it records it twice. An Idempotency-Key is required; the same key for the same delivery returns the first result and does not queue again. It cannot be resent when the endpoint is disabled (ENDPOINT_DISABLED), deleted (ENDPOINT_DELETED), the message's data has been deleted (PAYLOAD_EXPIRED), or the original message was not kept (PAYLOAD_INTEGRITY_MISMATCH). Needs an API key with webhook:manage.
+         * @description Sends the same payload, byte for byte, again with the original webhook-id but a new webhook-timestamp and signature, and starts the retry schedule over. Works on FAILED and SUCCEEDED deliveries. Your system receives the message again; without deduplication on webhook-id it records it twice. An Idempotency-Key is required; the same key for the same delivery returns the first result and does not queue again. It cannot be resent when the endpoint is disabled (ENDPOINT_DISABLED), deleted (ENDPOINT_DELETED) the source data to rebuild the message is gone (PAYLOAD_EXPIRED), or the original message was not kept (PAYLOAD_INTEGRITY_MISMATCH). Needs an API key with webhook:manage.
          */
         post: operations["redeliverDelivery"];
         delete?: never;
@@ -1023,7 +1023,7 @@ export interface components {
             charged?: ("true" | "false" | "unsettled")[];
             columns: components["schemas"]["ExportColumn"][];
             cursor?: string;
-            free_reason?: components["schemas"]["CustomerFreeReason"][];
+            free_reason?: string[];
             /** Format: date-time */
             from?: string;
             outcome?: components["schemas"]["CheckOutcome"][];
@@ -1276,10 +1276,7 @@ export interface components {
             items: components["schemas"]["SlipCheckRecord"][];
             next_cursor: string | null;
         };
-        SlipCheckRecord: components["schemas"]["SlipCheckRecordBase"] & {
-            free_reason?: components["schemas"]["CustomerFreeReason"] | string | null;
-        };
-        SlipCheckRecordBase: {
+        SlipCheckRecord: {
             api_key_id?: string | null;
             /** @enum {string} */
             channel: "API" | "DASHBOARD" | "ASSISTANT";
@@ -1289,6 +1286,7 @@ export interface components {
             checked_at: string;
             client_reference?: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
+            free_reason?: string | null;
             outcome: components["schemas"]["CheckOutcome"];
             /** Format: uuid */
             request_id: string;
@@ -1400,8 +1398,12 @@ export interface components {
             charged: number;
             checks: number;
             free_duplicate: number;
+            /** @deprecated */
+            free_hold_expired?: number;
             free_invalid_file: number;
             free_invalid_qr: number;
+            /** @deprecated */
+            free_no_credit?: number;
             free_not_found: number;
             free_other: number;
             free_qr_tampered: number;
@@ -2678,7 +2680,7 @@ export interface operations {
                 api_key?: string;
                 charged?: ("true" | "false" | "unsettled")[];
                 cursor?: string;
-                free_reason?: components["schemas"]["CustomerFreeReason"][];
+                free_reason?: string[];
                 from?: string;
                 limit?: number;
                 outcome?: components["schemas"]["CheckOutcome"][];

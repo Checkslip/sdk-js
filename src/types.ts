@@ -126,8 +126,9 @@ export type UsageParams = QueryOf<"getUsage">;
  * Counts of lookups by how they were charged.
  *
  * `free_other` counts lookups that were not charged with no reason given.
- * `free_no_credit` and `free_hold_expired` are gone. Both had been returning 0
- * on every account, and those lookups count in `free_other`.
+ * `free_no_credit` and `free_hold_expired` are optional because the API no
+ * longer counts them and drops both fields later, so handle them being
+ * absent.
  */
 export type UsageCounts = Schemas["UsageCounts"];
 
