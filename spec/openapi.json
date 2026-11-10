@@ -3028,9 +3028,7 @@
               "type": "array",
               "uniqueItems": true,
               "items": {
-                "type": "string",
-                "pattern": "^[A-Z][A-Z0-9_]*$",
-                "maxLength": 40
+                "$ref": "#/components/schemas/CustomerFreeReason"
               }
             }
           },
@@ -3202,7 +3200,7 @@
         "description": "One lookup of this account by request_id. A FOUND lookup includes the payer and payee names. An unknown request_id and another account's request_id both answer 404 (we do not reveal whether it exists). Needs an API key with slip:read.",
         "x-checkslip-th": {
           "summary": "ดูผลตรวจหนึ่งรายการ",
-          "description": "แสดงผลตรวจหนึ่งรายการของบัญชีนี้ตาม request_id · รายการที่ outcome เป็น FOUND จะมีชื่อผู้โอนและผู้รับ · request_id ที่ไม่มีอยู่ และ request_id ของบัญชีอื่น ตอบ 404 เหมือนกัน (ไม่บอกว่ามีอยู่จริงหรือไม่) · ใช้ API key ที่มีสิทธิ์ slip:read"
+          "description": "แสดงผลตรวจหนึ่งรายการของบัญชีนี้ตาม request_id · รายการที่ outcome เป็น FOUND จะมีชื่อผู้โอนและผู้รับ · request_id ที่ไม่มีอยู่ และ request_id ของบัญชีอื่น ตอบ 404 เหมือนกัน (ไม่บอกว่ารายการนั้นมีอยู่หรือไม่) · ใช้ API key ที่มีสิทธิ์ slip:read"
         },
         "x-docs": "https://checkslip.com/en/docs/get-slip-check",
         "tags": [
@@ -4764,10 +4762,10 @@
       "get": {
         "operationId": "getUsage",
         "summary": "Get credit usage",
-        "description": "Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read. free_no_credit and free_hold_expired are retired: always 0, and those lookups now count in free_other.",
+        "description": "Returns how many lookups were made, how many took a credit and how many did not, with a count per reason such as free_not_found or free_too_old, per day or per month in Thailand time (interval=DAY or MONTH). A day or month with no lookups is returned as zero, not skipped. One request covers at most 92 days or 24 months. A lookup counts on the day its credit was settled (settled_at), not the day it was sent. The two are usually seconds apart, so a lookup near midnight can land on the next day. The counts trail real time by about 1 minute (see as_of); for each lookup as it happens, use the lookup history (it needs slip:read). Reading usage uses no credit. Needs an API key with usage:read.",
         "x-checkslip-th": {
           "summary": "ดูยอดการใช้เครดิต",
-          "description": "แสดงจำนวนครั้งที่ตรวจ จำนวนครั้งที่หักเครดิต และจำนวนครั้งที่ไม่หัก แยกเป็นช่องตามเหตุผล เช่น free_not_found หรือ free_too_old เป็นรายวันหรือรายเดือนตามเวลาประเทศไทย (interval=DAY หรือ MONTH) วันหรือเดือนที่ไม่มีการตรวจจะแสดงเป็นศูนย์ ไม่ถูกข้าม รายวันดูได้ครั้งละไม่เกิน 92 วัน รายเดือนไม่เกิน 24 เดือน ยอดนับตามวันที่คิดเครดิตเสร็จ (settled_at) ไม่ใช่วันที่ส่งตรวจ ปกติห่างกันไม่กี่วินาที การตรวจใกล้เที่ยงคืนจึงอาจไปนับวันถัดไป ยอดช้ากว่าเวลาจริงประมาณ 1 นาที (ดูเวลาของยอดที่ as_of) ถ้าต้องการผลทีละรายการที่ตรงทันทีให้ดูประวัติการตรวจ (ต้องมีสิทธิ์ slip:read) เรียกดูยอดไม่หักเครดิต ใช้ API key ที่มีสิทธิ์ usage:read · free_no_credit กับ free_hold_expired เลิกใช้แล้ว ค่าเป็น 0 เสมอ จำนวนนั้นนับรวมใน free_other"
+          "description": "แสดงจำนวนครั้งที่ตรวจ จำนวนครั้งที่หักเครดิต และจำนวนครั้งที่ไม่หัก แยกเป็นช่องตามเหตุผล เช่น free_not_found หรือ free_too_old เป็นรายวันหรือรายเดือนตามเวลาประเทศไทย (interval=DAY หรือ MONTH) วันหรือเดือนที่ไม่มีการตรวจจะแสดงเป็นศูนย์ ไม่ถูกข้าม รายวันดูได้ครั้งละไม่เกิน 92 วัน รายเดือนไม่เกิน 24 เดือน ยอดนับตามวันที่คิดเครดิตเสร็จ (settled_at) ไม่ใช่วันที่ส่งตรวจ ปกติห่างกันไม่กี่วินาที การตรวจใกล้เที่ยงคืนจึงอาจไปนับวันถัดไป ยอดช้ากว่าเวลาจริงประมาณ 1 นาที (ดูเวลาของยอดที่ as_of) ถ้าต้องการผลทีละรายการที่ตรงทันทีให้ดูประวัติการตรวจ (ต้องมีสิทธิ์ slip:read) เรียกดูยอดไม่หักเครดิต ใช้ API key ที่มีสิทธิ์ usage:read"
         },
         "x-docs": "https://checkslip.com/en/docs/get-usage",
         "tags": [
@@ -5335,10 +5333,10 @@
       "post": {
         "operationId": "redeliverDelivery",
         "summary": "Resend one delivery",
-        "description": "Sends the same payload, byte for byte, again with the original webhook-id but a new webhook-timestamp and signature, and starts the retry schedule over. Works on FAILED and SUCCEEDED deliveries. Your system receives the message again; without deduplication on webhook-id it records it twice. An Idempotency-Key is required; the same key for the same delivery returns the first result and does not queue again. It cannot be resent when the endpoint is disabled (ENDPOINT_DISABLED), deleted (ENDPOINT_DELETED) the source data to rebuild the message is gone (PAYLOAD_EXPIRED), or the original message was not kept (PAYLOAD_INTEGRITY_MISMATCH). Needs an API key with webhook:manage.",
+        "description": "Sends the same payload, byte for byte, again with the original webhook-id but a new webhook-timestamp and signature, and starts the retry schedule over. Works on FAILED and SUCCEEDED deliveries. Your system receives the message again; without deduplication on webhook-id it records it twice. An Idempotency-Key is required; the same key for the same delivery returns the first result and does not queue again. It cannot be resent when the endpoint is disabled (ENDPOINT_DISABLED), deleted (ENDPOINT_DELETED), the message's data has been deleted (PAYLOAD_EXPIRED), or the original message was not kept (PAYLOAD_INTEGRITY_MISMATCH). Needs an API key with webhook:manage.",
         "x-checkslip-th": {
           "summary": "ส่งซ้ำรายการส่งหนึ่งรายการ",
-          "description": "ส่ง payload เดิมทุก byte อีกครั้งด้วย webhook-id เดิม แต่ webhook-timestamp และลายเซ็นใหม่ แล้วเริ่มนับรอบส่งใหม่ · ส่งซ้ำได้ทั้งที่ FAILED (ส่งไม่สำเร็จ) และ SUCCEEDED (ส่งสำเร็จ) · ระบบของคุณได้ข้อความนี้อีกครั้ง ถ้าไม่ได้กันซ้ำด้วย webhook-id จะบันทึกซ้ำ · ต้องส่ง header Idempotency-Key · ค่าเดิมกับรายการเดิมได้ผลเดิมและไม่เข้าคิวซ้ำ · ส่งซ้ำไม่ได้เมื่อ endpoint ปิดอยู่ (ENDPOINT_DISABLED), ถูกลบแล้ว (ENDPOINT_DELETED) หรือไม่มีข้อมูลต้นทางให้ประกอบข้อความแล้ว (PAYLOAD_EXPIRED) หรือข้อความเดิมไม่ได้เก็บไว้ (PAYLOAD_INTEGRITY_MISMATCH) · ใช้ API key ที่มีสิทธิ์ webhook:manage"
+          "description": "ส่ง payload เดิมทุก byte อีกครั้งด้วย webhook-id เดิม แต่ webhook-timestamp และลายเซ็นใหม่ แล้วเริ่มนับรอบส่งใหม่ · ส่งซ้ำได้ทั้งที่ FAILED (ส่งไม่สำเร็จ) และ SUCCEEDED (ส่งสำเร็จ) · ระบบของคุณได้ข้อความนี้อีกครั้ง ถ้าไม่ได้กันซ้ำด้วย webhook-id จะบันทึกซ้ำ · ต้องส่ง header Idempotency-Key · ค่าเดิมกับรายการเดิมได้ผลเดิมและไม่เข้าคิวซ้ำ · ส่งซ้ำไม่ได้เมื่อ endpoint ปิดอยู่ (ENDPOINT_DISABLED), ถูกลบแล้ว (ENDPOINT_DELETED) หรือข้อมูลของรายการถูกลบแล้ว (PAYLOAD_EXPIRED) หรือข้อความเดิมไม่ได้เก็บไว้ (PAYLOAD_INTEGRITY_MISMATCH) · ใช้ API key ที่มีสิทธิ์ webhook:manage"
         },
         "x-docs": "https://checkslip.com/en/docs/redeliver-delivery",
         "tags": [
@@ -8089,9 +8087,7 @@
             "minItems": 1,
             "uniqueItems": true,
             "items": {
-              "type": "string",
-              "pattern": "^[A-Z][A-Z0-9_]*$",
-              "maxLength": 40
+              "$ref": "#/components/schemas/CustomerFreeReason"
             }
           },
           "from": {
@@ -9046,6 +9042,32 @@
         }
       },
       "SlipCheckRecord": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SlipCheckRecordBase"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "free_reason": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/CustomerFreeReason"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]{0,39}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "SlipCheckRecordBase": {
         "type": "object",
         "required": [
           "request_id",
@@ -9113,13 +9135,6 @@
               "boolean",
               "null"
             ]
-          },
-          "free_reason": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "pattern": "^[A-Z][A-Z0-9_]*$"
           }
         }
       },
@@ -9522,9 +9537,7 @@
           "free_qr_tampered",
           "free_too_old",
           "free_system_error",
-          "free_other",
-          "free_no_credit",
-          "free_hold_expired"
+          "free_other"
         ],
         "properties": {
           "checks": {
@@ -9570,18 +9583,6 @@
           "free_other": {
             "type": "integer",
             "minimum": 0
-          },
-          "free_no_credit": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 0,
-            "deprecated": true
-          },
-          "free_hold_expired": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 0,
-            "deprecated": true
           }
         }
       },
