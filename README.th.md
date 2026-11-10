@@ -26,7 +26,7 @@ import { Checkslip } from "npm:@checkslip/sdk";
 
 ## เริ่มใช้งาน
 
-ออก API key ในหน้า dashboard ของ Checkslip แล้วเก็บไว้ฝั่งเซิร์ฟเวอร์ ถ้าไม่ส่ง `apiKey` ไลบรารีจะอ่านจาก environment variable `CHECKSLIP_API_KEY`
+ออก API key ในเว็บแอปของ Checkslip แล้วเก็บไว้ฝั่งเซิร์ฟเวอร์ ถ้าไม่ส่ง `apiKey` ไลบรารีจะอ่านจาก environment variable `CHECKSLIP_API_KEY`
 
 ```ts
 import { Checkslip } from "@checkslip/sdk";
@@ -34,7 +34,7 @@ import { Checkslip } from "@checkslip/sdk";
 const checkslip = new Checkslip({ apiKey: process.env.CHECKSLIP_API_KEY });
 ```
 
-### ตรวจสอบด้วยข้อความใน QR
+### ค้นหาจากข้อความ QR บนสลิป
 
 อ่าน QR บนสลิปด้วยตัวอ่าน QR ตัวไหนก็ได้ แล้วส่งข้อความนั้นมา
 
@@ -53,7 +53,7 @@ if (check.outcome === "FOUND" && "sender" in check.slip) {
 
 ยอดเงินเป็นหน่วยสตางค์ (100 สตางค์ = 1 บาท) เลขบัญชีส่งกลับมาเฉพาะ 4 หลักท้าย
 
-### ตรวจสอบด้วยรูปสลิป
+### ค้นหาจากรูปสลิป
 
 ส่งเป็น `Blob`, `File`, `Uint8Array`, `Buffer` ของ Node หรือ `ArrayBuffer` ก็ได้ รับ JPEG, PNG และ WebP ขนาดไม่เกิน 10 MB Checkslip อ่าน QR จากรูปให้ และไม่เก็บรูปไว้
 
@@ -180,7 +180,7 @@ while (page.hasNextPage()) {
 
 ## Webhook
 
-เมื่อการตรวจสอบเสร็จ Checkslip ส่งข้อความ `slip.checked` ไปที่ endpoint ของคุณ รวมถึงรายการที่เคยเป็น `PENDING` ด้วย ข้อความมีลายเซ็นตามแบบ [Standard Webhooks](https://www.standardwebhooks.com) ตรวจลายเซ็นก่อนเชื่อข้อความทุกครั้ง
+เมื่อการค้นหาเสร็จ Checkslip ส่งข้อความ `slip.checked` ไปที่ endpoint ของคุณ รวมถึงรายการที่เคยเป็น `PENDING` ด้วย ข้อความมีลายเซ็นตามแบบ [Standard Webhooks](https://www.standardwebhooks.com) ตรวจลายเซ็นก่อนเชื่อข้อความทุกครั้ง
 
 ```ts
 import { verifyWebhook, WebhookVerificationError } from "@checkslip/sdk";
@@ -246,7 +246,7 @@ for await (const delivery of checkslip.webhooks.deliveries.list({ status: "FAILE
 await checkslip.billing.balance.get(); // เครดิตคงเหลือ และสถานะเครดิตใกล้หมด
 await checkslip.usage.get({ from: "2026-11-01", to: "2026-11-30" });
 await checkslip.banks.list(); // ธนาคารที่รองรับ
-await checkslip.slips.get(requestId); // ผลตรวจสอบครั้งก่อน
+await checkslip.slips.get(requestId); // ผลการค้นหาครั้งก่อน
 await checkslip.slips.counts({ from, to, bucket: "DAY" });
 await checkslip.slips.exports.create({ columns: ["request_id", "outcome", "slip.trans_ref"] });
 await checkslip.audit.events.list(); // ประวัติการใช้งานบัญชี
