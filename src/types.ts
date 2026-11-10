@@ -96,9 +96,9 @@ export type CreditEntry = Schemas["CreditEntry"];
  * Why a lookup used no credit.
  *
  * `OTHER` means it was not charged and no reason was given. A customer
- * receives NOT_FOUND, DUPLICATE, UNAVAILABLE, INVALID_QR, INVALID_FILE, QR_TAMPERED, TOO_OLD, SYSTEM_ERROR and OTHER. The
- * other values in this union exist inside the API and do not reach you, so
- * `NO_CREDIT`, `HOLD_EXPIRED` and `PENDING` need no handling of their own.
+ * receives NOT_FOUND, DUPLICATE, UNAVAILABLE, INVALID_QR, INVALID_FILE,
+ * QR_TAMPERED, TOO_OLD, SYSTEM_ERROR or OTHER. Any other value of this type
+ * is never sent to you, so an exhaustive match needs a catch-all.
  */
 export type FreeReason = Schemas["FreeReason"];
 /** Filters for `billing.ledger.list()`. */
