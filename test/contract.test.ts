@@ -3,9 +3,12 @@ import { Checkslip } from "../src/index.js";
 import type {
   ApiRequestRecord,
   AuditEvent,
+  CustomerFreeReason,
   FreeReason,
   SlipCheck,
   SlipCheckRecord,
+  SlipCountsParams,
+  SlipListParams,
   UsageCounts,
 } from "../src/types.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
@@ -102,6 +105,35 @@ describe("tolerating fields the SDK does not model", () => {
     const ms: number = request.latency_ms;
     void ms;
     expect(WITHDRAWN_FIELDS).not.toContain("latency_ms");
+  });
+});
+
+describe("the free_reason filter", () => {
+  // The API closed this filter to the nine reasons a customer can receive, so
+  // the SDK offers CustomerFreeReason for it and keeps the wider FreeReason
+  // for what the API sends back.
+  it("takes the reasons a customer receives, and not the retired ones", () => {
+    const ok: SlipListParams["free_reason"] = ["DUPLICATE", "TOO_OLD"];
+    void ok;
+    // @ts-expect-error NO_CREDIT is retired and the API does not accept it in a filter
+    const retired: SlipListParams["free_reason"] = ["NO_CREDIT"];
+    void retired;
+    const named: CustomerFreeReason = "SYSTEM_ERROR";
+    expect(named).toBe("SYSTEM_ERROR");
+  });
+
+  it("repeats the key once per value", async () => {
+    const { checkslip, calls } = client([json({ items: [], next_cursor: null })]);
+    await checkslip.slips.list({ free_reason: ["DUPLICATE", "TOO_OLD"] });
+    const url = new URL(calls[0]?.url ?? "");
+    expect(url.searchParams.getAll("free_reason")).toEqual(["DUPLICATE", "TOO_OLD"]);
+  });
+
+  it("leaves the counts filter wide, because counts ignore it", () => {
+    // SlipCounts.filters_ignored lists free_reason: the API takes it and does
+    // not use it, so narrowing it here would reject what the API accepts.
+    const anyReason: SlipCountsParams["free_reason"] = ["NO_CREDIT", "ANYTHING_ELSE"];
+    void anyReason;
   });
 });
 
