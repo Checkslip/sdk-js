@@ -5,6 +5,13 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.3.1](https://github.com/Checkslip/sdk-js/compare/v0.3.0...v0.3.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* **docs:** say what an exhaustive match really needs ([b3a55a7](https://github.com/Checkslip/sdk-js/commit/b3a55a7b9650d1f0147ae42d1d6690ce9d74ed3a))
+
 ## [0.3.0](https://github.com/Checkslip/sdk-js/compare/v0.2.1...v0.3.0) (2026-11-09)
 
 
