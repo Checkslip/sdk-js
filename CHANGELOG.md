@@ -5,6 +5,19 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.4.0](https://github.com/Checkslip/sdk-js/compare/v0.3.1...v0.4.0) (2026-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* The free_reason filter on slips.list() and slips.exports.create() takes only the nine reasons a customer can receive, typed as CustomerFreeReason. PENDING, NO_CREDIT and HOLD_EXPIRED are not among them, so TypeScript code that passes one of those, or a plain string, no longer type-checks. In plain JavaScript nothing stops the call, and the API accepts only the nine. The reason a lookup reports back is unchanged: still FreeReason, including a value this version does not know. Counts still take the filter and still ignore it, so nothing changes there.
+* UsageCounts no longer has free_no_credit or free_hold_expired. Both had been returning 0 on every account before this release, and the API has now removed them from UsageCounts. TypeScript code that reads either one no longer type-checks. In plain JavaScript the read returns undefined with no error, so delete those reads before you upgrade. A lookup that was not charged, with no reason given, counts in free_other.
+
+### Features
+
+* the free_reason filter takes the reasons a customer receives ([52fa306](https://github.com/Checkslip/sdk-js/commit/52fa306d7bd41c1fe04815f4faf56b181dbb0983))
+* usage counts no longer have free_no_credit or free_hold_expired ([4fe1806](https://github.com/Checkslip/sdk-js/commit/4fe1806b02aa2207a62926e5b1f737b399e6d538))
+
 ## [0.3.1](https://github.com/Checkslip/sdk-js/compare/v0.3.0...v0.3.1) (2026-11-10)
 
 
