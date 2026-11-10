@@ -26,7 +26,7 @@ import { Checkslip } from "npm:@checkslip/sdk";
 
 ## Quick start
 
-Create an API key in the Checkslip dashboard and keep it on your server. The client reads `CHECKSLIP_API_KEY` from the environment when you do not pass `apiKey`.
+Create an API key in the Checkslip web app and keep it on your server. The client reads `CHECKSLIP_API_KEY` from the environment when you do not pass `apiKey`.
 
 ```ts
 import { Checkslip } from "@checkslip/sdk";
