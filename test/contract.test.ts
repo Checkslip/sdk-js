@@ -105,20 +105,23 @@ describe("tolerating fields the SDK does not model", () => {
   });
 });
 
-describe("usage counts, now that the deprecated pair is gone", () => {
-  // The API has dropped free_no_credit and free_hold_expired. The SDK and the
-  // API are deployed separately, so an answer that still carries them has to
-  // keep working even though the type no longer offers them.
-  it("types free_other as always present and no longer has the deprecated pair", () => {
+describe("usage counts, now that free_other exists", () => {
+  // The API added free_other, stopped counting free_no_credit and
+  // free_hold_expired, and drops those two fields later. The SDK and the API
+  // are deployed separately, so both shapes have to work.
+  it("types free_other as always present and the deprecated pair as optional", () => {
     const counts = {} as UsageCounts;
     // The document lists free_other as required, so reading it needs no guard.
     const other: number = counts.free_other;
     const required: number = counts.free_system_error;
     void [other, required];
-    // @ts-expect-error free_no_credit left UsageCounts
-    void counts.free_no_credit;
-    // @ts-expect-error free_hold_expired left UsageCounts
-    void counts.free_hold_expired;
+    // The deprecated pair is still required in the document, but it is
+    // going away, so the SDK keeps both optional on purpose.
+    // @ts-expect-error free_no_credit may be absent, so it is not a plain number
+    const noCredit: number = counts.free_no_credit;
+    // @ts-expect-error free_hold_expired may be absent, so it is not a plain number
+    const holdExpired: number = counts.free_hold_expired;
+    void [noCredit, holdExpired];
   });
 
   it("names OTHER as a free reason", () => {
@@ -126,7 +129,7 @@ describe("usage counts, now that the deprecated pair is gone", () => {
     expect(reason).toBe("OTHER");
   });
 
-  it("reads a report, and one that still carries the dropped counts", async () => {
+  it("reads a report whether or not the deprecated counts are there", async () => {
     const common = {
       checks: 12,
       charged: 7,
@@ -149,17 +152,15 @@ describe("usage counts, now that the deprecated pair is gone", () => {
       totals,
     });
 
-    // An older deployment still sends the two dropped counts. They are not on
-    // the type any more, so reading one needs a cast, but the answer must come
-    // through untouched rather than being stripped or rejected.
     const before = client([json(report({ ...common, free_no_credit: 3, free_hold_expired: 2 }))]);
     const old = await before.checkslip.usage.get({ from: "2026-11-01", to: "2026-11-09" });
-    expect((old.totals as unknown as Record<string, number>).free_no_credit).toBe(3);
+    expect(old.totals.free_no_credit).toBe(3);
     expect(old.totals.free_other).toBeUndefined();
 
     const after = client([json(report({ ...common, free_other: 5 }))]);
     const now = await after.checkslip.usage.get({ from: "2026-11-01", to: "2026-11-09" });
     expect(now.totals.free_other).toBe(5);
+    expect(now.totals.free_no_credit).toBeUndefined();
     expect(now.buckets[0]?.free_other).toBe(5);
   });
 });
