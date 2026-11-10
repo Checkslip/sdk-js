@@ -145,57 +145,6 @@ const PENDING_REMOVAL = {
   enums: {},
 };
 
-/**
- * free_other and OTHER now come from the published document, so the SDK no
- * longer adds them.
- *
- * free_no_credit and free_hold_expired are a different matter: the document
- * still lists both as required, marked deprecated with maximum 0, and drops
- * them in a later release. Generating them as required would promise a
- * reader two fields that are about to disappear, so they stay optional here.
- * Delete this block once the document stops listing them.
- */
-const PENDING_ADDITION = {
-  schemas: {
-    UsageCounts: {
-      optional: ["free_no_credit", "free_hold_expired"],
-    },
-  },
-  enums: {},
-};
-
-function applyPendingAddition(doc) {
-  for (const [name, { add, optional }] of Object.entries(PENDING_ADDITION.schemas)) {
-    const schema = doc.components?.schemas?.[name];
-    if (!schema?.properties) throw new Error(`PENDING_ADDITION names ${name}, which the spec does not have`);
-    for (const [field, definition] of Object.entries(add ?? {})) {
-      if (schema.properties[field])
-        throw new Error(`the spec now has ${name}.${field}: take it out of PENDING_ADDITION`);
-      schema.properties[field] = definition;
-    }
-    // Stop once the document drops one of these, so the block gets deleted
-    // rather than sitting here doing nothing: the forcing below would quietly
-    // no-op and the temporary block would rot in place.
-    for (const field of optional ?? []) {
-      if (!schema.properties[field])
-        throw new Error(`the spec has dropped ${name}.${field}: take it out of PENDING_ADDITION`);
-    }
-    if (Array.isArray(schema.required) && optional) {
-      schema.required = schema.required.filter((r) => !optional.includes(r));
-    }
-  }
-  for (const [name, values] of Object.entries(PENDING_ADDITION.enums)) {
-    const schema = doc.components?.schemas?.[name];
-    if (!Array.isArray(schema?.enum))
-      throw new Error(`PENDING_ADDITION names the enum ${name}, which the spec does not have`);
-    for (const value of values) {
-      if (schema.enum.includes(value))
-        throw new Error(`the spec now lists ${name} ${value}: take it out of PENDING_ADDITION`);
-      schema.enum.push(value);
-    }
-  }
-}
-
 function applyPendingRemoval(doc) {
   for (const [name, fields] of Object.entries(PENDING_REMOVAL.schemas)) {
     const schema = doc.components?.schemas?.[name];
@@ -240,7 +189,6 @@ function auditSpec(node, path) {
 }
 auditOpenFields(spec);
 applyPendingRemoval(spec);
-applyPendingAddition(spec);
 auditSpec(spec, "$");
 if (reappeared.length > 0) {
   throw new Error(`fields that left the customer API are back in the spec: ${reappeared.join(", ")}`);
