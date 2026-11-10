@@ -103,6 +103,13 @@ function applyPendingAddition(doc) {
         throw new Error(`the spec now has ${name}.${field}: take it out of PENDING_ADDITION`);
       schema.properties[field] = definition;
     }
+    // Stop once the document drops one of these, so the block gets deleted
+    // rather than sitting here doing nothing: the forcing below would quietly
+    // no-op and the temporary block would rot in place.
+    for (const field of optional ?? []) {
+      if (!schema.properties[field])
+        throw new Error(`the spec has dropped ${name}.${field}: take it out of PENDING_ADDITION`);
+    }
     if (Array.isArray(schema.required) && optional) {
       schema.required = schema.required.filter((r) => !optional.includes(r));
     }
