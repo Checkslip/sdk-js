@@ -59,6 +59,71 @@ const WITHDRAWN_FIELDS = new Set([
 // either here would stop generation on a field the API is entitled to send.
 
 /**
+ * Fields that have to keep a raw-string escape in their type.
+ *
+ * All four SDKs promise that a value the API adds later still parses and
+ * reaches the caller as its raw string: Rust has Unknown(String), Go types
+ * these as string, PHP returns the string, and here the union carries
+ * `| string`. A closed enum would generate types that contradict that
+ * promise, and a caller whose code compiles today would stop matching what
+ * the API actually sends on the day a reason is added.
+ *
+ * This fired for real on 11 Nov 2026: SlipCheckRecord.free_reason was
+ * narrowed to oneOf[CustomerFreeReason, null] by accident (verify 5a7be823,
+ * reopened on pm's order), which a refresh would have pulled in silently.
+ */
+const MUST_STAY_OPEN = {
+  CreditEntry: ["free_reason"],
+  SlipCheckRecord: ["free_reason"],
+};
+
+/** True when the schema accepts a plain string somewhere in its shape. */
+function allowsRawString(schema, doc, depth = 0) {
+  if (!schema || typeof schema !== "object" || depth > 6) return false;
+  if (schema.$ref) {
+    const name = schema.$ref.split("/").pop();
+    return allowsRawString(doc.components?.schemas?.[name], doc, depth + 1);
+  }
+  const type = schema.type;
+  if (type === "string" && !Array.isArray(schema.enum)) return true;
+  if (Array.isArray(type) && type.includes("string") && !Array.isArray(schema.enum)) return true;
+  for (const key of ["anyOf", "oneOf", "allOf"]) {
+    const branches = schema[key];
+    if (Array.isArray(branches) && branches.some((b) => allowsRawString(b, doc, depth + 1))) return true;
+  }
+  return false;
+}
+
+/** Properties of a schema, looking through an allOf composition. */
+function propertiesOf(schema, doc, depth = 0) {
+  if (!schema || typeof schema !== "object" || depth > 6) return {};
+  if (schema.$ref) {
+    const name = schema.$ref.split("/").pop();
+    return propertiesOf(doc.components?.schemas?.[name], doc, depth + 1);
+  }
+  let out = { ...(schema.properties ?? {}) };
+  for (const branch of schema.allOf ?? []) out = { ...out, ...propertiesOf(branch, doc, depth + 1) };
+  return out;
+}
+
+function auditOpenFields(doc) {
+  for (const [name, fields] of Object.entries(MUST_STAY_OPEN)) {
+    const schema = doc.components?.schemas?.[name];
+    if (!schema) throw new Error(`MUST_STAY_OPEN names ${name}, which the spec no longer has`);
+    const props = propertiesOf(schema, doc);
+    for (const field of fields) {
+      if (!props[field])
+        throw new Error(`MUST_STAY_OPEN names ${name}.${field}, which the spec no longer has`);
+      if (!allowsRawString(props[field], doc))
+        throw new Error(
+          `${name}.${field} no longer accepts a raw string: the SDKs promise an unknown value still reaches the caller, ` +
+            `so generating this as a closed enum would contradict their own docs. Ask whether the narrowing was intended.`,
+        );
+    }
+  }
+}
+
+/**
  * The published document has dropped latency_ms, upstream_ms and
  * checked_elsewhere from the lookup types and from the export columns, so
  * nothing is hidden there any more.
@@ -168,6 +233,7 @@ function auditSpec(node, path) {
   }
   for (const [key, value] of Object.entries(node)) auditSpec(value, `${path}.${key}`);
 }
+auditOpenFields(spec);
 applyPendingRemoval(spec);
 applyPendingAddition(spec);
 auditSpec(spec, "$");
