@@ -101,6 +101,20 @@ export type CreditEntry = Schemas["CreditEntry"];
  * is never sent to you, so an exhaustive match needs a catch-all.
  */
 export type FreeReason = Schemas["FreeReason"];
+/**
+ * A reason a customer can filter by.
+ *
+ * These are the nine reasons the API accepts in a `free_reason` filter, which
+ * are the ones a customer can receive. `FreeReason`, the type the API sends
+ * back, stays wider: it has to carry a value this version does not know.
+ *
+ * The `free_reason` filter on `slips.counts()` is not narrowed, because counts
+ * ignore it: the API answers which filters it applied in
+ * `SlipCounts.filters_applied` and lists the rest in `filters_ignored`, where
+ * `free_reason` appears. Leave that one alone rather than making the two look
+ * alike.
+ */
+export type CustomerFreeReason = Schemas["CustomerFreeReason"];
 /** Filters for `billing.ledger.list()`. */
 export type LedgerListParams = QueryOf<"listLedger">;
 /** A credit package order. */
@@ -126,9 +140,8 @@ export type UsageParams = QueryOf<"getUsage">;
  * Counts of lookups by how they were charged.
  *
  * `free_other` counts lookups that were not charged with no reason given.
- * `free_no_credit` and `free_hold_expired` are optional because the API no
- * longer counts them and drops both fields later, so handle them being
- * absent.
+ * `free_no_credit` and `free_hold_expired` are gone. Both had been returning 0
+ * on every account, and those lookups count in `free_other`.
  */
 export type UsageCounts = Schemas["UsageCounts"];
 
