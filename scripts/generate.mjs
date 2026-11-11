@@ -80,6 +80,11 @@ const WITHDRAWN_FIELDS = new Set([
 const MUST_STAY_OPEN = {
   CreditEntry: ["free_reason"],
   SlipCheckRecord: ["free_reason"],
+  // Added 12 Nov 2026 with webhook 0.7.0, which introduced STAFF. The field
+  // had been a closed enum, so the generated union could not express a reason
+  // added later and a caller had no value to match on until the next release.
+  // The document now declares it the way free_reason is declared.
+  Endpoint: ["disabled_reason"],
 };
 
 /** True when the schema accepts a plain string somewhere in its shape. */

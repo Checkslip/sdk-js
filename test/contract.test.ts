@@ -10,6 +10,8 @@ import type {
   SlipCountsParams,
   SlipListParams,
   UsageCounts,
+  WebhookEndpoint,
+  WebhookEndpointDisabledReason,
 } from "../src/types.js";
 import { client, FOUND, json, QR, TEST_KEY } from "./helpers.js";
 
@@ -134,6 +136,42 @@ describe("the free_reason filter", () => {
     // not use it, so narrowing it here would reject what the API accepts.
     const anyReason: SlipCountsParams["free_reason"] = ["NO_CREDIT", "ANYTHING_ELSE"];
     void anyReason;
+  });
+});
+
+describe("why a webhook endpoint is off", () => {
+  // webhook 0.7.0 added STAFF to a field that had been a closed enum. The
+  // other three SDKs carry an unknown reason as its raw string, so the
+  // document declares this field the way it declares free_reason and the
+  // generated union keeps a raw-string escape. Without it a caller could not
+  // write the STAFF branch until the SDK was published again.
+  it("names STAFF and still takes a reason added later", () => {
+    const staff: WebhookEndpointDisabledReason = "STAFF";
+    expect(staff).toBe("STAFF");
+
+    const later: WebhookEndpoint["disabled_reason"] = "SOMETHING_ADDED_LATER";
+    expect(later).toBe("SOMETHING_ADDED_LATER");
+
+    const off: WebhookEndpoint["disabled_reason"] = null;
+    expect(off).toBeNull();
+  });
+
+  it("hands the reason back as the API sent it", async () => {
+    const endpoint = {
+      id: "ep_1",
+      url: "https://shop.test/hooks",
+      description: null,
+      event_types: ["slip.checked"],
+      enabled: false,
+      disabled_reason: "STAFF",
+      secret_hint: "\u2026a1b2",
+      previous_secret_expires_at: null,
+      created_at: "2026-11-01T00:00:00Z",
+      updated_at: "2026-11-01T00:00:00Z",
+    };
+    const { checkslip } = client([json({ items: [endpoint], next_cursor: null })]);
+    const page = await checkslip.webhooks.endpoints.list();
+    expect(page.items[0]?.disabled_reason).toBe("STAFF");
   });
 });
 

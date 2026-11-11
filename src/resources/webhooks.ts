@@ -101,7 +101,14 @@ export class WebhookEndpoints extends APIResource {
     });
   }
 
-  /** Changes an endpoint. Send only the fields to change; `enabled: true` turns a disabled endpoint back on. */
+  /**
+   * Changes an endpoint. Send only the fields to change; `enabled: true` turns a
+   * disabled endpoint back on.
+   *
+   * Setting `enabled` to true fails with 409 `ENDPOINT_DISABLED_BY_STAFF` if the
+   * Checkslip team turned the endpoint off. Reply to the email about it, or open
+   * a case to have it turned on.
+   */
   update(
     endpointId: string,
     params: WebhookEndpointUpdateParams,
