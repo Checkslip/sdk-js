@@ -101,6 +101,11 @@ export class WebhookEndpoints extends APIResource {
     });
   }
 
+  // The "Reply to the email" sentence below is copied word for word from the
+  // contract's fix for ENDPOINT_DISABLED_BY_STAFF, so a customer reading this
+  // doc and a customer reading the error body see the same words. If the
+  // contract changes it, follow the contract. The sdk workspace's
+  // scripts/check-problem-text.py compares the two.
   /**
    * Changes an endpoint. Send only the fields to change; `enabled: true` turns a
    * disabled endpoint back on.
