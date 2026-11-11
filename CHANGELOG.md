@@ -5,6 +5,17 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.5.0](https://github.com/Checkslip/sdk-js/compare/v0.4.0...v0.5.0) (2026-11-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **types:** disabled_reason was generated as a closed union, so a caller had no value to write the STAFF branch with until this release. The published document now declares the field the way it declares free_reason, and the union keeps a raw-string escape, so an exhaustive switch over the old three values no longer compiles without a default.
+
+### Features
+
+* **types:** disabled_reason can say STAFF ([5549732](https://github.com/Checkslip/sdk-js/commit/5549732092e0de3e3f9d5e38eb3da1d76198e350))
+
 ## [0.4.0](https://github.com/Checkslip/sdk-js/compare/v0.3.1...v0.4.0) (2026-11-10)
 
 
