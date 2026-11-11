@@ -580,7 +580,7 @@ export interface paths {
         };
         /**
          * List endpoints
-         * @description Lists every endpoint of the account with its url, the event_types it receives, enabled, and the last 4 characters of the signing secret in secret_hint. A disabled endpoint carries the reason in disabled_reason: MANUAL (you turned it off), GONE (your system answered 410) or FAILING (every send failed for 5 days in a row). A disabled endpoint stores no new messages. Use next_cursor for the next page. Needs an API key with webhook:read.
+         * @description Lists every endpoint of the account with its url, the event_types it receives, enabled, and the last 4 characters of the signing secret in secret_hint. A disabled endpoint carries the reason in disabled_reason: MANUAL (you turned it off), GONE (your system answered 410), FAILING (every send failed for 5 days in a row) or STAFF (the Checkslip team turned it off; you cannot turn it back on yourself, so open a case). A disabled endpoint stores no new messages. Use next_cursor for the next page. Needs an API key with webhook:read.
          */
         get: operations["listEndpoints"];
         put?: never;
@@ -618,7 +618,7 @@ export interface paths {
         head?: never;
         /**
          * Update an endpoint
-         * @description Send only the fields to change (url, description, event_types, enabled) as a JSON Merge Patch (Content-Type: application/merge-patch+json). A new url is checked again as on create, and the account owner gets an email. Set enabled to false to stop sending and true to resume. While it is off, new messages are not stored at all, so turning it back on cannot recover them; the time-range resend only covers deliveries that were sent and failed (FAILED). Needs an API key with webhook:manage.
+         * @description Send only the fields to change (url, description, event_types, enabled) as a JSON Merge Patch (Content-Type: application/merge-patch+json). A new url is checked again as on create, and the account owner gets an email. Set enabled to false to stop sending and true to resume. An endpoint the Checkslip team turned off (disabled_reason STAFF) cannot be turned back on this way (ENDPOINT_DISABLED_BY_STAFF); open a case to have it turned on. While it is off, new messages are not stored at all, so turning it back on cannot recover them; the time-range resend only covers deliveries that were sent and failed (FAILED). Needs an API key with webhook:manage.
          */
         patch: operations["updateEndpoint"];
         trace?: never;
@@ -938,8 +938,7 @@ export interface components {
             /** Format: date-time */
             created_at: string;
             description: string | null;
-            /** @enum {string|null} */
-            disabled_reason: "MANUAL" | "GONE" | "FAILING" | null;
+            disabled_reason: components["schemas"]["EndpointDisabledReason"] | string | null;
             enabled: boolean;
             event_types: components["schemas"]["EventType"][];
             id: components["schemas"]["EndpointId"];
@@ -957,6 +956,8 @@ export interface components {
             /** Format: uri */
             url: string;
         };
+        /** @enum {string} */
+        EndpointDisabledReason: "MANUAL" | "GONE" | "FAILING" | "STAFF";
         EndpointId: string;
         EndpointUpdate: {
             description?: string | null;
@@ -3797,6 +3798,15 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["webhook.Problem"];
+                };
+            };
+            409: {
                 headers: {
                     "X-Request-Id"?: string;
                     [name: string]: unknown;

@@ -5516,10 +5516,10 @@
       "get": {
         "operationId": "listEndpoints",
         "summary": "List endpoints",
-        "description": "Lists every endpoint of the account with its url, the event_types it receives, enabled, and the last 4 characters of the signing secret in secret_hint. A disabled endpoint carries the reason in disabled_reason: MANUAL (you turned it off), GONE (your system answered 410) or FAILING (every send failed for 5 days in a row). A disabled endpoint stores no new messages. Use next_cursor for the next page. Needs an API key with webhook:read.",
+        "description": "Lists every endpoint of the account with its url, the event_types it receives, enabled, and the last 4 characters of the signing secret in secret_hint. A disabled endpoint carries the reason in disabled_reason: MANUAL (you turned it off), GONE (your system answered 410), FAILING (every send failed for 5 days in a row) or STAFF (the Checkslip team turned it off; you cannot turn it back on yourself, so open a case). A disabled endpoint stores no new messages. Use next_cursor for the next page. Needs an API key with webhook:read.",
         "x-checkslip-th": {
           "summary": "ดูรายการ endpoint",
-          "description": "แสดง endpoint ทั้งหมดของบัญชี พร้อม url, event_types ที่รับ, enabled (เปิดหรือปิดอยู่) และ 4 ตัวท้ายของ signing secret ใน secret_hint · endpoint ที่ปิดอยู่มีเหตุใน disabled_reason คือ MANUAL (ปิดเอง), GONE (ปลายทางตอบ 410) หรือ FAILING (ส่งไม่สำเร็จต่อเนื่อง 5 วัน) · endpoint ที่ปิดอยู่ไม่มีข้อความใหม่เก็บไว้ให้ · ใช้ next_cursor เพื่อดูหน้าถัดไป · ใช้ API key ที่มีสิทธิ์ webhook:read"
+          "description": "แสดง endpoint ทั้งหมดของบัญชี พร้อม url, event_types ที่รับ, enabled (เปิดหรือปิดอยู่) และ 4 ตัวท้ายของ signing secret ใน secret_hint · endpoint ที่ปิดอยู่มีเหตุใน disabled_reason คือ MANUAL (ปิดเอง), GONE (ปลายทางตอบ 410), FAILING (ส่งไม่สำเร็จต่อเนื่อง 5 วัน) หรือ STAFF (ทีมงาน Checkslip ปิด เปิดเองไม่ได้ เปิดเคสหาทีมงานให้เปิดให้) · endpoint ที่ปิดอยู่ไม่มีข้อความใหม่เก็บไว้ให้ · ใช้ next_cursor เพื่อดูหน้าถัดไป · ใช้ API key ที่มีสิทธิ์ webhook:read"
         },
         "x-docs": "https://checkslip.com/en/docs/list-endpoints",
         "tags": [
@@ -5892,10 +5892,10 @@
       "patch": {
         "operationId": "updateEndpoint",
         "summary": "Update an endpoint",
-        "description": "Send only the fields to change (url, description, event_types, enabled) as a JSON Merge Patch (Content-Type: application/merge-patch+json). A new url is checked again as on create, and the account owner gets an email. Set enabled to false to stop sending and true to resume. While it is off, new messages are not stored at all, so turning it back on cannot recover them; the time-range resend only covers deliveries that were sent and failed (FAILED). Needs an API key with webhook:manage.",
+        "description": "Send only the fields to change (url, description, event_types, enabled) as a JSON Merge Patch (Content-Type: application/merge-patch+json). A new url is checked again as on create, and the account owner gets an email. Set enabled to false to stop sending and true to resume. An endpoint the Checkslip team turned off (disabled_reason STAFF) cannot be turned back on this way (ENDPOINT_DISABLED_BY_STAFF); open a case to have it turned on. While it is off, new messages are not stored at all, so turning it back on cannot recover them; the time-range resend only covers deliveries that were sent and failed (FAILED). Needs an API key with webhook:manage.",
         "x-checkslip-th": {
           "summary": "แก้ไข endpoint",
-          "description": "ส่งเฉพาะฟิลด์ที่จะเปลี่ยน (url, description, event_types, enabled) แบบ JSON Merge Patch (Content-Type: application/merge-patch+json) · เปลี่ยน url แล้วระบบเช็ก URL ใหม่เหมือนตอนเพิ่ม และส่งอีเมลแจ้งเจ้าของบัญชี · ส่ง enabled เป็น false เพื่อหยุดส่ง และ true เพื่อเปิดอีกครั้ง · ระหว่างที่ปิด ข้อความใหม่ไม่ถูกเก็บไว้เลย เปิดกลับมาแล้วตามเก็บไม่ได้ · ส่งซ้ำตามช่วงเวลาใช้ได้เฉพาะรายการที่ส่งแล้วไม่สำเร็จ (FAILED) · ใช้ API key ที่มีสิทธิ์ webhook:manage"
+          "description": "ส่งเฉพาะฟิลด์ที่จะเปลี่ยน (url, description, event_types, enabled) แบบ JSON Merge Patch (Content-Type: application/merge-patch+json) · เปลี่ยน url แล้วระบบเช็ก URL ใหม่เหมือนตอนเพิ่ม และส่งอีเมลแจ้งเจ้าของบัญชี · ส่ง enabled เป็น false เพื่อหยุดส่ง และ true เพื่อเปิดอีกครั้ง · endpoint ที่ทีมงาน Checkslip ปิด (disabled_reason เป็น STAFF) เปิดเองไม่ได้ (ENDPOINT_DISABLED_BY_STAFF) เปิดเคสหาทีมงานให้เปิดให้ · ระหว่างที่ปิด ข้อความใหม่ไม่ถูกเก็บไว้เลย เปิดกลับมาแล้วตามเก็บไม่ได้ · ส่งซ้ำตามช่วงเวลาใช้ได้เฉพาะรายการที่ส่งแล้วไม่สำเร็จ (FAILED) · ใช้ API key ที่มีสิทธิ์ webhook:manage"
         },
         "x-docs": "https://checkslip.com/en/docs/update-endpoint",
         "tags": [
@@ -6000,6 +6000,23 @@
             }
           },
           "404": {
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webhook.Problem"
+                }
+              }
+            }
+          },
+          "409": {
             "headers": {
               "X-Request-Id": {
                 "schema": {
@@ -7708,15 +7725,17 @@
             "type": "boolean"
           },
           "disabled_reason": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "MANUAL",
-              "GONE",
-              "FAILING",
-              null
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EndpointDisabledReason"
+              },
+              {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{0,39}$"
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "secret_hint": {
@@ -7766,6 +7785,15 @@
             }
           }
         }
+      },
+      "EndpointDisabledReason": {
+        "type": "string",
+        "enum": [
+          "MANUAL",
+          "GONE",
+          "FAILING",
+          "STAFF"
+        ]
       },
       "EndpointId": {
         "type": "string",
