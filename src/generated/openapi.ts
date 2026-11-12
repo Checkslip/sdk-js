@@ -878,7 +878,7 @@ export interface components {
             free_reason?: components["schemas"]["CustomerFreeReason"] | string;
             /** Format: uuid */
             id: string;
-            reason: components["schemas"]["CreditReason"];
+            reason: components["schemas"]["CreditReason"] | string;
             ref_id?: string;
             /** @enum {string} */
             ref_type?: "ORDER" | "CHECK" | "STAFF" | "SYSTEM";
@@ -887,7 +887,7 @@ export interface components {
             items: components["schemas"]["CreditEntry"][];
         };
         /** @enum {string} */
-        CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "DEV_GRANT";
+        CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "ACCOUNT_RESTORED" | "DEV_GRANT";
         /** @enum {string} */
         CustomerFreeReason: "NOT_FOUND" | "DUPLICATE" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "SYSTEM_ERROR" | "OTHER";
         Delivery: {

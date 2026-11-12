@@ -78,7 +78,11 @@ const WITHDRAWN_FIELDS = new Set([
  * list would block a narrowing the API is entitled to make.
  */
 const MUST_STAY_OPEN = {
-  CreditEntry: ["free_reason"],
+  // reason was added 12 Nov 2026, after ACCOUNT_RESTORED showed that the API
+  // does grow this set. billing's contract had called CreditReason an open set
+  // all along while declaring it closed, so a caller could not name the value
+  // the API was already sending.
+  CreditEntry: ["free_reason", "reason"],
   SlipCheckRecord: ["free_reason"],
   // Added 12 Nov 2026 with webhook 0.7.0, which introduced STAFF. The field
   // had been a closed enum, so the generated union could not express a reason
