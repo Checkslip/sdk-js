@@ -878,7 +878,7 @@ export interface components {
             free_reason?: components["schemas"]["CustomerFreeReason"] | string;
             /** Format: uuid */
             id: string;
-            reason: components["schemas"]["CreditReason"];
+            reason: components["schemas"]["CreditReason"] | string;
             ref_id?: string;
             /** @enum {string} */
             ref_type?: "ORDER" | "CHECK" | "STAFF" | "SYSTEM";

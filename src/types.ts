@@ -93,6 +93,13 @@ export type BillingInfo = Schemas["BillingInfo"];
 /** One credit ledger entry. */
 export type CreditEntry = Schemas["CreditEntry"];
 /**
+ * Why the credit balance changed.
+ *
+ * The API can add a reason later, and an unknown one reaches you as the raw
+ * string, so an exhaustive match needs a catch-all.
+ */
+export type CreditReason = Schemas["CreditReason"];
+/**
  * Why a lookup used no credit.
  *
  * `OTHER` means it was not charged and no reason was given. A customer

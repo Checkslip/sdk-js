@@ -4,6 +4,7 @@ import type {
   ApiRequestRecord,
   AuditEvent,
   CreditEntry,
+  CreditReason,
   CustomerFreeReason,
   FreeReason,
   SlipCheck,
@@ -203,13 +204,17 @@ describe("why the credit balance changed", () => {
     expect(page.items[0]?.reason).toBe("ACCOUNT_RESTORED");
   });
 
-  // The other three SDKs carry a reason added later as its raw string, and the
-  // billing contract calls CreditReason an open set, but the document still
-  // declares it closed. So this SDK cannot offer the raw-string escape yet and
-  // there is no test for it here: asking for one would not compile. billing has
-  // the request to widen the field the way free_reason and disabled_reason are
-  // widened; once it lands, CreditEntry.reason joins MUST_STAY_OPEN in
-  // scripts/generate.mjs and that escape gets its own test.
+  // billing widened the field the way free_reason and disabled_reason are
+  // widened, so the escape below exists and CreditEntry.reason is registered in
+  // MUST_STAY_OPEN. Before that the document declared the enum closed and this
+  // assertion would not compile.
+  it("still takes a reason added later", () => {
+    const later: CreditEntry["reason"] = "SOMETHING_ADDED_LATER";
+    expect(later).toBe("SOMETHING_ADDED_LATER");
+
+    const named: CreditReason = "ACCOUNT_RESTORED";
+    expect(named).toBe("ACCOUNT_RESTORED");
+  });
 });
 
 describe("usage counts, now that the deprecated pair is gone", () => {
