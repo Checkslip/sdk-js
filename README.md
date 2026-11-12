@@ -78,7 +78,7 @@ const check = await checkslip.slips.lookup({ image: form.get("slip") as File });
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | `FOUND`     | The bank returned the transfer. Details are in `slip`.                                                                                                            | 1           |
 | `NOT_FOUND` | The bank has no transfer with this reference.                                                                                                                     | 0           |
-| `DUPLICATE` | This account already looked up this transfer. `duplicate_of` points at the earlier lookup.                                                                        | 0           |
+| `DUPLICATE` | This account already looked this transfer up and found it, within the time we keep transfer references · `duplicate_of` points to the check that found it         | 0           |
 | `PENDING`   | The bank has not answered yet. Checkslip keeps asking and sends a `slip.checked` webhook when it has the result. You can also call `slips.get(request_id)` later. | 0           |
 
 These are normal results, so the SDK returns them instead of throwing. Problems with the request itself, such as an unreadable QR code, come back as errors (see below). The full list is at [checkslip.com/docs/outcomes](https://checkslip.com/en/docs/outcomes).
