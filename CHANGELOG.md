@@ -5,6 +5,20 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.6.0](https://github.com/Checkslip/sdk-js/compare/v0.5.0...v0.6.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **types:** a credit entry's reason is now CreditReason | string, not the nine named values alone, so an exhaustive switch over those nine stops compiling unless it has a default. The API can add a reason later, and an unknown one reaches you as the raw string. Before this release the field named only those values, so code that compared a reason added later needed a cast. The nine are exported as CreditReason from this release.
+* **types:** CreditReason gains a ninth value, so an exhaustive switch over the previous eight stops compiling unless it has a default. Before this release a caller could not name ACCOUNT_RESTORED at all, even though the API was already sending it, so the comparison was rejected as having no overlap.
+
+### Features
+
+* a credit entry's reason can say ACCOUNT_RESTORED ([7011124](https://github.com/Checkslip/sdk-js/commit/7011124834637c26265171ff33310772a3d28c3b))
+* **types:** a credit entry's reason can say a value added later ([27361ec](https://github.com/Checkslip/sdk-js/commit/27361ecd2abcc58b4f71c9790e8ca7d5d020c63a))
+* **types:** a credit entry's reason can say ACCOUNT_RESTORED ([cf63dbe](https://github.com/Checkslip/sdk-js/commit/cf63dbe2b26b89dd1bbce4548d8a7183108285c0))
+
 ## [0.5.0](https://github.com/Checkslip/sdk-js/compare/v0.4.0...v0.5.0) (2026-11-11)
 
 
