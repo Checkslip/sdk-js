@@ -147,6 +147,9 @@ export class SlipExports extends APIResource {
   /**
    * Starts a CSV export of lookups that match the filters. Small exports
    * come back ready; larger ones come back `QUEUED`, so poll {@link SlipExports.get}.
+   *
+   * Not available yet: the API does not accept this request, so calling it
+   * returns an error.
    */
   create(params: SlipExportRequest, options?: RequestOptions): Promise<SlipExport> {
     return this.http.request({
@@ -158,7 +161,12 @@ export class SlipExports extends APIResource {
     });
   }
 
-  /** Gets an export and, once ready, the signed links to its parts. */
+  /**
+   * Gets an export and, once ready, the signed links to its parts.
+   *
+   * Not available yet: the API does not accept this request, so calling it
+   * returns an error.
+   */
   get(exportId: string, options?: RequestOptions): Promise<SlipExport> {
     return this.http.request({
       method: "GET",
@@ -172,6 +180,9 @@ export class SlipExports extends APIResource {
    * Downloads one CSV part. `sig` is the `sig` query value from the part's
    * `url` in {@link SlipExport.parts}. Returns the raw `Response` so you can
    * stream the body instead of holding it in memory.
+   *
+   * Not available yet: the API does not accept this request, so calling it
+   * returns an error.
    */
   downloadPart(
     exportId: string,
