@@ -3147,7 +3147,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -3281,7 +3281,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -3559,7 +3559,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -3731,7 +3731,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -3882,7 +3882,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -4073,7 +4073,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -4485,7 +4485,7 @@
                   "FORBIDDEN": {
                     "value": {
                       "type": "https://checkslip.com/problems/forbidden",
-                      "title": "ไม่มีสิทธิ์ทำรายการนี้",
+                      "title": "ไม่มีสิทธิ์ทำสิ่งนี้",
                       "status": 403,
                       "instance": "/api/slips/lookup",
                       "code": "FORBIDDEN"
@@ -7474,6 +7474,7 @@
           "EXPIRE",
           "STAFF_ADJUST",
           "ACCOUNT_DELETED",
+          "ACCOUNT_RESTORED",
           "DEV_GRANT"
         ]
       },

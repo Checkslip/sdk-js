@@ -3,6 +3,7 @@ import { Checkslip } from "../src/index.js";
 import type {
   ApiRequestRecord,
   AuditEvent,
+  CreditEntry,
   CustomerFreeReason,
   FreeReason,
   SlipCheck,
@@ -173,6 +174,42 @@ describe("why a webhook endpoint is off", () => {
     const page = await checkslip.webhooks.endpoints.list();
     expect(page.items[0]?.disabled_reason).toBe("STAFF");
   });
+});
+
+describe("why the credit balance changed", () => {
+  // billing added ACCOUNT_RESTORED to CreditReason, and the API already sends
+  // it. Until the refreshed spec landed, a caller comparing entry.reason to
+  // that value got TS2367 "have no overlap", so the value the API sends was
+  // unusable from TypeScript.
+  it("names ACCOUNT_RESTORED", () => {
+    const restored: CreditEntry["reason"] = "ACCOUNT_RESTORED";
+    expect(restored).toBe("ACCOUNT_RESTORED");
+  });
+
+  it("hands the reason back as the API sent it", async () => {
+    const entry = {
+      id: "0193a1f0-0000-7000-8000-000000000001",
+      delta: 50,
+      balance_after: 50,
+      expires_at_after: null,
+      reason: "ACCOUNT_RESTORED",
+      free_reason: null,
+      ref_type: "STAFF",
+      ref_id: null,
+      created_at: "2026-11-12T00:00:00Z",
+    };
+    const { checkslip } = client([json({ items: [entry], next_cursor: null })]);
+    const page = await checkslip.billing.ledger.list();
+    expect(page.items[0]?.reason).toBe("ACCOUNT_RESTORED");
+  });
+
+  // The other three SDKs carry a reason added later as its raw string, and the
+  // billing contract calls CreditReason an open set, but the document still
+  // declares it closed. So this SDK cannot offer the raw-string escape yet and
+  // there is no test for it here: asking for one would not compile. billing has
+  // the request to widen the field the way free_reason and disabled_reason are
+  // widened; once it lands, CreditEntry.reason joins MUST_STAY_OPEN in
+  // scripts/generate.mjs and that escape gets its own test.
 });
 
 describe("usage counts, now that the deprecated pair is gone", () => {

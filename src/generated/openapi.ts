@@ -887,7 +887,7 @@ export interface components {
             items: components["schemas"]["CreditEntry"][];
         };
         /** @enum {string} */
-        CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "DEV_GRANT";
+        CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "ACCOUNT_RESTORED" | "DEV_GRANT";
         /** @enum {string} */
         CustomerFreeReason: "NOT_FOUND" | "DUPLICATE" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "SYSTEM_ERROR" | "OTHER";
         Delivery: {
