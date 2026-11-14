@@ -201,7 +201,7 @@ export interface paths {
         get: operations["getBillingInfo"];
         /**
          * Update buyer details for receipts
-         * @description Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits with a valid check digit. Needs an API key with billing:write.
+         * @description Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits with a valid check digit. This replaces the whole set of details: send every field you want kept, not only the ones you are changing. A field you leave out is cleared. Needs an API key with billing:write.
          */
         put: operations["putBillingInfo"];
         post?: never;
@@ -482,7 +482,7 @@ export interface paths {
         put?: never;
         /**
          * Look up a transfer with the bank
-         * @description Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.
+         * @description Send the QR text read from the slip, or the slip image, and we look up the transfer in the banking system and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE (PENDING is not in use yet: today you get UNAVAILABLE instead). One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.
          */
         post: operations["lookupSlip"];
         delete?: never;
@@ -1102,6 +1102,7 @@ export interface components {
             receipt_id?: string | null;
             review_reason?: string | null;
             status: components["schemas"]["OrderStatus"];
+            vat?: components["schemas"]["Money"];
         };
         OrderPage: components["schemas"]["PageMeta"] & {
             items: components["schemas"]["Order"][];
@@ -1114,7 +1115,7 @@ export interface components {
         Package: {
             /**
              * @example tester
-             * @example pack_500
+             * @example nano
              */
             code: string;
             credits: number;
@@ -1123,6 +1124,9 @@ export interface components {
             name_th: string;
             price: components["schemas"]["Money"];
             price_per_credit: components["schemas"]["Money"];
+            /** @example 0.175 */
+            price_per_credit_baht: string;
+            price_total: components["schemas"]["Money"];
             sort: number;
             /** @constant */
             validity_days: 365;
@@ -1131,6 +1135,8 @@ export interface components {
             checkout_open: boolean;
             items: components["schemas"]["Package"][];
             prices_include_vat: boolean;
+            /** @enum {integer} */
+            vat_rate_bp: 0 | 700;
         };
         PageMeta: {
             next_cursor: string | null;
@@ -3110,17 +3116,6 @@ export interface operations {
         responses: {
             200: {
                 headers: {
-                    "X-Request-Id"?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SlipCheck"];
-                };
-            };
-            202: {
-                headers: {
-                    Location?: string;
-                    "Retry-After"?: number;
                     "X-Request-Id"?: string;
                     [name: string]: unknown;
                 };
