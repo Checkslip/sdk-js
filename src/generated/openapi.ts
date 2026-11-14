@@ -1102,6 +1102,7 @@ export interface components {
             receipt_id?: string | null;
             review_reason?: string | null;
             status: components["schemas"]["OrderStatus"];
+            /** @description The VAT already inside `amount`, fixed when the order was made and not changed by a later rate change. Do not add it to `amount`: `amount` is what the order asks for. Absent when the order carries no VAT. */
             vat?: components["schemas"]["Money"];
         };
         OrderPage: components["schemas"]["PageMeta"] & {
@@ -1123,9 +1124,14 @@ export interface components {
             name_en: string;
             name_th: string;
             price: components["schemas"]["Money"];
+            /** @description The price of one credit: price divided by credits, rounded half up to a whole satang, so it excludes VAT when prices_include_vat is false. Read the amount to pay from price_total; do not multiply this by credits to get it. */
             price_per_credit: components["schemas"]["Money"];
-            /** @example 0.175 */
+            /**
+             * @description The price of one credit in baht with 3 decimals, from price divided by credits, so it excludes VAT when prices_include_vat is false. Two packages that tie at a whole satang differ here (0.175 against 0.167). It is display text: show it as sent instead of computing it.
+             * @example 0.175
+             */
             price_per_credit_baht: string;
+            /** @description What a customer pays for this package now, including any VAT due; do not add VAT again. It equals `price` when `vat_rate_bp` is 0 or `prices_include_vat` is true. An order opened now asks for this amount, so show this one as the price to pay. */
             price_total: components["schemas"]["Money"];
             sort: number;
             /** @constant */
@@ -1135,7 +1141,10 @@ export interface components {
             checkout_open: boolean;
             items: components["schemas"]["Package"][];
             prices_include_vat: boolean;
-            /** @enum {integer} */
+            /**
+             * @description The VAT rate in force now, in basis points: 700 is 7%, and 0 means no VAT applies to any package or order yet. Use it to show the rate and to tell whether VAT is in effect; read the amount to pay from each package's `price_total` instead of computing VAT yourself.
+             * @enum {integer}
+             */
             vat_rate_bp: 0 | 700;
         };
         PageMeta: {
