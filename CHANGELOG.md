@@ -5,6 +5,13 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.6.1](https://github.com/Checkslip/sdk-js/compare/v0.6.0...v0.6.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **docs:** PENDING is not returned; you get a 503 UNAVAILABLE error ([1b89173](https://github.com/Checkslip/sdk-js/commit/1b891731753c55dd982aee3c309f5286eaa99264))
+
 ## [0.6.0](https://github.com/Checkslip/sdk-js/compare/v0.5.0...v0.6.0) (2026-11-12)
 
 
