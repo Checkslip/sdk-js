@@ -76,12 +76,12 @@ export class Packages extends APIResource {
    *
    * On money, because the generated types carry no field documentation:
    *
-   * - `price_total` is what a customer pays for a package now: `price` plus
-   *   VAT when VAT is in effect and prices exclude it, and the same as
-   *   `price` otherwise. Show this one as the price to pay.
+   * - `price_total` is what a customer pays for a package: `price` plus VAT
+   *   when VAT is in effect and prices exclude it, and the same as `price`
+   *   otherwise. Show this one as the price to pay.
    * - `vat_rate_bp` is the rate in force now, in basis points: 700 is 7%, and
-   *   0 means no VAT applies anywhere yet. Read it to find out whether VAT is
-   *   in effect.
+   *   0 means no VAT applies to any package or order yet. Read it to find out
+   *   whether VAT is in effect.
    * - `price_per_credit_baht` is the same price per credit as
    *   `price_per_credit`, in baht, as text with three decimals. Two packages
    *   that tie at a whole satang differ here (0.175 against 0.167), so show
