@@ -72,7 +72,22 @@ export class Packages extends APIResource {
    * Lists the credit packages on sale.
    *
    * The response is kept whole rather than unwrapped to the items, because it
-   * also carries `prices_include_vat` and `checkout_open`.
+   * also carries `prices_include_vat`, `vat_rate_bp` and `checkout_open`.
+   *
+   * On money, because the generated types carry no field documentation:
+   *
+   * - `price_total` is what a customer pays for a package now: `price` plus
+   *   VAT when VAT is in effect and prices exclude it, and the same as
+   *   `price` otherwise. Show this one as the price to pay.
+   * - `vat_rate_bp` is the rate in force now, in basis points: 700 is 7%, and
+   *   0 means no VAT applies anywhere yet. Read it to find out whether VAT is
+   *   in effect.
+   * - `price_per_credit_baht` is the same price per credit as
+   *   `price_per_credit`, in baht, as text with three decimals. Two packages
+   *   that tie at a whole satang differ here (0.175 against 0.167), so show
+   *   it as sent rather than working it out. Like `price_per_credit` it
+   *   divides `price`, not `price_total`, so it excludes VAT whenever `price`
+   *   does.
    */
   list(options?: RequestOptions): Promise<PackageList> {
     return this.http.request({
@@ -107,7 +122,13 @@ export class Ledger extends APIResource {
   }
 }
 
-/** Orders for credit packages. */
+/**
+ * Orders for credit packages.
+ *
+ * An order's `vat` is the VAT already inside `amount`, fixed when the order
+ * was made. Do not add the two together: `amount` is what the order asks for.
+ * The field is absent when the order carries no VAT.
+ */
 export class Orders extends APIResource {
   /** Lists orders, newest first. */
   list(params: OrderListParams = {}, options?: RequestOptions): PagePromise<Order> {
