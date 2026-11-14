@@ -45,9 +45,10 @@ const check = await checkslip.slips.lookup({
 });
 
 if (check.outcome === "FOUND" && "sender" in check.slip) {
-  console.log(check.slip.amount.satang / 100, "บาท");
-  console.log("จาก", check.slip.sender.name_th, "ธนาคาร", check.slip.sender.bank.code);
-  console.log("ถึง", check.slip.receiver.name_th, check.slip.receiver.account);
+  const { amount, sender, receiver } = check.slip;
+  console.log(amount.satang / 100, "บาท");
+  console.log("จาก", sender.name_th, "ธนาคาร", sender.bank.code);
+  console.log("ถึง", receiver.name_th, receiver.account);
 }
 ```
 
