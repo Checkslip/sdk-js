@@ -3,7 +3,7 @@
   "info": {
     "title": "Checkslip API",
     "version": "1",
-    "summary": "Look up a Thai bank transfer from its slip QR with the sending bank, and manage the account that does it.",
+    "summary": "Look up a Thai bank transfer from its slip QR in the banking system, and manage the account that does it.",
     "description": "We return what the bank has; the decision to accept the payment is yours. Docs: https://checkslip.com/en/docs"
   },
   "servers": [
@@ -1665,10 +1665,10 @@
       "put": {
         "operationId": "putBillingInfo",
         "summary": "Update buyer details for receipts",
-        "description": "Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits with a valid check digit. Needs an API key with billing:write.",
+        "description": "Saves the buyer details printed on your next receipts; receipts already issued keep theirs. The tax ID must be 13 digits with a valid check digit. This replaces the whole set of details: send every field you want kept, not only the ones you are changing. A field you leave out is cleared. Needs an API key with billing:write.",
         "x-checkslip-th": {
           "summary": "แก้ไขข้อมูลผู้ซื้อสำหรับใบเสร็จ",
-          "description": "บันทึกข้อมูลผู้ซื้อที่จะพิมพ์บนใบเสร็จรับเงินฉบับต่อไป ใบเสร็จที่ออกไปแล้วไม่เปลี่ยน เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลักที่หลักสุดท้ายถูกต้อง ใช้ API key ที่มีสิทธิ์ billing:write"
+          "description": "บันทึกข้อมูลผู้ซื้อที่จะพิมพ์บนใบเสร็จรับเงินฉบับต่อไป ใบเสร็จที่ออกไปแล้วไม่เปลี่ยน เลขประจำตัวผู้เสียภาษีต้องเป็นตัวเลข 13 หลักที่หลักสุดท้ายถูกต้อง คำขอนี้ทับข้อมูลทั้งชุด ส่งทุกฟิลด์ที่ต้องการให้คงอยู่มาด้วย ไม่ใช่เฉพาะฟิลด์ที่แก้ ฟิลด์ที่ไม่ส่งมาจะถูกล้าง ใช้ API key ที่มีสิทธิ์ billing:write"
         },
         "x-docs": "https://checkslip.com/en/docs/put-billing-info",
         "tags": [
@@ -4157,10 +4157,10 @@
       "post": {
         "operationId": "lookupSlip",
         "summary": "Look up a transfer with the bank",
-        "description": "Send the QR text read from the slip, or the slip image, and we ask the sending bank for the transfer it holds and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE, PENDING. One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.",
+        "description": "Send the QR text read from the slip, or the slip image, and we look up the transfer in the banking system and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE (PENDING is not in use yet: today you get UNAVAILABLE instead). One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.",
         "x-checkslip-th": {
           "summary": "ตรวจสอบรายการโอนกับธนาคาร",
-          "description": "ส่งข้อความ QR ที่อ่านได้จากสลิป หรือส่งรูปสลิป แล้วเราไปขอข้อมูลรายการโอนที่ธนาคารผู้โอนมีอยู่ และส่งข้อมูลนั้นกลับไป · เราส่งข้อมูลที่ธนาคารมีให้ ไม่ได้ตัดสินแทนคุณว่าจะรับเงินหรือไม่ คุณเอาข้อมูลไปเทียบกับออเดอร์ของคุณเอง · ผลอยู่ในฟิลด์ outcome เช่น FOUND (ธนาคารคืนข้อมูลรายการมา), NOT_FOUND (ธนาคารไม่มีรายการตามเลขนี้), DUPLICATE (บัญชีนี้เคยดึงรายการนี้แล้ว), PENDING (ธนาคารยังไม่ขึ้นรายการ ระบบลองใหม่ให้) · หัก 1 เครดิตเฉพาะเมื่อ outcome เป็น FOUND ผลอื่นไม่หักเครดิต · ไม่เก็บรูปสลิป เก็บเฉพาะข้อความใน QR · รูปไม่เกิน 10 MB และ 50 ล้านพิกเซล รับเฉพาะ JPEG, PNG และ WebP (HEIC, GIF และ PDF ได้ 422 invalid-file ไม่หักเครดิต) · ส่ง header Idempotency-Key ทุกครั้ง ส่งซ้ำด้วยค่าเดิมได้ผลเดิม และไม่หักเครดิตซ้ำ · ใช้ API key ที่มีสิทธิ์ slip:lookup"
+          "description": "ส่งข้อความ QR ที่อ่านได้จากสลิป หรือส่งรูปสลิป แล้วเราขอข้อมูลรายการโอนจากระบบธนาคาร และส่งข้อมูลนั้นกลับไป · เราส่งข้อมูลที่ธนาคารมีให้ ไม่ได้ตัดสินแทนคุณว่าจะรับเงินหรือไม่ คุณเอาข้อมูลไปเทียบกับออเดอร์ของคุณเอง · ผลอยู่ในฟิลด์ outcome เช่น FOUND (ธนาคารคืนข้อมูลรายการมา), NOT_FOUND (ธนาคารไม่มีรายการตามเลขนี้), DUPLICATE (บัญชีนี้เคยดึงข้อมูลแล้วพบรายการนี้ ภายในช่วงที่เราเก็บเลขอ้างอิงรายการไว้), PENDING (ยังไม่เปิดใช้ ถ้าธนาคารยังไม่ขึ้นรายการ ตอนนี้ได้ UNAVAILABLE) · หัก 1 เครดิตเฉพาะเมื่อ outcome เป็น FOUND ผลอื่นไม่หักเครดิต · ไม่เก็บรูปสลิป เก็บเฉพาะข้อความใน QR · รูปไม่เกิน 10 MB และ 50 ล้านพิกเซล รับเฉพาะ JPEG, PNG และ WebP (HEIC, GIF และ PDF ได้ 422 invalid-file ไม่หักเครดิต) · ส่ง header Idempotency-Key ทุกครั้ง ส่งซ้ำด้วยค่าเดิมได้ผลเดิม และไม่หักเครดิตซ้ำ · ใช้ API key ที่มีสิทธิ์ slip:lookup"
         },
         "x-docs": "https://checkslip.com/en/docs/lookup-slip",
         "tags": [
@@ -4324,34 +4324,6 @@
                       }
                     }
                   }
-                }
-              }
-            }
-          },
-          "202": {
-            "headers": {
-              "X-Request-Id": {
-                "schema": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              },
-              "Retry-After": {
-                "schema": {
-                  "type": "integer",
-                  "minimum": 1
-                }
-              },
-              "Location": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SlipCheck"
                 }
               }
             }
@@ -8340,6 +8312,13 @@
           "amount": {
             "$ref": "#/components/schemas/Money"
           },
+          "vat": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              }
+            ]
+          },
           "payment_method": {
             "type": [
               "string",
@@ -8443,6 +8422,8 @@
           "name_en",
           "price",
           "price_per_credit",
+          "price_per_credit_baht",
+          "price_total",
           "credits",
           "validity_days",
           "for_sale",
@@ -8454,7 +8435,7 @@
             "pattern": "^[a-z0-9_]{2,40}$",
             "examples": [
               "tester",
-              "pack_500"
+              "nano"
             ]
           },
           "name_th": {
@@ -8471,6 +8452,20 @@
               {
                 "$ref": "#/components/schemas/Money"
               }
+            ]
+          },
+          "price_total": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              }
+            ]
+          },
+          "price_per_credit_baht": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{3}$",
+            "examples": [
+              "0.175"
             ]
           },
           "credits": {
@@ -8494,11 +8489,19 @@
         "required": [
           "items",
           "prices_include_vat",
+          "vat_rate_bp",
           "checkout_open"
         ],
         "properties": {
           "checkout_open": {
             "type": "boolean"
+          },
+          "vat_rate_bp": {
+            "type": "integer",
+            "enum": [
+              0,
+              700
+            ]
           },
           "prices_include_vat": {
             "type": "boolean"
