@@ -5,6 +5,17 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.7.0](https://github.com/Checkslip/sdk-js/compare/v0.6.1...v0.7.0) (2026-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* two narrow surfaces can stop compiling, both measured in a consumer project installed from `npm pack` rather than argued about. Indexing the lookup's removed 202 variant, `operations["lookupSlip"]["responses"][202]`, is now TS2339, while the same index on `createSlipExport` still resolves, because the export routes do answer 202. Building a `components["schemas"]["Package"]` or `PackageList` literal by hand, as a test fixture does, is now TS2739 for the fields above. Reading those types, which is what the SDK's own methods hand back, is unaffected: the ordinary consumer surface typechecks clean.
+
+### Features
+
+* the types follow the deployed API again ([58396fb](https://github.com/Checkslip/sdk-js/commit/58396fbdb98d23a5f56b8b71c79d909a657ebc7c))
+
 ## [0.6.1](https://github.com/Checkslip/sdk-js/compare/v0.6.0...v0.6.1) (2026-11-14)
 
 
