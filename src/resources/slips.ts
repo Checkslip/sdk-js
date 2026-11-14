@@ -49,7 +49,7 @@ export class Slips extends APIResource {
    * bank holds.
    *
    * Check `outcome`: `FOUND` means the bank returned the transfer in `slip`.
-   * `NOT_FOUND`, `DUPLICATE` and `PENDING` are normal results, not errors.
+   * `NOT_FOUND` and `DUPLICATE` are normal results, not errors.
    * Deciding whether to accept the payment is up to you; compare `slip.amount`
    * and `slip.receiver` with your order. One credit is used only for `FOUND`.
    *
