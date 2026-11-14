@@ -1127,7 +1127,7 @@ export interface components {
             /** @description The price of one credit: price divided by credits, rounded half up to a whole satang, so it excludes VAT when prices_include_vat is false. Read the amount to pay from price_total; do not multiply this by credits to get it. */
             price_per_credit: components["schemas"]["Money"];
             /**
-             * @description The price of one credit in baht with 3 decimals, from price divided by credits, so it excludes VAT when prices_include_vat is false. Two packages that tie at a whole satang differ here (0.175 against 0.167). It is display text: show it as sent instead of computing it.
+             * @description The same price per credit as `price_per_credit`, in baht, as display text with three decimals, rounded half up at a tenth of a satang. Two packages that tie at a whole satang differ here (0.175 against 0.167). Show it as sent instead of computing it. It divides `price`, not `price_total`, so it excludes VAT when `prices_include_vat` is false.
              * @example 0.175
              */
             price_per_credit_baht: string;
