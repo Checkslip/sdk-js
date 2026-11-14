@@ -1,6 +1,6 @@
 {
   "name": "@checkslip/sdk",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "packageManager": "bun@1.4.4",
   "description": "Official JavaScript and TypeScript client for the Checkslip API: look up Thai bank transfers from slip QR codes or images.",
   "keywords": [
