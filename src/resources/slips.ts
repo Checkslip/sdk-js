@@ -45,8 +45,8 @@ export class Slips extends APIResource {
   readonly exports: SlipExports = new SlipExports(this.http);
 
   /**
-   * Asks the sending bank about the transfer on a slip and returns what the
-   * bank holds.
+   * Asks the banking system about the transfer on a slip and returns what the
+   * sending bank holds.
    *
    * Check `outcome`: `FOUND` means the bank returned the transfer in `slip`.
    * `NOT_FOUND` and `DUPLICATE` are normal results, not errors.

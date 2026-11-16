@@ -4,7 +4,7 @@
 
 The official JavaScript and TypeScript client for the [Checkslip API](https://checkslip.com/docs).
 
-Checkslip looks up a Thai bank transfer with the sending bank. You send the text of the QR code on a slip, or a photo of the slip, and Checkslip returns what the bank holds for that transfer: amount, time, sender and receiver. Whether to accept the payment is your decision, made against your own order.
+Checkslip looks up a Thai bank transfer with the banking system. You send the text of the QR code on a slip, or a photo of the slip, and Checkslip returns what the sending bank holds for that transfer: amount, time, sender and receiver, as far as the bank shows them. Whether to accept the payment is your decision, made against your own order.
 
 The package runs on Node.js 22 or later, Bun, Deno, Cloudflare Workers, Vercel Edge and other runtimes that have `fetch`. It has no runtime dependencies and ships ESM, CommonJS and TypeScript types.
 
@@ -52,7 +52,7 @@ if (check.outcome === "FOUND" && "sender" in check.slip) {
 }
 ```
 
-Amounts are in satang (100 satang = 1 baht). Account numbers come back as their last 4 digits.
+Amounts are in satang (100 satang = 1 baht). Account numbers come back as their last 4 digits, as far as the bank shows them.
 
 ### Look up a slip from an image
 
