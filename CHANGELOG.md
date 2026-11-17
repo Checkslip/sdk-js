@@ -8,9 +8,20 @@ include breaking changes; they are listed under "Changed".
 ## [0.7.1](https://github.com/Checkslip/sdk-js/compare/v0.7.0...v0.7.1) (2026-11-17)
 
 
-### Miscellaneous Chores
+### Documentation
 
-* release 0.7.1 for the corrected wording ([e5f28cb](https://github.com/Checkslip/sdk-js/commit/e5f28cba12828c289aa7c31782eaceede58baa7d))
+Wording only; no code or behaviour changed in this release.
+
+* Every sentence that says where a lookup is answered now says "the banking
+  system", because that is how a transfer is read: through the banking
+  system's sources, not over a direct line to the bank that sent the money.
+  That bank is still named, but only as the holder of the record. Corrected in
+  README and context7.json.
+* The sender and receiver names and the last 4 account digits were promised
+  without conditions. Those fields can be `null`, and a receiver that is not a
+  bank account has no bank or account at all, so the docs now say "as far as
+  the bank shows them". Code that compares a name should allow for a missing
+  one.
 
 ## [0.7.0](https://github.com/Checkslip/sdk-js/compare/v0.6.1...v0.7.0) (2026-11-14)
 
