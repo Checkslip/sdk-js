@@ -6978,21 +6978,41 @@
         ],
         "properties": {
           "account_id": {
+            "description": "The account this balance belongs to.",
+            "x-checkslip-th": {
+              "description": "รหัสบัญชีที่ยอดเครดิตนี้เป็นของ"
+            },
             "type": "string",
             "format": "uuid"
           },
           "credits": {
+            "description": "All the credits the account has now, the sum of credits_left over every lot in `lots`. A slip lookup (looking up the transfer's data with the bank) uses 1 credit only when a matching transfer is found.",
+            "x-checkslip-th": {
+              "description": "เครดิตทั้งหมดของบัญชีตอนนี้ เท่ากับผลรวม credits_left ของทุกก้อนใน lots · การตรวจสลิปหนึ่งใบ (ค้นข้อมูลรายการโอนกับธนาคาร) หักเครดิตเฉพาะเมื่อพบรายการ ครั้งละ 1 เครดิต"
+            },
             "type": "integer",
             "minimum": 0
           },
           "low": {
+            "description": "true when `credits` is below `threshold`, meaning credits are running low. It is the same rule as the low-credit email and the web app, so read this value rather than working it out.",
+            "x-checkslip-th": {
+              "description": "true เมื่อ credits น้อยกว่า threshold คือเครดิตใกล้หมด เป็นเกณฑ์เดียวกับอีเมลแจ้งเครดิตใกล้หมดและเว็บแอป ให้อ่านค่านี้ ไม่ต้องคำนวณเอง"
+            },
             "type": "boolean"
           },
           "threshold": {
+            "description": "The credit level below which this account counts as running low (`low`, and the low-credit email). It is set from this account's own use. 0 means no warning yet (`low` is false).",
+            "x-checkslip-th": {
+              "description": "ระดับเครดิตที่ต่ำกว่านี้ถือว่าใกล้หมด (low และอีเมลแจ้งเครดิตใกล้หมด) ระบบตั้งจากการใช้งานของบัญชีนี้เอง · 0 = ยังไม่มีการแจ้งเตือน (low เป็น false)"
+            },
             "type": "integer",
             "minimum": 0
           },
           "credits_per_year": {
+            "description": "About how many credits this account would use in a year at its recent pace. null means there has not been enough recent use to tell.",
+            "x-checkslip-th": {
+              "description": "ประมาณว่าบัญชีนี้จะใช้เครดิตปีละกี่เครดิต ถ้าใช้ในอัตราช่วงหลังนี้ต่อไป · null = การใช้ช่วงหลังยังน้อยเกินกว่าจะบอกได้"
+            },
             "type": [
               "integer",
               "null"
@@ -7000,6 +7020,10 @@
             "minimum": 1
           },
           "expires_at": {
+            "description": "The latest expiry among lots that still have credits (after every lot has run out, it still gives the date of the last one). null means credits were never bought or given. For when the first lot runs out, read `next_expires_at`.",
+            "x-checkslip-th": {
+              "description": "วันหมดอายุล่าสุดในบรรดาก้อนที่ยังมีเครดิต (หลังจากหมดทุกก้อนแล้ว ยังบอกวันของก้อนที่หมดล่าสุด) · null = ไม่เคยซื้อหรือได้รับเครดิต · วันที่ก้อนแรกจะหมดดูที่ next_expires_at"
+            },
             "type": [
               "string",
               "null"
@@ -7007,10 +7031,18 @@
             "format": "date-time"
           },
           "updated_at": {
+            "description": "When this balance last changed.",
+            "x-checkslip-th": {
+              "description": "เวลาที่ยอดนี้เปลี่ยนครั้งล่าสุด"
+            },
             "type": "string",
             "format": "date-time"
           },
           "last_entry_id": {
+            "description": "The id of the latest credit entry this balance already counts (the same id as in the credit history). null means there are no entries yet.",
+            "x-checkslip-th": {
+              "description": "id ของรายการเครดิตล่าสุดที่ยอดนี้นับรวมแล้ว (ตรงกับ id ในประวัติเครดิต) · null = ยังไม่มีรายการ"
+            },
             "type": [
               "string",
               "null"
@@ -7018,12 +7050,20 @@
             "format": "uuid"
           },
           "lots": {
+            "description": "The lots that still have credits, in the order they are charged, the next one first. `credits` is their sum. Lots with nothing left are not listed.",
+            "x-checkslip-th": {
+              "description": "ก้อนเครดิตที่ยังมีเครดิตเหลือ เรียงตามลำดับที่จะถูกหัก ก้อนที่จะถูกหักก่อนอยู่แรก · credits คือผลรวมของทุกก้อน · ก้อนที่หมดแล้วไม่แสดง"
+            },
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditLot"
             }
           },
           "next_expires_at": {
+            "description": "The soonest expiry among lots that still have credits, the date some of the credits start to expire. null means no credits are left.",
+            "x-checkslip-th": {
+              "description": "วันหมดอายุที่ใกล้ที่สุดในบรรดาก้อนที่ยังมีเครดิต คือวันที่เครดิตบางส่วนจะเริ่มหมดอายุ · null = ไม่มีเครดิตเหลือ"
+            },
             "type": [
               "string",
               "null"
@@ -7448,6 +7488,10 @@
             ]
           },
           "free_reason": {
+            "description": "Why that slip lookup used no credit, on SLIP_FREE entries only. What each value means is on the CustomerFreeReason type. The set is open, so we may add new values: when your code meets a value it does not know, treat it as no credit used rather than letting it break.",
+            "x-checkslip-th": {
+              "description": "เหตุที่การตรวจสลิปใบนั้นไม่หักเครดิต มีเฉพาะรายการ SLIP_FREE · ความหมายของแต่ละค่าดูที่ชนิด CustomerFreeReason · เป็นชุดเปิด เราเพิ่มค่าใหม่ได้ ถ้าโค้ดคุณเจอค่าที่ไม่รู้จัก ให้ถือว่าไม่หักเครดิต อย่าให้โค้ดพัง"
+            },
             "anyOf": [
               {
                 "$ref": "#/components/schemas/CustomerFreeReason"
@@ -7459,6 +7503,10 @@
             ]
           },
           "lot_id": {
+            "description": "The lot this entry added to or took from, the same as an `id` in the balance's `lots`. null on entries that did not change credits (`delta` 0), on entries from before lots existed, and on entries that changed several lots at once (such as an account deletion or restore).",
+            "x-checkslip-th": {
+              "description": "ก้อนเครดิตที่รายการนี้เพิ่มหรือหัก ตรงกับ id ใน lots ของยอดเครดิต · null สำหรับรายการที่ไม่ได้เปลี่ยนเครดิต (delta เป็น 0) รายการก่อนที่จะแยกเป็นก้อน และรายการที่เปลี่ยนหลายก้อนพร้อมกัน (เช่นตอนลบหรือกู้คืนบัญชี)"
+            },
             "type": [
               "string",
               "null"
@@ -7505,6 +7553,10 @@
         ]
       },
       "CreditLot": {
+        "description": "One lot of credits with its own expiry. The account's credits are the sum of its lots. A credit is used only when a matching transfer is found, and it is taken from the usable lot that expires first; when two expire at the same moment, a campaign lot is used before a bought one.",
+        "x-checkslip-th": {
+          "description": "ก้อนเครดิตหนึ่งก้อนที่มีวันหมดอายุของตัวเอง เครดิตของบัญชีคือผลรวมของทุกก้อน · หักเครดิตเฉพาะเมื่อพบรายการ โดยหัก 1 เครดิตจากก้อนที่ใช้ได้และหมดอายุก่อน ถ้าหมดอายุพร้อมกัน ก้อนแคมเปญถูกหักก่อนก้อนที่ซื้อ"
+        },
         "type": "object",
         "required": [
           "id",
@@ -7515,10 +7567,18 @@
         ],
         "properties": {
           "id": {
+            "description": "This lot's id, the same value as `lot_id` in the credit history.",
+            "x-checkslip-th": {
+              "description": "รหัสของก้อนนี้ ตรงกับ lot_id ในประวัติเครดิต"
+            },
             "type": "string",
             "format": "uuid"
           },
           "kind": {
+            "description": "The kind of lot. PAID holds every credit that did not come from a campaign (bought, trial, adjusted by our team) as one lot per account; a purchase sets its expiry to at least one year from the payment and never shortens it. CAMPAIGN holds credits a campaign gave, which expire on that campaign's own date and are not moved by a purchase. New kinds may be added: show an unknown kind as credits with their expiry.",
+            "x-checkslip-th": {
+              "description": "ชนิดของก้อน · PAID = เครดิตทุกอย่างที่ไม่ได้มาจากแคมเปญ (ซื้อ เครดิตทดลองใช้ ทีมงานปรับ) รวมเป็นก้อนเดียวต่อบัญชี การซื้อทำให้วันหมดอายุเป็นอย่างน้อยหนึ่งปีนับจากวันที่จ่าย และไม่สั้นลงกว่าเดิม · CAMPAIGN = เครดิตที่ได้จากแคมเปญ หมดอายุตามวันของแคมเปญนั้น การซื้อไม่เลื่อนวันนี้ · อาจมีชนิดใหม่เพิ่มในอนาคต ถ้าเจอชนิดที่ไม่รู้จัก ให้แสดงเป็นเครดิตพร้อมวันหมดอายุ"
+            },
             "anyOf": [
               {
                 "type": "string",
@@ -7534,6 +7594,10 @@
             ]
           },
           "campaign_id": {
+            "description": "The campaign that gave this lot, on CAMPAIGN lots only. null on other lots.",
+            "x-checkslip-th": {
+              "description": "แคมเปญที่ให้ก้อนนี้ มีเฉพาะก้อน CAMPAIGN · null สำหรับก้อนอื่น"
+            },
             "type": [
               "string",
               "null"
@@ -7541,6 +7605,10 @@
             "format": "uuid"
           },
           "campaign_name": {
+            "description": "The campaign's name in Thai and English, as the campaign had it when this account claimed (a later rename does not change it). Both languages always come; the client picks which one to show for its user. CAMPAIGN lots only; null on other lots.",
+            "x-checkslip-th": {
+              "description": "ชื่อแคมเปญเป็นภาษาไทยและอังกฤษ ตามที่แคมเปญใช้ตอนที่บัญชีนี้รับสิทธิ์ (ถ้าแคมเปญเปลี่ยนชื่อทีหลัง ค่านี้ไม่เปลี่ยน) · ส่งมาทั้งสองภาษาเสมอ ฝั่งที่แสดงผลเลือกภาษาเองตามผู้ใช้ · มีเฉพาะก้อน CAMPAIGN · null สำหรับก้อนอื่น"
+            },
             "oneOf": [
               {
                 "$ref": "#/components/schemas/ThEn"
@@ -7551,10 +7619,18 @@
             ]
           },
           "credits_left": {
+            "description": "The credits this lot has left.",
+            "x-checkslip-th": {
+              "description": "เครดิตที่ก้อนนี้เหลืออยู่"
+            },
             "type": "integer",
             "minimum": 1
           },
           "granted": {
+            "description": "On a CAMPAIGN lot, how many credits the campaign gave at the start; with `credits_left` it shows how many were used. On the PAID lot it is null, because that lot grows with every purchase.",
+            "x-checkslip-th": {
+              "description": "ก้อน CAMPAIGN: จำนวนที่แคมเปญให้มาตอนแรก ใช้คู่กับ credits_left เพื่อดูว่าใช้ไปเท่าไร · ก้อน PAID: null เพราะก้อนนี้เพิ่มทุกครั้งที่ซื้อ"
+            },
             "type": [
               "integer",
               "null"
@@ -7562,13 +7638,25 @@
             "minimum": 1
           },
           "expires_at": {
+            "description": "When the credits left in this lot expire.",
+            "x-checkslip-th": {
+              "description": "เวลาที่เครดิตที่เหลือในก้อนนี้หมดอายุ"
+            },
             "type": "string",
             "format": "date-time"
           },
           "usable": {
+            "description": "true when a slip lookup can be charged to this lot now. false when it has expired (and is not yet gone from the list), our team has paused its use, or a campaign lot has used its daily number for today (it works again from 00:00 Thailand time). Meanwhile lookups are charged to another usable lot.",
+            "x-checkslip-th": {
+              "description": "true = ตรวจสลิปตอนนี้หักจากก้อนนี้ได้ · false เมื่อหมดอายุแล้ว (และยังไม่ถูกตัดออกจากรายการ) ทีมงานพักการใช้ไว้ หรือก้อนแคมเปญใช้ครบจำนวนต่อวันของวันนี้แล้ว (ใช้ได้อีกตั้งแต่ 00:00 น. ตามเวลาประเทศไทย) · ระหว่างนั้นการตรวจจะหักจากก้อนอื่นที่ใช้ได้"
+            },
             "type": "boolean"
           },
           "usable_today": {
+            "description": "On a campaign lot with a daily number: the credits this lot can still give today, by the Thailand-time day, which starts again at 00:00. null means this lot has no daily limit.",
+            "x-checkslip-th": {
+              "description": "ก้อนแคมเปญที่มีจำนวนต่อวัน: เครดิตที่ก้อนนี้ยังใช้ได้อีกวันนี้ นับวันตามเวลาประเทศไทย เริ่มใหม่ทุก 00:00 น. · null = ก้อนนี้ไม่จำกัดต่อวัน"
+            },
             "type": [
               "integer",
               "null"
@@ -8935,6 +9023,10 @@
             "format": "uuid"
           },
           "order_code": {
+            "description": "The order code (ORD-XXXXX-XXXXX) of this receipt's order, the same as the order's `code`, for referring to the order. The receipt's legal number is `receipt_no`; never use this code in its place. Every receipt comes from an order and every order has a code, so it should always be set; null means the order's code could not be read at that moment.",
+            "x-checkslip-th": {
+              "description": "รหัสคำสั่งซื้อ (ORD-XXXXX-XXXXX) ของใบเสร็จนี้ ตรงกับ code ของคำสั่งซื้อ ใช้อ้างถึงคำสั่งซื้อได้ · เลขที่ใบเสร็จตามกฎหมายคือ receipt_no ห้ามใช้รหัสนี้แทน · ใบเสร็จทุกใบมาจากคำสั่งซื้อและทุกคำสั่งซื้อมีรหัส จึงควรมีค่าเสมอ · null = อ่านรหัสของคำสั่งซื้อไม่ได้ในตอนนั้น"
+            },
             "type": [
               "string",
               "null"
@@ -9885,6 +9977,10 @@
         ]
       },
       "ThEn": {
+        "description": "One text in two languages; both are always there.",
+        "x-checkslip-th": {
+          "description": "ข้อความเดียวกันสองภาษา มีครบทั้งสองเสมอ"
+        },
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -9893,11 +9989,19 @@
         ],
         "properties": {
           "th": {
+            "description": "The text in Thai.",
+            "x-checkslip-th": {
+              "description": "ข้อความภาษาไทย"
+            },
             "type": "string",
             "minLength": 1,
             "maxLength": 2000
           },
           "en": {
+            "description": "The text in English.",
+            "x-checkslip-th": {
+              "description": "ข้อความภาษาอังกฤษ"
+            },
             "type": "string",
             "minLength": 1,
             "maxLength": 2000
