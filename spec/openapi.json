@@ -2198,8 +2198,12 @@
             "in": "path",
             "required": true,
             "schema": {
+              "description": "The order's `id` or its ORD- code (any case, dashes optional).",
+              "x-checkslip-th": {
+                "description": "id ของคำสั่งซื้อ หรือรหัส ORD- ของมัน (ตัวเล็กตัวใหญ่ได้ ไม่ใส่ขีดก็ได้)"
+              },
               "type": "string",
-              "format": "uuid"
+              "maxLength": 64
             }
           }
         ],
@@ -4160,7 +4164,7 @@
         "description": "Send the QR text read from the slip, or the slip image, and we look up the transfer in the banking system and return that data. We return what the bank has; the decision to accept the payment is yours, against your own order. The result is in outcome, e.g. FOUND, NOT_FOUND, DUPLICATE (PENDING is not in use yet: today you get UNAVAILABLE instead). One credit is used only when outcome is FOUND. We never store the slip image, only the QR text. Images up to 10 MB and 50 megapixels, JPEG, PNG or WebP only (HEIC, GIF and PDF get 422 invalid-file, no credit). Always send an Idempotency-Key; a retry with the same value returns the same result and never charges twice. Needs an API key with slip:lookup.",
         "x-checkslip-th": {
           "summary": "ตรวจสอบรายการโอนกับธนาคาร",
-          "description": "ส่งข้อความ QR ที่อ่านได้จากสลิป หรือส่งรูปสลิป แล้วเราขอข้อมูลรายการโอนจากระบบธนาคาร และส่งข้อมูลนั้นกลับไป · เราส่งข้อมูลที่ธนาคารมีให้ ไม่ได้ตัดสินแทนคุณว่าจะรับเงินหรือไม่ คุณเอาข้อมูลไปเทียบกับออเดอร์ของคุณเอง · ผลอยู่ในฟิลด์ outcome เช่น FOUND (ธนาคารคืนข้อมูลรายการมา), NOT_FOUND (ธนาคารไม่มีรายการตามเลขนี้), DUPLICATE (บัญชีนี้เคยดึงข้อมูลแล้วพบรายการนี้ ภายในช่วงที่เราเก็บเลขอ้างอิงรายการไว้), PENDING (ยังไม่เปิดใช้ ถ้าธนาคารยังไม่ขึ้นรายการ ตอนนี้ได้ UNAVAILABLE) · หัก 1 เครดิตเฉพาะเมื่อ outcome เป็น FOUND ผลอื่นไม่หักเครดิต · ไม่เก็บรูปสลิป เก็บเฉพาะข้อความใน QR · รูปไม่เกิน 10 MB และ 50 ล้านพิกเซล รับเฉพาะ JPEG, PNG และ WebP (HEIC, GIF และ PDF ได้ 422 invalid-file ไม่หักเครดิต) · ส่ง header Idempotency-Key ทุกครั้ง ส่งซ้ำด้วยค่าเดิมได้ผลเดิม และไม่หักเครดิตซ้ำ · ใช้ API key ที่มีสิทธิ์ slip:lookup"
+          "description": "ส่งข้อความ QR ที่อ่านได้จากสลิป หรือส่งรูปสลิป แล้วเราขอข้อมูลรายการโอนจากระบบธนาคาร และส่งข้อมูลนั้นกลับไป · เราส่งข้อมูลที่ธนาคารมีให้ ไม่ได้ตัดสินแทนคุณว่าจะรับเงินหรือไม่ คุณเอาข้อมูลไปเทียบกับออเดอร์ของคุณเอง · ผลอยู่ในฟิลด์ outcome เช่น FOUND (ธนาคารคืนข้อมูลรายการมา), NOT_FOUND (ไม่มีรายการที่ตรงกับสลิปนี้ ณ เวลาที่ถาม), DUPLICATE (บัญชีนี้เคยดึงข้อมูลแล้วพบรายการนี้ ภายในช่วงที่เราเก็บเลขอ้างอิงรายการไว้), PENDING (ยังไม่เปิดใช้ ถ้าธนาคารยังไม่ขึ้นรายการ ตอนนี้ได้ UNAVAILABLE) · หัก 1 เครดิตเฉพาะเมื่อ outcome เป็น FOUND ผลอื่นไม่หักเครดิต · ไม่เก็บรูปสลิป เก็บเฉพาะข้อความใน QR · รูปไม่เกิน 10 MB และ 50 ล้านพิกเซล รับเฉพาะ JPEG, PNG และ WebP (HEIC, GIF และ PDF ได้ 422 invalid-file ไม่หักเครดิต) · ส่ง header Idempotency-Key ทุกครั้ง ส่งซ้ำด้วยค่าเดิมได้ผลเดิม และไม่หักเครดิตซ้ำ · ใช้ API key ที่มีสิทธิ์ slip:lookup"
         },
         "x-docs": "https://checkslip.com/en/docs/lookup-slip",
         "tags": [
@@ -4243,7 +4247,8 @@
                           },
                           "name_th": "นาย สมชาย ใ",
                           "name_en": "MR. SOMCHAI J",
-                          "account": "0439"
+                          "account": "0439",
+                          "account_masked": "xxx-x-xx043-9"
                         },
                         "receiver": {
                           "kind": "BANK_ACCOUNT",
@@ -4255,7 +4260,8 @@
                           },
                           "name_th": "นางสาว สมหญิง ร",
                           "name_en": "MISS SOMYING R",
-                          "account": "9681"
+                          "account": "9681",
+                          "account_masked": "xxx-x-xx968-1"
                         }
                       }
                     }
@@ -4281,14 +4287,16 @@
                           },
                           "name_th": "นาย สมชาย ใ",
                           "name_en": "MR. SOMCHAI J",
-                          "account": "0439"
+                          "account": "0439",
+                          "account_masked": "xxx-x-xx043-9"
                         },
                         "receiver": {
                           "kind": "BILL_PAYMENT",
                           "bank": null,
                           "name_th": "บริษัท ตัวอย่าง จำกัด",
                           "name_en": null,
-                          "account": null
+                          "account": null,
+                          "account_masked": null
                         }
                       }
                     }
@@ -4433,6 +4441,15 @@
                       "status": 402,
                       "instance": "/api/slips/lookup",
                       "code": "CREDIT_EXPIRED"
+                    }
+                  },
+                  "CAMPAIGN_DAILY_LIMIT": {
+                    "value": {
+                      "type": "https://checkslip.com/problems/campaign-daily-limit",
+                      "title": "เครดิตแคมเปญของวันนี้ใช้ครบแล้ว",
+                      "status": 402,
+                      "instance": "/api/slips/lookup",
+                      "code": "CAMPAIGN_DAILY_LIMIT"
                     }
                   }
                 }
@@ -4711,7 +4728,9 @@
                       "title": "ติดต่อไม่ได้",
                       "status": 503,
                       "instance": "/api/slips/lookup",
-                      "code": "UNAVAILABLE"
+                      "code": "UNAVAILABLE",
+                      "reason": "NOT_SEEN",
+                      "detail": "ระบบธนาคารไม่แสดงรายการโอนนี้ ณ เวลาที่ถาม ถ้าเพิ่งโอน รายการอาจยังไม่ขึ้น ไม่หักเครดิต ลองใหม่หลังเวลาใน Retry-After"
                     }
                   },
                   "CREDIT_UNAVAILABLE": {
@@ -4865,7 +4884,7 @@
                       "type": "string",
                       "format": "uri",
                       "examples": [
-                        "https://checkslip.com/problems/check-settled"
+                        "https://checkslip.com/problems/validation-failed"
                       ]
                     },
                     "title": {
@@ -6997,6 +7016,19 @@
               "null"
             ],
             "format": "uuid"
+          },
+          "lots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditLot"
+            }
+          },
+          "next_expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -7010,6 +7042,10 @@
         ],
         "properties": {
           "code": {
+            "description": "Checkslip's own bank code, used with our API and with the list of supported banks. It is not the same as bot_code, the Bank of Thailand code; do not swap the two. For a bank not in our table yet this value is UNKNOWN, and it is the same UNKNOWN for every such bank, so do not use it as a key or as a bank's identity: different banks would collide. Use bot_code, which still tells them apart.",
+            "x-checkslip-th": {
+              "description": "รหัสธนาคารของ Checkslip ใช้กับ API ของเราและกับรายชื่อธนาคารที่รองรับ · ไม่ใช่รหัสเดียวกับ bot_code ของธนาคารแห่งประเทศไทย อย่าสลับสองค่านี้ · ธนาคารที่ยังไม่มีในตารางของเรา ค่านี้จะเป็น UNKNOWN และเป็น UNKNOWN เหมือนกันทุกธนาคารที่ยังไม่มี ⇒ อย่าใช้ค่านี้เป็นกุญแจหรือตัวระบุธนาคาร เพราะธนาคารต่างกันจะชนกัน ให้ใช้ bot_code ซึ่งยังแยกแต่ละธนาคารได้"
+            },
             "type": "string",
             "pattern": "^[A-Z]{2,10}$",
             "examples": [
@@ -7017,6 +7053,10 @@
             ]
           },
           "bot_code": {
+            "description": "The Bank of Thailand's 3-digit institution code, for example 004 for Kasikornbank. Use it when you need to match a system that uses Bank of Thailand codes. It is not the same as Checkslip's own code. This value always arrives and tells each bank apart, even one that is not in our table yet, so store this one when you need to record which bank it was.",
+            "x-checkslip-th": {
+              "description": "รหัสสถาบันการเงิน 3 หลักของธนาคารแห่งประเทศไทย เช่น 004 คือกสิกรไทย · ใช้เมื่อต้องเทียบกับระบบอื่นที่ใช้รหัสของธนาคารแห่งประเทศไทย · ไม่ใช่รหัสเดียวกับ code ของ Checkslip · ค่านี้มาเสมอและแยกแต่ละธนาคารได้ แม้ธนาคารนั้นจะยังไม่มีในตารางของเรา ⇒ ถ้าต้องเก็บว่าเป็นธนาคารไหน เก็บค่านี้"
+            },
             "type": "string",
             "pattern": "^[0-9]{3}$",
             "examples": [
@@ -7024,6 +7064,10 @@
             ]
           },
           "name_th": {
+            "description": "The bank's name. It can be null when that bank is not in our table yet; code is then UNKNOWN and the real code is in bot_code, so show bot_code instead. Do not leave an empty space, and do not show the word UNKNOWN to your customer.",
+            "x-checkslip-th": {
+              "description": "ชื่อธนาคาร · เป็น null ได้เมื่อธนาคารนั้นยังไม่มีในตารางของเรา ซึ่งตอนนั้น code จะเป็น UNKNOWN และรหัสจริงอยู่ใน bot_code ⇒ ให้แสดง bot_code แทน อย่าแสดงช่องเปล่าและอย่าแสดงคำว่า UNKNOWN ให้ลูกค้าเห็น"
+            },
             "type": [
               "string",
               "null"
@@ -7033,6 +7077,10 @@
             ]
           },
           "name_en": {
+            "description": "The bank's name. It can be null when that bank is not in our table yet; code is then UNKNOWN and the real code is in bot_code, so show bot_code instead. Do not leave an empty space, and do not show the word UNKNOWN to your customer.",
+            "x-checkslip-th": {
+              "description": "ชื่อธนาคาร · เป็น null ได้เมื่อธนาคารนั้นยังไม่มีในตารางของเรา ซึ่งตอนนั้น code จะเป็น UNKNOWN และรหัสจริงอยู่ใน bot_code ⇒ ให้แสดง bot_code แทน อย่าแสดงช่องเปล่าและอย่าแสดงคำว่า UNKNOWN ให้ลูกค้าเห็น"
+            },
             "type": [
               "string",
               "null"
@@ -7087,6 +7135,7 @@
               "ORDER_ALREADY_PAID",
               "ORDER_CANCELLED",
               "NO_CREDIT",
+              "CAMPAIGN_DAILY_LIMIT",
               "CREDIT_EXPIRED",
               "PAYMENTS_UNAVAILABLE",
               "BAD_SIGNATURE",
@@ -7312,6 +7361,10 @@
         }
       },
       "ClientReference": {
+        "description": "A value you choose yourself for this lookup, your order number for example. It must be 1 to 128 English letters, digits or punctuation marks, with no spaces. We store it and send it back in the answer, in your history and in webhooks. Do not put personal data in this field, such as a name, phone number or account number.",
+        "x-checkslip-th": {
+          "description": "ค่าที่คุณกำหนดเองสำหรับการตรวจครั้งนี้ เช่น เลขออเดอร์ของคุณ · ต้องเป็นตัวอักษรอังกฤษ ตัวเลข หรือเครื่องหมาย 1-128 ตัว ไม่มีช่องว่าง · เราเก็บไว้และส่งคืนให้ในคำตอบ ในประวัติ และใน webhook · อย่าใส่ข้อมูลส่วนบุคคลลงในช่องนี้ เช่น ชื่อ เบอร์โทร หรือเลขบัญชี"
+        },
         "type": [
           "string",
           "null"
@@ -7405,6 +7458,13 @@
               }
             ]
           },
+          "lot_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
           "ref_type": {
             "type": "string",
             "enum": [
@@ -7444,6 +7504,79 @@
           }
         ]
       },
+      "CreditLot": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "credits_left",
+          "expires_at",
+          "usable"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "PAID",
+                  "CAMPAIGN"
+                ]
+              },
+              {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{0,39}$"
+              }
+            ]
+          },
+          "campaign_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "campaign_name": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ThEn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "credits_left": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "granted": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "usable": {
+            "type": "boolean"
+          },
+          "usable_today": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
+        }
+      },
       "CreditReason": {
         "type": "string",
         "enum": [
@@ -7455,7 +7588,10 @@
           "STAFF_ADJUST",
           "ACCOUNT_DELETED",
           "ACCOUNT_RESTORED",
-          "DEV_GRANT"
+          "DEV_GRANT",
+          "CAMPAIGN_GRANT",
+          "CAMPAIGN_EXPIRE",
+          "CAMPAIGN_RECLAIM"
         ]
       },
       "CustomerFreeReason": {
@@ -7653,6 +7789,10 @@
         ]
       },
       "DuplicateOf": {
+        "description": "Present only when outcome is DUPLICATE. It points at the first lookup of this slip by your account that returned FOUND. When that first lookup is still in your history, open it to see which order it belongs to before accepting the payment again. We remember checked slips for longer than the history keeps them, so the first lookup may no longer be there to open, while the DUPLICATE result still holds: match it against the transfer reference in your own records instead.",
+        "x-checkslip-th": {
+          "description": "มีเฉพาะเมื่อ outcome เป็น DUPLICATE · ชี้ไปที่การตรวจครั้งแรกของสลิปใบนี้ในบัญชีของคุณที่ได้ผล FOUND · ถ้าครั้งแรกยังอยู่ในประวัติของคุณ ให้เปิดดูว่าผูกกับออเดอร์ไหนก่อนรับเงินซ้ำ · เราจำสลิปที่เคยตรวจได้นานกว่าที่ประวัติเก็บไว้ ดังนั้นครั้งแรกอาจเปิดไม่เจอแล้ว แต่ผล DUPLICATE ยังเชื่อถือได้ ⇒ ตอนนั้นให้เทียบจากเลขอ้างอิงรายการในระบบของคุณเอง"
+        },
         "type": "object",
         "required": [
           "request_id",
@@ -8166,10 +8306,18 @@
             "$ref": "#/components/schemas/EventType"
           },
           "timestamp": {
+            "description": "When the event happened, not when the message was sent. A message sent again keeps the same time.",
+            "x-checkslip-th": {
+              "description": "เวลาที่เหตุการณ์เกิด ไม่ใช่เวลาที่ส่ง · ข้อความที่ส่งซ้ำมีเวลานี้เท่าเดิม"
+            },
             "type": "string",
             "format": "date-time"
           },
           "data": {
+            "description": "The message content; its shape depends on type. The lookup-result message is slip.checked.",
+            "x-checkslip-th": {
+              "description": "เนื้อหาของข้อความ รูปแบบขึ้นกับ type · ข้อความผลตรวจคือ slip.checked"
+            },
             "type": "object"
           }
         }
@@ -8198,7 +8346,7 @@
             "type": "string",
             "format": "uri",
             "examples": [
-              "https://checkslip.com/problems/check-settled"
+              "https://checkslip.com/problems/validation-failed"
             ]
           },
           "title": {
@@ -8284,6 +8432,7 @@
         "type": "object",
         "required": [
           "id",
+          "code",
           "status",
           "package_code",
           "package_name_th",
@@ -8295,6 +8444,17 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "code": {
+            "description": "The order's code for people (ORD-XXXXX-XXXXX), to show and to look the order up instead of `id`. Its last character is a check: one wrong character finds nothing rather than a guess.",
+            "x-checkslip-th": {
+              "description": "รหัสคำสั่งซื้อสำหรับคนอ่าน (ORD-XXXXX-XXXXX) ใช้แสดงและใช้ค้นหาแทน id ได้ · ตัวท้ายเป็นตัวตรวจ พิมพ์ผิดหนึ่งตัวจะหาไม่เจอ ไม่เดาให้"
+            },
+            "type": "string",
+            "pattern": "^ORD-[0-9A-HJKMNP-TV-Z]{5}-[0-9A-HJKMNP-TV-Z]{5}$",
+            "examples": [
+              "ORD-7K3QM-X9P2D"
+            ]
           },
           "status": {
             "$ref": "#/components/schemas/OrderStatus"
@@ -8428,6 +8588,7 @@
           "price_per_credit",
           "price_per_credit_baht",
           "price_total",
+          "offer",
           "credits",
           "validity_days",
           "for_sale",
@@ -8463,9 +8624,9 @@
             ]
           },
           "price_total": {
-            "description": "What a customer pays for this package now, including any VAT due; do not add VAT again. It equals `price` when `vat_rate_bp` is 0 or `prices_include_vat` is true. An order opened now asks for this amount, so show this one as the price to pay.",
+            "description": "What a customer pays for this package now, including any VAT due; do not add VAT again. It equals `price` when `vat_rate_bp` is 0 or `prices_include_vat` is true. While an `offer` runs it is made from the offer price instead of `price`. An order opened now asks for this amount, so show this one as the price to pay.",
             "x-checkslip-th": {
-              "description": "ยอดที่ลูกค้าจ่ายสำหรับแพ็กนี้ตอนนี้ รวม VAT ที่ต้องเก็บแล้ว ห้ามบวก VAT เพิ่มอีก · เท่ากับ price เมื่อ vat_rate_bp เป็น 0 หรือ prices_include_vat เป็น true · ออเดอร์ที่เปิดตอนนี้เรียกเก็บยอดนี้ ให้แสดงยอดนี้เป็นราคาที่ต้องจ่าย"
+              "description": "ยอดที่ลูกค้าจ่ายสำหรับแพ็กนี้ตอนนี้ รวม VAT ที่ต้องเก็บแล้ว ห้ามบวก VAT เพิ่มอีก · เท่ากับ price เมื่อ vat_rate_bp เป็น 0 หรือ prices_include_vat เป็น true · ระหว่างที่มี offer ยอดนี้คิดจากราคาของ offer ไม่ใช่ price · ออเดอร์ที่เปิดตอนนี้เรียกเก็บยอดนี้ ให้แสดงยอดนี้เป็นราคาที่ต้องจ่าย"
             },
             "allOf": [
               {
@@ -8482,6 +8643,67 @@
             "pattern": "^[0-9]+\\.[0-9]{3}$",
             "examples": [
               "0.175"
+            ]
+          },
+          "offer": {
+            "description": "A time-limited lower price running now, or null when there is none. `price` stays the regular price; an order opened before `ends_at` asks for the offer price, which `price_total` shows. After `ends_at` the regular price applies again on its own.",
+            "x-checkslip-th": {
+              "description": "ราคาพิเศษแบบมีกำหนดเวลาที่ใช้อยู่ตอนนี้ เป็น null เมื่อไม่มี · price ยังเป็นราคาปกติ ออเดอร์ที่เปิดก่อน ends_at เรียกเก็บราคาของ offer (ดูยอดที่ต้องจ่ายจาก price_total) · พ้น ends_at แล้วกลับเป็นราคาปกติเอง"
+            },
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "price",
+                  "price_per_credit",
+                  "price_per_credit_baht",
+                  "ends_at"
+                ],
+                "properties": {
+                  "price": {
+                    "description": "The offer price of this package, in the same terms as `price` (VAT handled the same way).",
+                    "x-checkslip-th": {
+                      "description": "ราคาพิเศษของแพ็กนี้ หน่วยเดียวกับ price (VAT ตามกติกาเดียวกับ price)"
+                    },
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Money"
+                      }
+                    ]
+                  },
+                  "price_per_credit": {
+                    "description": "The price of one credit at the offer price, worked out the same way as `price_per_credit`.",
+                    "x-checkslip-th": {
+                      "description": "ราคาต่อเครดิตของราคาพิเศษ คิดแบบเดียวกับ price_per_credit"
+                    },
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Money"
+                      }
+                    ]
+                  },
+                  "price_per_credit_baht": {
+                    "description": "The offer price per credit in baht with three decimals, like `price_per_credit_baht`. Show it as sent.",
+                    "x-checkslip-th": {
+                      "description": "ราคาต่อเครดิตของราคาพิเศษเป็นหน่วยบาท ทศนิยม 3 ตำแหน่ง แบบเดียวกับ price_per_credit_baht ให้แสดงค่าที่ส่งมา"
+                    },
+                    "type": "string",
+                    "pattern": "^[0-9]+\\.[0-9]{3}$"
+                  },
+                  "ends_at": {
+                    "description": "When the offer ends. An order opened from this time on uses the regular price.",
+                    "x-checkslip-th": {
+                      "description": "เวลาที่ราคาพิเศษสิ้นสุด ออเดอร์ที่เปิดตั้งแต่เวลานี้ใช้ราคาปกติ"
+                    },
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
             ]
           },
           "credits": {
@@ -8556,13 +8778,18 @@
           "bank",
           "name_th",
           "name_en",
-          "account"
+          "account",
+          "account_masked"
         ],
         "properties": {
           "bank": {
             "$ref": "#/components/schemas/Bank"
           },
           "name_th": {
+            "description": "The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.",
+            "x-checkslip-th": {
+              "description": "ชื่อตามที่ธนาคารแสดง · เป็น null ได้เมื่อธนาคารไม่ส่งชื่อมา หรือเมื่อชื่อถูกลบไปแล้วตาม names_erased · ห้ามใช้ช่องนี้เป็นเงื่อนไขเดียวในการรับเงิน ให้เทียบเลขอ้างอิงรายการและยอดด้วย"
+            },
             "type": [
               "string",
               "null"
@@ -8572,6 +8799,10 @@
             ]
           },
           "name_en": {
+            "description": "The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.",
+            "x-checkslip-th": {
+              "description": "ชื่อตามที่ธนาคารแสดง · เป็น null ได้เมื่อธนาคารไม่ส่งชื่อมา หรือเมื่อชื่อถูกลบไปแล้วตาม names_erased · ห้ามใช้ช่องนี้เป็นเงื่อนไขเดียวในการรับเงิน ให้เทียบเลขอ้างอิงรายการและยอดด้วย"
+            },
             "type": [
               "string",
               "null"
@@ -8581,6 +8812,10 @@
             ]
           },
           "account": {
+            "description": "The last 4 digits of the account as the bank shows them. It can be null when the bank sends no number, or when the data was erased (see names_erased). Different accounts can share the same last 4 digits, so do not use it on its own to identify an account.",
+            "x-checkslip-th": {
+              "description": "เลขบัญชี 4 หลักท้ายตามที่ธนาคารแสดง · เป็น null ได้เมื่อธนาคารไม่ส่งเลขมา หรือเมื่อข้อมูลถูกลบไปแล้วตาม names_erased · 4 หลักท้ายซ้ำกันได้หลายบัญชี อย่าใช้เป็นตัวระบุบัญชีเพียงอย่างเดียว"
+            },
             "type": [
               "string",
               "null"
@@ -8588,6 +8823,20 @@
             "pattern": "^[0-9]{4}$",
             "examples": [
               "0439"
+            ]
+          },
+          "account_masked": {
+            "description": "The account number with most digits hidden, in a fixed shape that follows the account's length: xxx-x-xxxxx-x for a 10-digit account and xxx-x-xxxxx-xxx for a 12-digit one. The digits you see are the ones the bank itself shows, in their real places in the account number. Which digits, and how many, depends on the account holder's bank, because each bank hides different digits, for example xxx-x-x1234-x or 12x-x-xx345-6. The same transfer always gives the same value. It can be null when the bank shows no digit, or when the data was erased (see names_erased). Do not use it on its own to identify an account.",
+            "x-checkslip-th": {
+              "description": "เลขบัญชีแบบปิดบางหลัก รูปแบบคงที่ตามความยาวของบัญชี คือ xxx-x-xxxxx-x สำหรับบัญชี 10 หลัก และ xxx-x-xxxxx-xxx สำหรับบัญชี 12 หลัก · หลักที่เห็นคือหลักที่ธนาคารแสดงเอง อยู่ในตำแหน่งจริงของเลขบัญชี · หลักไหนที่เห็นและเห็นกี่หลักขึ้นกับธนาคารของเจ้าของบัญชี เพราะแต่ละธนาคารปิดคนละหลัก เช่น xxx-x-x1234-x หรือ 12x-x-xx345-6 · รายการเดียวกันได้ค่าเดียวกันทุกครั้ง · เป็น null ได้เมื่อธนาคารไม่แสดงหลักใดเลย หรือเมื่อข้อมูลถูกลบไปแล้วตาม names_erased · อย่าใช้เป็นตัวระบุบัญชีเพียงอย่างเดียว"
+            },
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9x]{3}-[0-9x]-[0-9x]{5}-([0-9x]|[0-9x]{3})$",
+            "examples": [
+              "xxx-x-x1234-x"
             ]
           }
         }
@@ -8657,6 +8906,7 @@
           "id",
           "receipt_no",
           "order_id",
+          "order_code",
           "issued_at",
           "seller",
           "seller_ready",
@@ -8683,6 +8933,13 @@
           "order_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "order_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^ORD-[0-9A-HJKMNP-TV-Z]{5}-[0-9A-HJKMNP-TV-Z]{5}$"
           },
           "issued_at": {
             "type": "string",
@@ -8805,7 +9062,8 @@
           "bank",
           "name_th",
           "name_en",
-          "account"
+          "account",
+          "account_masked"
         ],
         "properties": {
           "kind": {
@@ -8822,6 +9080,10 @@
             ]
           },
           "name_th": {
+            "description": "The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.",
+            "x-checkslip-th": {
+              "description": "ชื่อตามที่ธนาคารแสดง · เป็น null ได้เมื่อธนาคารไม่ส่งชื่อมา หรือเมื่อชื่อถูกลบไปแล้วตาม names_erased · ห้ามใช้ช่องนี้เป็นเงื่อนไขเดียวในการรับเงิน ให้เทียบเลขอ้างอิงรายการและยอดด้วย"
+            },
             "type": [
               "string",
               "null"
@@ -8831,6 +9093,10 @@
             ]
           },
           "name_en": {
+            "description": "The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.",
+            "x-checkslip-th": {
+              "description": "ชื่อตามที่ธนาคารแสดง · เป็น null ได้เมื่อธนาคารไม่ส่งชื่อมา หรือเมื่อชื่อถูกลบไปแล้วตาม names_erased · ห้ามใช้ช่องนี้เป็นเงื่อนไขเดียวในการรับเงิน ให้เทียบเลขอ้างอิงรายการและยอดด้วย"
+            },
             "type": [
               "string",
               "null"
@@ -8840,6 +9106,10 @@
             ]
           },
           "account": {
+            "description": "The last 4 digits of the receiver's account as the bank shows them. It can be null when the bank sends no number, when kind is not BANK_ACCOUNT because the destination is not a bank account, or when the data was erased (see names_erased). Different accounts can share the same last 4 digits, so do not use it on its own to identify an account.",
+            "x-checkslip-th": {
+              "description": "เลขบัญชี 4 หลักท้ายของผู้รับตามที่ธนาคารแสดง · เป็น null ได้เมื่อธนาคารไม่ส่งเลขมา เมื่อ kind ไม่ใช่ BANK_ACCOUNT เพราะปลายทางไม่ใช่บัญชีธนาคาร หรือเมื่อข้อมูลถูกลบไปแล้วตาม names_erased · 4 หลักท้ายซ้ำกันได้หลายบัญชี อย่าใช้เป็นตัวระบุบัญชีเพียงอย่างเดียว"
+            },
             "type": [
               "string",
               "null"
@@ -8848,10 +9118,28 @@
             "examples": [
               "0439"
             ]
+          },
+          "account_masked": {
+            "description": "The account number with most digits hidden, in a fixed shape that follows the account's length: xxx-x-xxxxx-x for a 10-digit account and xxx-x-xxxxx-xxx for a 12-digit one. The digits you see are the ones the bank itself shows, in their real places in the account number. Which digits, and how many, depends on the account holder's bank, because each bank hides different digits, for example xxx-x-x1234-x or 12x-x-xx345-6. The same transfer always gives the same value. It can be null when the bank shows no digit, when kind is not BANK_ACCOUNT, or when the data was erased (see names_erased). Do not use it on its own to identify an account.",
+            "x-checkslip-th": {
+              "description": "เลขบัญชีแบบปิดบางหลัก รูปแบบคงที่ตามความยาวของบัญชี คือ xxx-x-xxxxx-x สำหรับบัญชี 10 หลัก และ xxx-x-xxxxx-xxx สำหรับบัญชี 12 หลัก · หลักที่เห็นคือหลักที่ธนาคารแสดงเอง อยู่ในตำแหน่งจริงของเลขบัญชี · หลักไหนที่เห็นและเห็นกี่หลักขึ้นกับธนาคารของเจ้าของบัญชี เพราะแต่ละธนาคารปิดคนละหลัก เช่น xxx-x-x1234-x หรือ 12x-x-xx345-6 · รายการเดียวกันได้ค่าเดียวกันทุกครั้ง · เป็น null ได้เมื่อธนาคารไม่แสดงหลักใดเลย เมื่อ kind ไม่ใช่ BANK_ACCOUNT หรือเมื่อข้อมูลถูกลบไปแล้วตาม names_erased · อย่าใช้เป็นตัวระบุบัญชีเพียงอย่างเดียว"
+            },
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9x]{3}-[0-9x]-[0-9x]{5}-([0-9x]|[0-9x]{3})$",
+            "examples": [
+              "xxx-x-x1234-x"
+            ]
           }
         }
       },
       "ReceiverKind": {
+        "description": "Where the money went: BANK_ACCOUNT a bank account, BILL_PAYMENT a bill payment, NOT_BANK_ACCOUNT not a bank account. When it is not BANK_ACCOUNT, bank and account are always null, because the destination is not an account whose bank we can name. We may add new words: treat one your code does not know as not a bank account.",
+        "x-checkslip-th": {
+          "description": "เงินเข้าอะไร: BANK_ACCOUNT บัญชีธนาคาร · BILL_PAYMENT จ่ายบิล · NOT_BANK_ACCOUNT ไม่ใช่บัญชีธนาคาร · ถ้าไม่ใช่ BANK_ACCOUNT ช่อง bank และ account จะเป็น null เสมอ เพราะปลายทางไม่ใช่บัญชีที่เราระบุชื่อธนาคารได้ · เราเพิ่มคำใหม่ได้ คำที่โค้ดคุณไม่รู้จักให้ถือว่าไม่ใช่บัญชีธนาคาร"
+        },
         "type": "string",
         "enum": [
           "BANK_ACCOUNT",
@@ -8939,6 +9227,10 @@
             "$ref": "#/components/schemas/verify.TransRef"
           },
           "transferred_at": {
+            "description": "When the money moved, as the bank shows it, in Thai time +07:00. Use this value to compare with your order's time, not checked_at. It arrives in the full shape only; the short shape does not send it, so if your code needs the time of the transfer, leave a path for it being absent.",
+            "x-checkslip-th": {
+              "description": "เวลาที่เงินโอน ตามที่ธนาคารแสดง เป็นเวลาไทย +07:00 · ใช้ค่านี้เทียบกับเวลาออเดอร์ ไม่ใช่ checked_at · มาในแบบเต็มเท่านั้น แบบย่อไม่ส่งช่องนี้ ⇒ ถ้าโค้ดคุณต้องใช้เวลาโอน ให้เผื่อทางที่ไม่มีค่านี้ไว้ด้วย"
+            },
             "type": "string",
             "format": "date-time",
             "examples": [
@@ -8946,7 +9238,15 @@
             ]
           },
           "amount": {
-            "$ref": "#/components/schemas/verify.Money"
+            "description": "The amount of the transfer. It arrives in the full shape only; the short shape does not send it, nor satang or currency inside it, so do not write code that needs an amount every time, and the wording on satang applies only when you get the full shape.",
+            "x-checkslip-th": {
+              "description": "ยอดเงินของรายการโอน · มาในแบบเต็มเท่านั้น แบบย่อไม่ส่งช่องนี้ รวมถึง satang และ currency ข้างในด้วย ⇒ อย่าเขียนโค้ดที่ต้องมียอดเงินทุกครั้ง และคำอธิบายของ satang ใช้ได้เฉพาะเมื่อคุณได้แบบเต็ม"
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/verify.Money"
+              }
+            ]
           },
           "sender": {
             "$ref": "#/components/schemas/Party"
@@ -8955,6 +9255,10 @@
             "$ref": "#/components/schemas/Receiver"
           },
           "names_erased": {
+            "description": "True when this transfer's names and account digits were erased together with the data of the account that looked it up. Every name and account field is then null because we no longer hold them, not because the bank did not send them. When you are working out why a name is empty, read this field first.",
+            "x-checkslip-th": {
+              "description": "เป็น true เมื่อชื่อและเลขบัญชีของรายการนี้ถูกลบไปพร้อมข้อมูลของบัญชีที่เคยตรวจ · ตอนนั้นทุกช่องชื่อและเลขบัญชีจะเป็น null เพราะ เราไม่ได้เก็บไว้แล้ว ไม่ใช่เพราะธนาคารไม่ได้ส่งมา · ถ้าคุณกำลังไล่ว่าทำไมชื่อว่าง ให้ดูช่องนี้ก่อน"
+            },
             "type": "boolean"
           }
         }
@@ -8969,10 +9273,18 @@
         ],
         "properties": {
           "request_id": {
+            "description": "The id of this lookup. Use it with GET /api/slips/{request_id} to read the same result again, and when you contact our team. It identifies one lookup, not a transfer; the value that identifies a transfer is trans_ref.",
+            "x-checkslip-th": {
+              "description": "id ของการตรวจครั้งนี้ · ใช้เรียก GET /api/slips/{request_id} เพื่ออ่านผลเดิมได้ และใช้อ้างอิงเมื่อติดต่อทีมงาน · ระบุการตรวจหนึ่งครั้ง ไม่ได้ระบุรายการโอน ค่าที่ระบุรายการโอนคือ trans_ref"
+            },
             "type": "string",
             "format": "uuid"
           },
           "outcome": {
+            "description": "The result of the transfer lookup with the bank. A 200 answer is FOUND, NOT_FOUND or DUPLICATE only; other outcomes arrive as an error, not as 200. The set is open, so we may add new words: when your code meets a word it does not know, treat it as not FOUND rather than letting it break or accepting the payment.",
+            "x-checkslip-th": {
+              "description": "ผลตรวจรายการโอนกับธนาคาร · คำตอบ 200 เป็น FOUND, NOT_FOUND หรือ DUPLICATE เท่านั้น ผลอื่นมาเป็นข้อผิดพลาด ไม่ใช่ 200 · เป็นชุดเปิด เราเพิ่มคำใหม่ได้ ถ้าโค้ดคุณเจอคำที่ไม่รู้จัก ให้ถือว่าไม่ใช่ FOUND อย่าให้โค้ดพังหรือรับเงินไปก่อน"
+            },
             "type": "string",
             "enum": [
               "FOUND",
@@ -8982,10 +9294,18 @@
             ]
           },
           "checked_at": {
+            "description": "When we asked the bank this time. It is not transferred_at, which is when the money moved. When you match an order by time, use transferred_at, not this value.",
+            "x-checkslip-th": {
+              "description": "เวลาที่เราถามธนาคารครั้งนี้ · คนละค่ากับ transferred_at ซึ่งเป็นเวลาที่เงินโอน · ถ้าจับคู่กับออเดอร์ด้วยช่วงเวลา ให้ใช้ transferred_at ไม่ใช่ค่านี้"
+            },
             "type": "string",
             "format": "date-time"
           },
           "slip": {
+            "description": "The transfer data, in one of two shapes, so your system must read both. The full shape has the payer's and receiver's names and the last 4 account digits, as far as the bank shows them. The short shape has only the transfer reference and the sending bank, with no names and no account numbers. Do not write code that can read the names in one shape only.",
+            "x-checkslip-th": {
+              "description": "ข้อมูลรายการโอน มีสองแบบ ระบบของคุณต้องอ่านได้ทั้งสองแบบ · แบบเต็มมีชื่อผู้โอน ชื่อผู้รับ และเลขบัญชี 4 หลักท้าย เท่าที่ธนาคารแสดง · แบบย่อมีแค่เลขอ้างอิงรายการและธนาคารต้นทาง ไม่มีชื่อและไม่มีเลขบัญชี · อย่าเขียนโค้ดที่อ่านชื่อได้แบบเดียว"
+            },
             "oneOf": [
               {
                 "$ref": "#/components/schemas/Slip"
@@ -9015,10 +9335,18 @@
         ],
         "properties": {
           "request_id": {
+            "description": "The id of this lookup, the same request_id you got when you asked for it. Use it with GET /api/slips/{request_id} to read the same result. One lookup gives one message per endpoint, so the same request_id again is the same message sent again.",
+            "x-checkslip-th": {
+              "description": "id ของการตรวจครั้งนี้ ตรงกับ request_id ที่ได้ตอนสั่งตรวจ · ใช้เรียก GET /api/slips/{request_id} เพื่ออ่านผลเดียวกันได้ · ผลของการตรวจหนึ่งครั้งส่งไปที่ endpoint หนึ่งเป็นข้อความเดียว ถ้าได้ request_id เดิมอีกครั้งคือข้อความเดิมที่ส่งซ้ำ"
+            },
             "type": "string",
             "format": "uuid"
           },
           "outcome": {
+            "description": "The result of the transfer lookup with the bank, with the same values and meanings as outcome in GET /api/slips/{request_id}. This message carries the final result of that lookup, and today it is never PENDING, which is not in use yet.",
+            "x-checkslip-th": {
+              "description": "ผลตรวจรายการโอนกับธนาคาร ค่าและความหมายเดียวกับ outcome ของ GET /api/slips/{request_id} · ข้อความนี้เป็นผลสุดท้ายของการตรวจครั้งนั้น และตอนนี้ไม่มี PENDING เพราะยังไม่เปิดใช้"
+            },
             "allOf": [
               {
                 "$ref": "#/components/schemas/CheckOutcome"
@@ -9026,10 +9354,18 @@
             ]
           },
           "checked_at": {
+            "description": "When this lookup was made, the same as checked_at in GET /api/slips/{request_id}.",
+            "x-checkslip-th": {
+              "description": "เวลาที่ตรวจครั้งนี้ เท่ากับ checked_at ของ GET /api/slips/{request_id}"
+            },
             "type": "string",
             "format": "date-time"
           },
           "channel": {
+            "description": "Where the lookup was asked for: API (a call with an API key), DASHBOARD (the Checkslip web app) or ASSISTANT (the AI assistant, on behalf of a member of the account).",
+            "x-checkslip-th": {
+              "description": "ช่องทางที่สั่งตรวจ: API (เรียกด้วย API key), DASHBOARD (หน้าเว็บ Checkslip) หรือ ASSISTANT (ผู้ช่วย AI ตรวจแทนสมาชิกของบัญชี)"
+            },
             "type": "string",
             "enum": [
               "API",
@@ -9041,6 +9377,10 @@
             "$ref": "#/components/schemas/ClientReference"
           },
           "slip": {
+            "description": "The transfer data, in one of two shapes, so your system must read both. FOUND gives the full shape, with the payer's and receiver's names and the last 4 digits of their accounts as far as the bank shows them (a field the bank does not show is null). DUPLICATE gives the full shape from the first lookup if that was within 90 days, otherwise the short one. Other results give the short shape. The field is absent when the QR could not be read or the file could not be used (INVALID_QR, INVALID_FILE).",
+            "x-checkslip-th": {
+              "description": "ข้อมูลรายการโอน มีสองแบบ ระบบของคุณต้องอ่านได้ทั้งสองแบบ · FOUND ได้แบบเต็ม ซึ่งมีชื่อผู้โอน ชื่อผู้รับ และเลขบัญชี 4 หลักท้าย เท่าที่ธนาคารแสดง (ช่องที่ธนาคารไม่แสดงเป็น null) · DUPLICATE ได้แบบเต็มจากการตรวจครั้งแรก ถ้าครั้งแรกยังไม่เกิน 90 วัน ไม่งั้นได้แบบย่อ · ผลอื่นได้แบบย่อ · ไม่มีช่องนี้เมื่ออ่าน QR ไม่ได้หรือไฟล์ใช้ไม่ได้ (INVALID_QR, INVALID_FILE)"
+            },
             "oneOf": [
               {
                 "$ref": "#/components/schemas/webhook.Slip"
@@ -9054,10 +9394,18 @@
             "$ref": "#/components/schemas/DuplicateOf"
           },
           "checked_elsewhere": {
+            "description": "No longer used; new messages do not have it. You may see it only when a message first sent before 9 Nov 2026 is sent again. Do not base any decision on it.",
+            "x-checkslip-th": {
+              "description": "เลิกใช้แล้ว ข้อความใหม่ไม่มีช่องนี้ · อาจเห็นเฉพาะเมื่อส่งซ้ำข้อความที่ส่งครั้งแรกก่อน 9 พ.ย. 2026 · อย่าใช้ค่านี้ตัดสินอะไร"
+            },
             "type": "boolean",
             "deprecated": true
           },
           "resolved_after_pending": {
+            "description": "Always false today, because PENDING is not in use yet. The field stays so code that reads it does not break.",
+            "x-checkslip-th": {
+              "description": "ตอนนี้เป็น false เสมอ เพราะ PENDING ยังไม่เปิดใช้ · ช่องนี้ยังอยู่เพื่อไม่ให้โค้ดที่อ่านช่องนี้อยู่พัง"
+            },
             "type": "boolean"
           }
         }
@@ -9405,14 +9753,34 @@
             "$ref": "#/components/schemas/Bank"
           },
           "receiver_bank": {
-            "$ref": "#/components/schemas/Bank"
+            "description": "The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The receiving bank comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.",
+            "x-checkslip-th": {
+              "description": "แบบย่อไม่ส่งช่องนี้ และไม่มีผลไหนส่งช่องนี้ในแบบย่อ รวมถึงช่องย่อยข้างในมันด้วย ⇒ อย่าเขียนโค้ดที่รอค่านี้จากแบบย่อ · ธนาคารผู้รับมากับ slip แบบเต็ม ซึ่งมากับผล พบรายการ เท่านั้น · สคีมายังประกาศช่องนี้ไว้เพื่อให้เพิ่มได้ภายหลังโดยไม่ทำให้ชนิดข้อมูลที่คุณประกาศไว้พัง · แบบย่อคือสิ่งที่อ่านได้จาก QR เท่านั้น คือเลขอ้างอิงรายการและธนาคารต้นทาง"
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Bank"
+              }
+            ]
           },
           "transferred_at": {
+            "description": "The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The transfer time comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.",
+            "x-checkslip-th": {
+              "description": "แบบย่อไม่ส่งช่องนี้ และไม่มีผลไหนส่งช่องนี้ในแบบย่อ รวมถึงช่องย่อยข้างในมันด้วย ⇒ อย่าเขียนโค้ดที่รอค่านี้จากแบบย่อ · เวลาโอนมากับ slip แบบเต็ม ซึ่งมากับผล พบรายการ เท่านั้น · สคีมายังประกาศช่องนี้ไว้เพื่อให้เพิ่มได้ภายหลังโดยไม่ทำให้ชนิดข้อมูลที่คุณประกาศไว้พัง · แบบย่อคือสิ่งที่อ่านได้จาก QR เท่านั้น คือเลขอ้างอิงรายการและธนาคารต้นทาง"
+            },
             "type": "string",
             "format": "date-time"
           },
           "amount": {
-            "$ref": "#/components/schemas/verify.Money"
+            "description": "The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The amount comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.",
+            "x-checkslip-th": {
+              "description": "แบบย่อไม่ส่งช่องนี้ และไม่มีผลไหนส่งช่องนี้ในแบบย่อ รวมถึงช่องย่อยข้างในมันด้วย ⇒ อย่าเขียนโค้ดที่รอค่านี้จากแบบย่อ · ยอดเงินมากับ slip แบบเต็ม ซึ่งมากับผล พบรายการ เท่านั้น · สคีมายังประกาศช่องนี้ไว้เพื่อให้เพิ่มได้ภายหลังโดยไม่ทำให้ชนิดข้อมูลที่คุณประกาศไว้พัง · แบบย่อคือสิ่งที่อ่านได้จาก QR เท่านั้น คือเลขอ้างอิงรายการและธนาคารต้นทาง"
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/verify.Money"
+              }
+            ]
           }
         }
       },
@@ -9515,6 +9883,26 @@
             }
           }
         ]
+      },
+      "ThEn": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "th",
+          "en"
+        ],
+        "properties": {
+          "th": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "en": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        }
       },
       "TransRef": {
         "type": "string",
@@ -9654,6 +10042,10 @@
         ],
         "properties": {
           "satang": {
+            "description": "The amount in satang, where 100 satang is 1 baht, so 5000 means 50.00 baht. It is always a whole number, never a decimal. Rather than dividing it by 100 to compare with your order, turn your order total into satang and compare whole number with whole number.",
+            "x-checkslip-th": {
+              "description": "ยอดเงินเป็นสตางค์ 100 สตางค์ = 1 บาท · 5000 คือ 50.00 บาท · เป็นจำนวนเต็มเสมอ ไม่ใช่ทศนิยม อย่าหารด้วย 100 ก่อนเทียบกับยอดออเดอร์ ให้คูณยอดออเดอร์เป็นสตางค์แล้วเทียบจำนวนเต็มกับจำนวนเต็ม"
+            },
             "type": "integer",
             "format": "int64",
             "minimum": 1,
@@ -9662,6 +10054,10 @@
             ]
           },
           "currency": {
+            "description": "The currency as an ISO 4217 code. Today it is always THB, but have your code read this value instead of assuming baht.",
+            "x-checkslip-th": {
+              "description": "สกุลเงินตามรหัส ISO 4217 · วันนี้เป็น THB เสมอ แต่ให้โค้ดอ่านค่านี้จริง ไม่ใช่สมมติว่าเป็นบาท"
+            },
             "type": "string",
             "const": "THB"
           }
@@ -9698,6 +10094,14 @@
           "instance": {
             "type": "string"
           },
+          "reason": {
+            "description": "Why this lookup has not settled whether a matching transfer exists; only on UNAVAILABLE. NOT_SEEN means the banking system does not show this transfer at the time of the lookup. SOURCE_DOWN means no usable answer from the banking system. If the field is missing, or carries a value you do not know, handle it like SOURCE_DOWN. Retry-After differs by reason.",
+            "x-checkslip-th": {
+              "description": "เหตุที่ครั้งนี้ยังไม่ได้ผลว่าพบรายการหรือไม่ มีเฉพาะผล UNAVAILABLE · NOT_SEEN = ระบบธนาคารไม่แสดงรายการนี้ ณ เวลาที่ถาม · SOURCE_DOWN = ยังไม่ได้คำตอบที่ใช้ได้จากระบบธนาคาร · ถ้าไม่มีฟิลด์นี้ หรือเจอค่าที่ไม่รู้จัก ให้ทำแบบเดียวกับ SOURCE_DOWN · เวลาใน Retry-After ต่างกันตามเหตุ"
+            },
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
           "errors": {
             "type": "array",
             "items": {
@@ -9727,6 +10131,10 @@
         }
       },
       "verify.TransRef": {
+        "description": "The transfer reference the bank issued. This is the value that identifies one transfer, and the one to keep so the same slip cannot be accepted twice. It is not request_id, which identifies one lookup of yours, so keeping the wrong one makes two lookups of a single slip look like two transfers.",
+        "x-checkslip-th": {
+          "description": "เลขอ้างอิงรายการโอนที่ธนาคารออกให้ · นี่คือค่าที่ระบุ รายการโอนหนึ่งรายการ และเป็นค่าที่ควรเก็บไว้กันรับสลิปใบเดิมซ้ำ · คนละค่ากับ request_id ซึ่งระบุ การตรวจหนึ่งครั้ง ของคุณ ⇒ ถ้าเก็บผิดค่า การตรวจสองครั้งของสลิปใบเดียวจะดูเหมือนสองรายการ"
+        },
         "type": "string",
         "minLength": 1,
         "maxLength": 64,
@@ -9743,6 +10151,10 @@
         ],
         "properties": {
           "satang": {
+            "description": "The amount in satang, where 100 satang is 1 baht, so 5000 means 50.00 baht. It is always a whole number, never a decimal. Rather than dividing it by 100 to compare with your order, turn your order total into satang and compare whole number with whole number.",
+            "x-checkslip-th": {
+              "description": "ยอดเงินเป็นสตางค์ 100 สตางค์ = 1 บาท · 5000 คือ 50.00 บาท · เป็นจำนวนเต็มเสมอ ไม่ใช่ทศนิยม อย่าหารด้วย 100 ก่อนเทียบกับยอดออเดอร์ ให้คูณยอดออเดอร์เป็นสตางค์แล้วเทียบจำนวนเต็มกับจำนวนเต็ม"
+            },
             "type": "integer",
             "format": "int64",
             "minimum": 1,
@@ -9751,6 +10163,10 @@
             ]
           },
           "currency": {
+            "description": "The currency as an ISO 4217 code. Today it is always THB, but have your code read this value instead of assuming baht.",
+            "x-checkslip-th": {
+              "description": "สกุลเงินตามรหัส ISO 4217 · วันนี้เป็น THB เสมอ แต่ให้โค้ดอ่านค่านี้จริง ไม่ใช่สมมติว่าเป็นบาท"
+            },
             "type": "string",
             "const": "THB"
           }
@@ -9877,6 +10293,10 @@
             "$ref": "#/components/schemas/webhook.TransRef"
           },
           "transferred_at": {
+            "description": "When the money moved, as the bank shows it, in Thai time +07:00. Use this value to compare with your order's time, not checked_at. It arrives in the full shape only; the short shape does not send it, so if your code needs the time of the transfer, leave a path for it being absent.",
+            "x-checkslip-th": {
+              "description": "เวลาที่เงินโอน ตามที่ธนาคารแสดง เป็นเวลาไทย +07:00 · ใช้ค่านี้เทียบกับเวลาออเดอร์ ไม่ใช่ checked_at · มาในแบบเต็มเท่านั้น แบบย่อไม่ส่งช่องนี้ ⇒ ถ้าโค้ดคุณต้องใช้เวลาโอน ให้เผื่อทางที่ไม่มีค่านี้ไว้ด้วย"
+            },
             "type": "string",
             "format": "date-time",
             "examples": [
@@ -9884,7 +10304,15 @@
             ]
           },
           "amount": {
-            "$ref": "#/components/schemas/webhook.Money"
+            "description": "The amount of the transfer. It arrives in the full shape only; the short shape does not send it, nor satang or currency inside it, so do not write code that needs an amount every time, and the wording on satang applies only when you get the full shape.",
+            "x-checkslip-th": {
+              "description": "ยอดเงินของรายการโอน · มาในแบบเต็มเท่านั้น แบบย่อไม่ส่งช่องนี้ รวมถึง satang และ currency ข้างในด้วย ⇒ อย่าเขียนโค้ดที่ต้องมียอดเงินทุกครั้ง และคำอธิบายของ satang ใช้ได้เฉพาะเมื่อคุณได้แบบเต็ม"
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/webhook.Money"
+              }
+            ]
           },
           "sender": {
             "$ref": "#/components/schemas/Party"
@@ -9893,6 +10321,10 @@
             "$ref": "#/components/schemas/Receiver"
           },
           "names_erased": {
+            "description": "True when this transfer's names and account digits were erased together with the data of the account that looked it up. Every name and account field is then null because we no longer hold them, not because the bank did not send them. When you are working out why a name is empty, read this field first.",
+            "x-checkslip-th": {
+              "description": "เป็น true เมื่อชื่อและเลขบัญชีของรายการนี้ถูกลบไปพร้อมข้อมูลของบัญชีที่เคยตรวจ · ตอนนั้นทุกช่องชื่อและเลขบัญชีจะเป็น null เพราะ เราไม่ได้เก็บไว้แล้ว ไม่ใช่เพราะธนาคารไม่ได้ส่งมา · ถ้าคุณกำลังไล่ว่าทำไมชื่อว่าง ให้ดูช่องนี้ก่อน"
+            },
             "type": "boolean"
           }
         }
@@ -9911,18 +10343,42 @@
             "$ref": "#/components/schemas/Bank"
           },
           "receiver_bank": {
-            "$ref": "#/components/schemas/Bank"
+            "description": "The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The receiving bank comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.",
+            "x-checkslip-th": {
+              "description": "แบบย่อไม่ส่งช่องนี้ และไม่มีผลไหนส่งช่องนี้ในแบบย่อ รวมถึงช่องย่อยข้างในมันด้วย ⇒ อย่าเขียนโค้ดที่รอค่านี้จากแบบย่อ · ธนาคารผู้รับมากับ slip แบบเต็ม ซึ่งมากับผล พบรายการ เท่านั้น · สคีมายังประกาศช่องนี้ไว้เพื่อให้เพิ่มได้ภายหลังโดยไม่ทำให้ชนิดข้อมูลที่คุณประกาศไว้พัง · แบบย่อคือสิ่งที่อ่านได้จาก QR เท่านั้น คือเลขอ้างอิงรายการและธนาคารต้นทาง"
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Bank"
+              }
+            ]
           },
           "transferred_at": {
+            "description": "The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The transfer time comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.",
+            "x-checkslip-th": {
+              "description": "แบบย่อไม่ส่งช่องนี้ และไม่มีผลไหนส่งช่องนี้ในแบบย่อ รวมถึงช่องย่อยข้างในมันด้วย ⇒ อย่าเขียนโค้ดที่รอค่านี้จากแบบย่อ · เวลาโอนมากับ slip แบบเต็ม ซึ่งมากับผล พบรายการ เท่านั้น · สคีมายังประกาศช่องนี้ไว้เพื่อให้เพิ่มได้ภายหลังโดยไม่ทำให้ชนิดข้อมูลที่คุณประกาศไว้พัง · แบบย่อคือสิ่งที่อ่านได้จาก QR เท่านั้น คือเลขอ้างอิงรายการและธนาคารต้นทาง"
+            },
             "type": "string",
             "format": "date-time"
           },
           "amount": {
-            "$ref": "#/components/schemas/webhook.Money"
+            "description": "The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The amount comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.",
+            "x-checkslip-th": {
+              "description": "แบบย่อไม่ส่งช่องนี้ และไม่มีผลไหนส่งช่องนี้ในแบบย่อ รวมถึงช่องย่อยข้างในมันด้วย ⇒ อย่าเขียนโค้ดที่รอค่านี้จากแบบย่อ · ยอดเงินมากับ slip แบบเต็ม ซึ่งมากับผล พบรายการ เท่านั้น · สคีมายังประกาศช่องนี้ไว้เพื่อให้เพิ่มได้ภายหลังโดยไม่ทำให้ชนิดข้อมูลที่คุณประกาศไว้พัง · แบบย่อคือสิ่งที่อ่านได้จาก QR เท่านั้น คือเลขอ้างอิงรายการและธนาคารต้นทาง"
+            },
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/webhook.Money"
+              }
+            ]
           }
         }
       },
       "webhook.TransRef": {
+        "description": "The transfer reference the bank issued. This is the value that identifies one transfer, and the one to keep so the same slip cannot be accepted twice. It is not request_id, which identifies one lookup of yours, so keeping the wrong one makes two lookups of a single slip look like two transfers.",
+        "x-checkslip-th": {
+          "description": "เลขอ้างอิงรายการโอนที่ธนาคารออกให้ · นี่คือค่าที่ระบุ รายการโอนหนึ่งรายการ และเป็นค่าที่ควรเก็บไว้กันรับสลิปใบเดิมซ้ำ · คนละค่ากับ request_id ซึ่งระบุ การตรวจหนึ่งครั้ง ของคุณ ⇒ ถ้าเก็บผิดค่า การตรวจสองครั้งของสลิปใบเดียวจะดูเหมือนสองรายการ"
+        },
         "type": "string",
         "minLength": 1,
         "maxLength": 64,

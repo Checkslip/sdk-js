@@ -129,7 +129,7 @@ try {
 | `UnprocessableEntityError` | 422, for example `INVALID_QR`, `QR_TAMPERED`, `TOO_OLD`, `INVALID_FILE` |
 | `RateLimitError`           | 429, with `retryAfter` in seconds                                       |
 | `ServerError`              | 5xx other than 503                                                      |
-| `ServiceUnavailableError`  | 503, up but temporarily unable to serve                                 |
+| `ServiceUnavailableError`  | 503, up but temporarily unable to serve, with `reason` and `retryAfter` |
 | `ConnectionError`          | no response arrived (DNS, TLS, reset connection, or `timeoutMs`)        |
 | `UnexpectedResponseError`  | a status with no class of its own, such as 413 or 415                   |
 | `WebhookVerificationError` | a webhook signature or timestamp did not check out                      |
@@ -140,6 +140,35 @@ timeout from a refused connection without catching a second class.
 `CheckslipError` is the base class of all of them: catch it when you only want one branch.
 
 Every error code and what to do about it: [checkslip.com/docs/errors](https://checkslip.com/en/docs/errors).
+
+### No definite answer (503 `UNAVAILABLE`)
+
+A lookup the banking system does not settle throws `ServiceUnavailableError` with `code` `"UNAVAILABLE"`, and uses no credit. `reason` says why, and `retryAfter` is the wait the API asked for.
+
+| `reason`        | What it means                                                                                                        | `retryAfter` |
+| --------------- | -------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `"NOT_SEEN"`    | The banking system does not show this transfer at the time of the lookup. One made moments ago may not be there yet. | 60 s         |
+| `"SOURCE_DOWN"` | No usable answer from the banking system.                                                                            | 30 s         |
+
+```ts
+import { ServiceUnavailableError } from "@checkslip/sdk";
+
+try {
+  await checkslip.slips.lookup({ qr });
+} catch (err) {
+  if (err instanceof ServiceUnavailableError && err.code === "UNAVAILABLE") {
+    if (err.reason === "NOT_SEEN") {
+      // Nothing to show yet. Ask again later with the same idempotencyKey.
+    }
+    console.log(`ask again in ${err.retryAfter ?? 30} s`);
+  }
+  throw err;
+}
+```
+
+Handle a missing or unknown reason the way you handle `"SOURCE_DOWN"`. An `UNAVAILABLE` that comes from a failure of ours carries no reason at all, and the API can add reasons this version of the SDK does not list.
+
+`slips.lookup` always sends an `Idempotency-Key`, so the SDK has already waited out `Retry-After` and asked again (twice by default) before the error reaches you: a `NOT_SEEN` lookup can take about two minutes to come back. Pass `maxRetries: 0` to do that waiting yourself.
 
 ## Retries
 

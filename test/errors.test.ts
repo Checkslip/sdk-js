@@ -65,6 +65,44 @@ describe("errors", () => {
     expect(err.retryAfter).toBe(7);
   });
 
+  // verify contract 0.80.2. The reason says why a lookup has no definite
+  // answer, and the API asks for a different wait depending on it.
+  it.each([
+    ["NOT_SEEN", "60", 60],
+    ["SOURCE_DOWN", "30", 30],
+    // A word added to the API after this version of the SDK: kept as sent, so
+    // the caller can log it and fall back to the SOURCE_DOWN handling.
+    ["BANK_REFUSED_US", "30", 30],
+  ] as const)("exposes reason %s on a 503", async (reason, header, seconds) => {
+    const { checkslip } = client([problem(503, "UNAVAILABLE", { "Retry-After": header }, { reason })], {
+      maxRetries: 0,
+    });
+    const err = (await checkslip.slips
+      .lookup({ qr: QR })
+      .catch((e: unknown) => e)) as ServiceUnavailableError;
+    expect(err).toBeInstanceOf(ServiceUnavailableError);
+    expect(err.reason).toBe(reason);
+    expect(err.retryAfter).toBe(seconds);
+    expect(err.problem?.reason).toBe(reason);
+  });
+
+  it("leaves reason undefined when a 503 carries none", async () => {
+    const { checkslip } = client([problem(503, "UNAVAILABLE", { "Retry-After": "30" })], { maxRetries: 0 });
+    const err = (await checkslip.slips
+      .lookup({ qr: QR })
+      .catch((e: unknown) => e)) as ServiceUnavailableError;
+    expect(err).toBeInstanceOf(ServiceUnavailableError);
+    expect(err.reason).toBeUndefined();
+    expect(err.retryAfter).toBe(30);
+  });
+
+  it("does not put a reason on an error that is not a 503", async () => {
+    const { checkslip } = client([problem(422, "INVALID_QR", {}, { reason: "NOT_SEEN" })], { maxRetries: 0 });
+    const err = (await checkslip.slips.lookup({ qr: QR }).catch((e: unknown) => e)) as CheckslipError;
+    expect(err).toBeInstanceOf(UnprocessableEntityError);
+    expect(err).not.toHaveProperty("reason");
+  });
+
   it("handles an error body that is not JSON", async () => {
     const { checkslip } = client([new Response("Bad Gateway", { status: 502 })], { maxRetries: 0 });
     const err = (await checkslip.billing.balance.get().catch((e: unknown) => e)) as ServerError;
