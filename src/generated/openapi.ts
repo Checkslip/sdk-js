@@ -977,7 +977,10 @@ export interface components {
             message_id: components["schemas"]["MessageId"];
             /** Format: date-time */
             next_attempt_at: string | null;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The id of the lookup whose result this message carries, the same as data.request_id in the slip.checked message. Use it with GET /api/slips/{request_id} to read the same result, for example when the message cannot be resent. It is null for a test message (webhook.test), which has no result to read, so do not call GET with it. It is not the X-Request-Id of the request that reads this delivery.
+             */
             request_id: string | null;
             status: components["schemas"]["DeliveryStatus"];
         };

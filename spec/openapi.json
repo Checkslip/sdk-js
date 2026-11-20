@@ -7725,6 +7725,10 @@
             "$ref": "#/components/schemas/EventType"
           },
           "request_id": {
+            "description": "The id of the lookup whose result this message carries, the same as data.request_id in the slip.checked message. Use it with GET /api/slips/{request_id} to read the same result, for example when the message cannot be resent. It is null for a test message (webhook.test), which has no result to read, so do not call GET with it. It is not the X-Request-Id of the request that reads this delivery.",
+            "x-checkslip-th": {
+              "description": "id ของการตรวจที่ข้อความนี้ส่งผล ตรงกับ data.request_id ในข้อความ slip.checked · ใช้เรียก GET /api/slips/{request_id} เพื่ออ่านผลเดียวกันได้ เช่นเมื่อส่งซ้ำไม่ได้ · ข้อความทดสอบ (webhook.test) เป็น null ข้อความทดสอบไม่มีผลให้อ่าน อย่าเรียก GET ด้วยค่านี้ · ไม่ใช่ X-Request-Id ของคำขอที่อ่านรายการนี้"
+            },
             "type": [
               "string",
               "null"
