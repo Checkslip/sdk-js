@@ -15,7 +15,7 @@ include breaking changes; they are listed under "Changed".
 ### Features
 
 * read the reason a lookup has no definite answer ([809417a](https://github.com/Checkslip/sdk-js/commit/809417a673db19503e763fbe3b06593a4879f693))
-* `ServiceUnavailableError` now carries `reason` (`NOT_SEEN` or `SOURCE_DOWN`, an open set) and `retryAfter`, and `Problem` is one type for every route, with the members only some answers carry — `reason`, `order_id`, `action`, `check` — optional on it.
+* `ServiceUnavailableError` now carries `reason` (`NOT_SEEN` or `SOURCE_DOWN`, an open set) and `retryAfter`, and `Problem` is one type for every route: the members only some answers carry (`reason`, `order_id`, `action`, `check`) are optional on it.
 * the regenerated types also carry everything the published API document gained since 0.7.1, because that file is replaced whole: `Balance.lots` with the new `CreditLot` and `ThEn` schemas, `CreditEntry.lot_id`, the `CAMPAIGN_GRANT`, `CAMPAIGN_EXPIRE` and `CAMPAIGN_RECLAIM` credit reasons, billing's `CAMPAIGN_DAILY_LIMIT` code, `Order.code`, `Receipt.order_code`, `Package.offer`, `Party.account_masked`, `Receiver.account_masked`, and 112 field descriptions that arrive as JSDoc on the types.
 
 ## [0.7.1](https://github.com/Checkslip/sdk-js/compare/v0.7.0...v0.7.1) (2026-11-17)
