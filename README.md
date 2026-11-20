@@ -129,7 +129,7 @@ try {
 | `UnprocessableEntityError` | 422, for example `INVALID_QR`, `QR_TAMPERED`, `TOO_OLD`, `INVALID_FILE` |
 | `RateLimitError`           | 429, with `retryAfter` in seconds                                       |
 | `ServerError`              | 5xx other than 503                                                      |
-| `ServiceUnavailableError`  | 503, up but temporarily unable to serve, with `reason` and `retryAfter`  |
+| `ServiceUnavailableError`  | 503, up but temporarily unable to serve, with `reason` and `retryAfter` |
 | `ConnectionError`          | no response arrived (DNS, TLS, reset connection, or `timeoutMs`)        |
 | `UnexpectedResponseError`  | a status with no class of its own, such as 413 or 415                   |
 | `WebhookVerificationError` | a webhook signature or timestamp did not check out                      |
@@ -147,7 +147,7 @@ A lookup the banking system does not settle throws `ServiceUnavailableError` wit
 
 | `reason`        | What it means                                                                                                        | `retryAfter` |
 | --------------- | -------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `"NOT_SEEN"`    | The banking system does not show this transfer at the time of the lookup. One made moments ago may not be there yet.  | 60 s         |
+| `"NOT_SEEN"`    | The banking system does not show this transfer at the time of the lookup. One made moments ago may not be there yet. | 60 s         |
 | `"SOURCE_DOWN"` | No usable answer from the banking system.                                                                            | 30 s         |
 
 ```ts
