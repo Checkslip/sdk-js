@@ -80,6 +80,21 @@ describe("retries", () => {
     expect(new Set(keys).size).toBe(1);
   });
 
+  // What the README promises about a lookup with no definite answer: the SDK
+  // waits out Retry-After and asks again before the caller sees the reason.
+  // Retry-After is 0 here so the test does not sit out the real 60 seconds.
+  it("retries a 503 UNAVAILABLE lookup and keeps the reason on the error", async () => {
+    const unavailable = () => problem(503, "UNAVAILABLE", now, { reason: "NOT_SEEN" });
+    const { checkslip, calls } = client([unavailable(), unavailable(), unavailable()]);
+    const err = (await checkslip.slips
+      .lookup({ qr: QR })
+      .catch((e: unknown) => e)) as ServiceUnavailableError;
+    expect(err).toBeInstanceOf(ServiceUnavailableError);
+    expect(err.reason).toBe("NOT_SEEN");
+    expect(err.retryAfter).toBe(0);
+    expect(calls).toHaveLength(3);
+  });
+
   it("does not retry 5xx on a POST without an Idempotency-Key", async () => {
     const { checkslip, calls } = client([problem(500, "INTERNAL", now)]);
     await expect(

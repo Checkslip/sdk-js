@@ -772,25 +772,40 @@ export interface components {
             expires_at: string | null;
             /** Format: uuid */
             last_entry_id?: string | null;
+            lots?: components["schemas"]["CreditLot"][];
             low: boolean;
+            /** Format: date-time */
+            next_expires_at?: string | null;
             threshold: number;
             /** Format: date-time */
             updated_at: string;
         };
         Bank: {
-            /** @example 069 */
+            /**
+             * @description The Bank of Thailand's 3-digit institution code, for example 004 for Kasikornbank. Use it when you need to match a system that uses Bank of Thailand codes. It is not the same as Checkslip's own code. This value always arrives and tells each bank apart, even one that is not in our table yet, so store this one when you need to record which bank it was.
+             * @example 069
+             */
             bot_code: string;
-            /** @example KKP */
+            /**
+             * @description Checkslip's own bank code, used with our API and with the list of supported banks. It is not the same as bot_code, the Bank of Thailand code; do not swap the two. For a bank not in our table yet this value is UNKNOWN, and it is the same UNKNOWN for every such bank, so do not use it as a key or as a bank's identity: different banks would collide. Use bot_code, which still tells them apart.
+             * @example KKP
+             */
             code: string;
-            /** @example Kiatnakin Phatra Bank */
+            /**
+             * @description The bank's name. It can be null when that bank is not in our table yet; code is then UNKNOWN and the real code is in bot_code, so show bot_code instead. Do not leave an empty space, and do not show the word UNKNOWN to your customer.
+             * @example Kiatnakin Phatra Bank
+             */
             name_en: string | null;
-            /** @example ธนาคารเกียรตินาคินภัทร */
+            /**
+             * @description The bank's name. It can be null when that bank is not in our table yet; code is then UNKNOWN and the real code is in bot_code, so show bot_code instead. Do not leave an empty space, and do not show the word UNKNOWN to your customer.
+             * @example ธนาคารเกียรตินาคินภัทร
+             */
             name_th: string | null;
         };
         "billing.Problem": {
             action?: string;
             /** @enum {string} */
-            code: "PHONE_NOT_VERIFIED" | "BILLING_INFO_REQUIRED" | "ORDER_NOT_FOUND" | "RECEIPT_NOT_FOUND" | "PACKAGE_NOT_FOUND" | "CHARGE_NOT_FOUND" | "PACKAGE_NOT_FOR_SALE" | "ORDER_PENDING" | "ORDER_ALREADY_PAID" | "ORDER_CANCELLED" | "NO_CREDIT" | "CREDIT_EXPIRED" | "PAYMENTS_UNAVAILABLE" | "BAD_SIGNATURE" | "DEADLINE_PASSED" | "HOLD_NOT_ACTIVE" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NOT_VIA_API_KEY" | "NOT_A_SERVICE" | "STEP_UP_REQUIRED" | "IDEMPOTENCY_KEY_REQUIRED" | "IDEMPOTENCY_KEY_INVALID" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_FLIGHT" | "RATE_LIMITED" | "CREDIT_UNAVAILABLE" | "STEP_UP_UNAVAILABLE" | "FORBIDDEN" | "INTERNAL";
+            code: "PHONE_NOT_VERIFIED" | "BILLING_INFO_REQUIRED" | "ORDER_NOT_FOUND" | "RECEIPT_NOT_FOUND" | "PACKAGE_NOT_FOUND" | "CHARGE_NOT_FOUND" | "PACKAGE_NOT_FOR_SALE" | "ORDER_PENDING" | "ORDER_ALREADY_PAID" | "ORDER_CANCELLED" | "NO_CREDIT" | "CAMPAIGN_DAILY_LIMIT" | "CREDIT_EXPIRED" | "PAYMENTS_UNAVAILABLE" | "BAD_SIGNATURE" | "DEADLINE_PASSED" | "HOLD_NOT_ACTIVE" | "VALIDATION_FAILED" | "UNAUTHENTICATED" | "NOT_VIA_API_KEY" | "NOT_A_SERVICE" | "STEP_UP_REQUIRED" | "IDEMPOTENCY_KEY_REQUIRED" | "IDEMPOTENCY_KEY_INVALID" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_FLIGHT" | "RATE_LIMITED" | "CREDIT_UNAVAILABLE" | "STEP_UP_UNAVAILABLE" | "FORBIDDEN" | "INTERNAL";
             detail?: string;
             errors?: {
                 /**
@@ -853,7 +868,10 @@ export interface components {
             /** Format: binary */
             image: string;
         };
-        /** @example ORDER-10023 */
+        /**
+         * @description A value you choose yourself for this lookup, your order number for example. It must be 1 to 128 English letters, digits or punctuation marks, with no spaces. We store it and send it back in the answer, in your history and in webhooks. Do not put personal data in this field, such as a name, phone number or account number.
+         * @example ORDER-10023
+         */
         ClientReference: string | null;
         CreateExportRequest: {
             /** Format: date */
@@ -878,6 +896,8 @@ export interface components {
             free_reason?: components["schemas"]["CustomerFreeReason"] | string;
             /** Format: uuid */
             id: string;
+            /** Format: uuid */
+            lot_id?: string | null;
             reason: components["schemas"]["CreditReason"] | string;
             ref_id?: string;
             /** @enum {string} */
@@ -886,8 +906,22 @@ export interface components {
         CreditEntryPage: components["schemas"]["PageMeta"] & {
             items: components["schemas"]["CreditEntry"][];
         };
+        CreditLot: {
+            /** Format: uuid */
+            campaign_id?: string | null;
+            campaign_name?: components["schemas"]["ThEn"] | null;
+            credits_left: number;
+            /** Format: date-time */
+            expires_at: string;
+            granted?: number | null;
+            /** Format: uuid */
+            id: string;
+            kind: ("PAID" | "CAMPAIGN") | string;
+            usable: boolean;
+            usable_today?: number | null;
+        };
         /** @enum {string} */
-        CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "ACCOUNT_RESTORED" | "DEV_GRANT";
+        CreditReason: "TESTER_GRANT" | "PURCHASE" | "SLIP_CHARGE" | "SLIP_FREE" | "EXPIRE" | "STAFF_ADJUST" | "ACCOUNT_DELETED" | "ACCOUNT_RESTORED" | "DEV_GRANT" | "CAMPAIGN_GRANT" | "CAMPAIGN_EXPIRE" | "CAMPAIGN_RECLAIM";
         /** @enum {string} */
         CustomerFreeReason: "NOT_FOUND" | "DUPLICATE" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "SYSTEM_ERROR" | "OTHER";
         Delivery: {
@@ -928,6 +962,7 @@ export interface components {
         DeliveryId: string;
         /** @enum {string} */
         DeliveryStatus: "PENDING" | "RETRYING" | "SUCCEEDED" | "FAILED" | "CANCELLED";
+        /** @description Present only when outcome is DUPLICATE. It points at the first lookup of this slip by your account that returned FOUND. When that first lookup is still in your history, open it to see which order it belongs to before accepting the payment again. We remember checked slips for longer than the history keeps them, so the first lookup may no longer be there to open, while the DUPLICATE result still holds: match it against the transfer reference in your own records instead. */
         DuplicateOf: {
             /** Format: date-time */
             checked_at: string;
@@ -1044,8 +1079,12 @@ export interface components {
         /** @enum {string} */
         FreeReason: "NOT_FOUND" | "DUPLICATE" | "PENDING" | "UNAVAILABLE" | "INVALID_QR" | "INVALID_FILE" | "QR_TAMPERED" | "TOO_OLD" | "NO_CREDIT" | "HOLD_EXPIRED" | "SYSTEM_ERROR" | "OTHER";
         MessageEnvelope: {
+            /** @description The message content; its shape depends on type. The lookup-result message is slip.checked. */
             data: Record<string, never>;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When the event happened, not when the message was sent. A message sent again keeps the same time.
+             */
             timestamp: string;
             type: components["schemas"]["EventType"];
         };
@@ -1066,7 +1105,7 @@ export interface components {
             title: string;
             /**
              * Format: uri
-             * @example https://checkslip.com/problems/check-settled
+             * @example https://checkslip.com/problems/validation-failed
              */
             type: string;
         };
@@ -1086,6 +1125,11 @@ export interface components {
             amount: components["schemas"]["Money"];
             /** Format: date-time */
             cancelled_at?: string | null;
+            /**
+             * @description The order's code for people (ORD-XXXXX-XXXXX), to show and to look the order up instead of `id`. Its last character is a check: one wrong character finds nothing rather than a guess.
+             * @example ORD-7K3QM-X9P2D
+             */
+            code: string;
             confirming?: boolean;
             /** Format: date-time */
             created_at: string;
@@ -1123,6 +1167,20 @@ export interface components {
             for_sale: boolean;
             name_en: string;
             name_th: string;
+            /** @description A time-limited lower price running now, or null when there is none. `price` stays the regular price; an order opened before `ends_at` asks for the offer price, which `price_total` shows. After `ends_at` the regular price applies again on its own. */
+            offer: null | {
+                /**
+                 * Format: date-time
+                 * @description When the offer ends. An order opened from this time on uses the regular price.
+                 */
+                ends_at: string;
+                /** @description The offer price of this package, in the same terms as `price` (VAT handled the same way). */
+                price: components["schemas"]["Money"];
+                /** @description The price of one credit at the offer price, worked out the same way as `price_per_credit`. */
+                price_per_credit: components["schemas"]["Money"];
+                /** @description The offer price per credit in baht with three decimals, like `price_per_credit_baht`. Show it as sent. */
+                price_per_credit_baht: string;
+            };
             price: components["schemas"]["Money"];
             /** @description The price of one credit: price divided by credits, rounded half up to a whole satang, so it excludes VAT when prices_include_vat is false. Read the amount to pay from price_total; do not multiply this by credits to get it. */
             price_per_credit: components["schemas"]["Money"];
@@ -1131,7 +1189,7 @@ export interface components {
              * @example 0.175
              */
             price_per_credit_baht: string;
-            /** @description What a customer pays for this package now, including any VAT due; do not add VAT again. It equals `price` when `vat_rate_bp` is 0 or `prices_include_vat` is true. An order opened now asks for this amount, so show this one as the price to pay. */
+            /** @description What a customer pays for this package now, including any VAT due; do not add VAT again. It equals `price` when `vat_rate_bp` is 0 or `prices_include_vat` is true. While an `offer` runs it is made from the offer price instead of `price`. An order opened now asks for this amount, so show this one as the price to pay. */
             price_total: components["schemas"]["Money"];
             sort: number;
             /** @constant */
@@ -1151,12 +1209,26 @@ export interface components {
             next_cursor: string | null;
         };
         Party: {
-            /** @example 0439 */
+            /**
+             * @description The last 4 digits of the account as the bank shows them. It can be null when the bank sends no number, or when the data was erased (see names_erased). Different accounts can share the same last 4 digits, so do not use it on its own to identify an account.
+             * @example 0439
+             */
             account: string | null;
+            /**
+             * @description The account number with most digits hidden, in a fixed shape that follows the account's length: xxx-x-xxxxx-x for a 10-digit account and xxx-x-xxxxx-xxx for a 12-digit one. The digits you see are the ones the bank itself shows, in their real places in the account number. Which digits, and how many, depends on the account holder's bank, because each bank hides different digits, for example xxx-x-x1234-x or 12x-x-xx345-6. The same transfer always gives the same value. It can be null when the bank shows no digit, or when the data was erased (see names_erased). Do not use it on its own to identify an account.
+             * @example xxx-x-x1234-x
+             */
+            account_masked: string | null;
             bank: components["schemas"]["Bank"];
-            /** @example MR. SOMCHAI J */
+            /**
+             * @description The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.
+             * @example MR. SOMCHAI J
+             */
             name_en: string | null;
-            /** @example นาย สมชาย ใ */
+            /**
+             * @description The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.
+             * @example นาย สมชาย ใ
+             */
             name_th: string | null;
         };
         Problem: {
@@ -1187,6 +1259,7 @@ export interface components {
                 description: string;
                 quantity: number;
             }[];
+            order_code: string | null;
             /** Format: uuid */
             order_id: string;
             /** @enum {string} */
@@ -1214,16 +1287,33 @@ export interface components {
             items: components["schemas"]["Receipt"][];
         };
         Receiver: {
-            /** @example 0439 */
+            /**
+             * @description The last 4 digits of the receiver's account as the bank shows them. It can be null when the bank sends no number, when kind is not BANK_ACCOUNT because the destination is not a bank account, or when the data was erased (see names_erased). Different accounts can share the same last 4 digits, so do not use it on its own to identify an account.
+             * @example 0439
+             */
             account: string | null;
+            /**
+             * @description The account number with most digits hidden, in a fixed shape that follows the account's length: xxx-x-xxxxx-x for a 10-digit account and xxx-x-xxxxx-xxx for a 12-digit one. The digits you see are the ones the bank itself shows, in their real places in the account number. Which digits, and how many, depends on the account holder's bank, because each bank hides different digits, for example xxx-x-x1234-x or 12x-x-xx345-6. The same transfer always gives the same value. It can be null when the bank shows no digit, when kind is not BANK_ACCOUNT, or when the data was erased (see names_erased). Do not use it on its own to identify an account.
+             * @example xxx-x-x1234-x
+             */
+            account_masked: string | null;
             bank: components["schemas"]["Bank"] | null;
             kind: components["schemas"]["ReceiverKind"];
-            /** @example TEST S */
+            /**
+             * @description The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.
+             * @example TEST S
+             */
             name_en: string | null;
-            /** @example ร้าน ทดสอบ */
+            /**
+             * @description The name as the bank shows it. It can be null when the bank sends no name, or when the names were erased (see names_erased). Do not let this field alone decide whether you accept a payment; check the transfer reference and the amount as well.
+             * @example ร้าน ทดสอบ
+             */
             name_th: string | null;
         };
-        /** @enum {string} */
+        /**
+         * @description Where the money went: BANK_ACCOUNT a bank account, BILL_PAYMENT a bill payment, NOT_BANK_ACCOUNT not a bank account. When it is not BANK_ACCOUNT, bank and account are always null, because the destination is not an account whose bank we can name. We may add new words: treat one your code does not know as not a bank account.
+         * @enum {string}
+         */
         ReceiverKind: "BANK_ACCOUNT" | "BILL_PAYMENT" | "NOT_BANK_ACCOUNT";
         /** Format: uuid */
         RecordId: string;
@@ -1248,39 +1338,64 @@ export interface components {
         Sha256Hex: string;
         SigningSecret: string;
         Slip: {
+            /** @description The amount of the transfer. It arrives in the full shape only; the short shape does not send it, nor satang or currency inside it, so do not write code that needs an amount every time, and the wording on satang applies only when you get the full shape. */
             amount: components["schemas"]["verify.Money"];
+            /** @description True when this transfer's names and account digits were erased together with the data of the account that looked it up. Every name and account field is then null because we no longer hold them, not because the bank did not send them. When you are working out why a name is empty, read this field first. */
             names_erased?: boolean;
             receiver: components["schemas"]["Receiver"];
             sender: components["schemas"]["Party"];
             trans_ref: components["schemas"]["verify.TransRef"];
             /**
              * Format: date-time
+             * @description When the money moved, as the bank shows it, in Thai time +07:00. Use this value to compare with your order's time, not checked_at. It arrives in the full shape only; the short shape does not send it, so if your code needs the time of the transfer, leave a path for it being absent.
              * @example 2026-10-29T10:33:30+07:00
              */
             transferred_at: string;
         };
         SlipCheck: {
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When we asked the bank this time. It is not transferred_at, which is when the money moved. When you match an order by time, use transferred_at, not this value.
+             */
             checked_at: string;
             client_reference?: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
-            /** @enum {string} */
+            /**
+             * @description The result of the transfer lookup with the bank. A 200 answer is FOUND, NOT_FOUND or DUPLICATE only; other outcomes arrive as an error, not as 200. The set is open, so we may add new words: when your code meets a word it does not know, treat it as not FOUND rather than letting it break or accepting the payment.
+             * @enum {string}
+             */
             outcome: "FOUND" | "NOT_FOUND" | "DUPLICATE" | "PENDING";
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The id of this lookup. Use it with GET /api/slips/{request_id} to read the same result again, and when you contact our team. It identifies one lookup, not a transfer; the value that identifies a transfer is trans_ref.
+             */
             request_id: string;
+            /** @description The transfer data, in one of two shapes, so your system must read both. The full shape has the payer's and receiver's names and the last 4 account digits, as far as the bank shows them. The short shape has only the transfer reference and the sending bank, with no names and no account numbers. Do not write code that can read the names in one shape only. */
             slip: components["schemas"]["Slip"] | components["schemas"]["SlipSummary"];
         };
         SlipCheckedData: {
-            /** @enum {string} */
+            /**
+             * @description Where the lookup was asked for: API (a call with an API key), DASHBOARD (the Checkslip web app) or ASSISTANT (the AI assistant, on behalf of a member of the account).
+             * @enum {string}
+             */
             channel: "API" | "DASHBOARD" | "ASSISTANT";
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When this lookup was made, the same as checked_at in GET /api/slips/{request_id}.
+             */
             checked_at: string;
             client_reference: components["schemas"]["ClientReference"];
             duplicate_of?: components["schemas"]["DuplicateOf"];
+            /** @description The result of the transfer lookup with the bank, with the same values and meanings as outcome in GET /api/slips/{request_id}. This message carries the final result of that lookup, and today it is never PENDING, which is not in use yet. */
             outcome: components["schemas"]["CheckOutcome"];
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The id of this lookup, the same request_id you got when you asked for it. Use it with GET /api/slips/{request_id} to read the same result. One lookup gives one message per endpoint, so the same request_id again is the same message sent again.
+             */
             request_id: string;
+            /** @description Always false today, because PENDING is not in use yet. The field stays so code that reads it does not break. */
             resolved_after_pending: boolean;
+            /** @description The transfer data, in one of two shapes, so your system must read both. FOUND gives the full shape, with the payer's and receiver's names and the last 4 digits of their accounts as far as the bank shows them (a field the bank does not show is null). DUPLICATE gives the full shape from the first lookup if that was within 90 days, otherwise the short one. Other results give the short shape. The field is absent when the QR could not be read or the file could not be used (INVALID_QR, INVALID_FILE). */
             slip?: components["schemas"]["webhook.Slip"] | components["schemas"]["webhook.SlipSummary"];
         };
         SlipCheckedMessage: components["schemas"]["MessageEnvelope"] & {
@@ -1358,11 +1473,16 @@ export interface components {
             } | null;
         };
         SlipSummary: {
+            /** @description The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The amount comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank. */
             amount?: components["schemas"]["verify.Money"];
+            /** @description The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The receiving bank comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank. */
             receiver_bank?: components["schemas"]["Bank"];
             sender_bank: components["schemas"]["Bank"];
             trans_ref: components["schemas"]["verify.TransRef"];
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The transfer time comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.
+             */
             transferred_at?: string;
         };
         SupportedBank: {
@@ -1393,6 +1513,10 @@ export interface components {
             };
             /** @constant */
             type?: "webhook.test";
+        };
+        ThEn: {
+            en: string;
+            th: string;
         };
         TransRef: string;
         Usage: {
@@ -1426,10 +1550,14 @@ export interface components {
             free_unavailable: number;
         };
         "verify.Money": {
-            /** @constant */
+            /**
+             * @description The currency as an ISO 4217 code. Today it is always THB, but have your code read this value instead of assuming baht.
+             * @constant
+             */
             currency: "THB";
             /**
              * Format: int64
+             * @description The amount in satang, where 100 satang is 1 baht, so 5000 means 50.00 baht. It is always a whole number, never a decimal. Rather than dividing it by 100 to compare with your order, turn your order total into satang and compare whole number with whole number.
              * @example 5000
              */
             satang: number;
@@ -1444,18 +1572,27 @@ export interface components {
                 pointer: string;
             }[];
             instance: string;
+            /** @description Why this lookup has not settled whether a matching transfer exists; only on UNAVAILABLE. NOT_SEEN means the banking system does not show this transfer at the time of the lookup. SOURCE_DOWN means no usable answer from the banking system. If the field is missing, or carries a value you do not know, handle it like SOURCE_DOWN. Retry-After differs by reason. */
+            reason?: string;
             status: number;
             title: string;
             /** Format: uri */
             type: string;
         };
-        /** @example 630210534087 */
+        /**
+         * @description The transfer reference the bank issued. This is the value that identifies one transfer, and the one to keep so the same slip cannot be accepted twice. It is not request_id, which identifies one lookup of yours, so keeping the wrong one makes two lookups of a single slip look like two transfers.
+         * @example 630210534087
+         */
         "verify.TransRef": string;
         "webhook.Money": {
-            /** @constant */
+            /**
+             * @description The currency as an ISO 4217 code. Today it is always THB, but have your code read this value instead of assuming baht.
+             * @constant
+             */
             currency: "THB";
             /**
              * Format: int64
+             * @description The amount in satang, where 100 satang is 1 baht, so 5000 means 50.00 baht. It is always a whole number, never a decimal. Rather than dividing it by 100 to compare with your order, turn your order total into satang and compare whole number with whole number.
              * @example 5000
              */
             satang: number;
@@ -1479,26 +1616,37 @@ export interface components {
             type: "https://checkslip.com/problems/validation-failed" | "https://checkslip.com/problems/invalid-cursor" | "https://checkslip.com/problems/idempotency-key-required" | "https://checkslip.com/problems/idempotency-key-invalid" | "https://checkslip.com/problems/idempotency-key-reused" | "https://checkslip.com/problems/idempotency-in-flight" | "https://checkslip.com/problems/unauthenticated" | "https://checkslip.com/problems/forbidden" | "https://checkslip.com/problems/endpoint-not-found" | "https://checkslip.com/problems/delivery-not-found" | "https://checkslip.com/problems/endpoint-limit-reached" | "https://checkslip.com/problems/endpoint-disabled" | "https://checkslip.com/problems/endpoint-disabled-by-staff" | "https://checkslip.com/problems/endpoint-deleted" | "https://checkslip.com/problems/rotation-in-progress" | "https://checkslip.com/problems/payload-expired" | "https://checkslip.com/problems/url-not-https" | "https://checkslip.com/problems/url-has-userinfo" | "https://checkslip.com/problems/destination-blocked" | "https://checkslip.com/problems/dns-unresolvable" | "https://checkslip.com/problems/unknown-event-type" | "https://checkslip.com/problems/recover-window-invalid" | "https://checkslip.com/problems/payload-integrity-mismatch" | "https://checkslip.com/problems/internal";
         };
         "webhook.Slip": {
+            /** @description The amount of the transfer. It arrives in the full shape only; the short shape does not send it, nor satang or currency inside it, so do not write code that needs an amount every time, and the wording on satang applies only when you get the full shape. */
             amount: components["schemas"]["webhook.Money"];
+            /** @description True when this transfer's names and account digits were erased together with the data of the account that looked it up. Every name and account field is then null because we no longer hold them, not because the bank did not send them. When you are working out why a name is empty, read this field first. */
             names_erased?: boolean;
             receiver: components["schemas"]["Receiver"];
             sender: components["schemas"]["Party"];
             trans_ref: components["schemas"]["webhook.TransRef"];
             /**
              * Format: date-time
+             * @description When the money moved, as the bank shows it, in Thai time +07:00. Use this value to compare with your order's time, not checked_at. It arrives in the full shape only; the short shape does not send it, so if your code needs the time of the transfer, leave a path for it being absent.
              * @example 2026-10-29T10:33:30+07:00
              */
             transferred_at: string;
         };
         "webhook.SlipSummary": {
+            /** @description The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The amount comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank. */
             amount?: components["schemas"]["webhook.Money"];
+            /** @description The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The receiving bank comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank. */
             receiver_bank?: components["schemas"]["Bank"];
             sender_bank: components["schemas"]["Bank"];
             trans_ref: components["schemas"]["webhook.TransRef"];
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description The short shape does not send this field, and no outcome sends it in the short shape, including the fields inside it, so do not write code that waits for it there. The transfer time comes with the full slip, which only a found transfer returns. The schema still declares this field so it can be added later without breaking the types you have declared. The short shape is only what can be read from the QR: the transfer reference and the sending bank.
+             */
             transferred_at?: string;
         };
-        /** @example 630210534087 */
+        /**
+         * @description The transfer reference the bank issued. This is the value that identifies one transfer, and the one to keep so the same slip cannot be accepted twice. It is not request_id, which identifies one lookup of yours, so keeping the wrong one makes two lookups of a single slip look like two transfers.
+         * @example 630210534087
+         */
         "webhook.TransRef": string;
     };
     responses: never;
@@ -3314,7 +3462,7 @@ export interface operations {
                         title: string;
                         /**
                          * Format: uri
-                         * @example https://checkslip.com/problems/check-settled
+                         * @example https://checkslip.com/problems/validation-failed
                          */
                         type: string;
                     };

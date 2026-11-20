@@ -127,12 +127,41 @@ try {
 | `UnprocessableEntityError` | 422 เช่น `INVALID_QR`, `QR_TAMPERED`, `TOO_OLD`, `INVALID_FILE` |
 | `RateLimitError`           | 429 มี `retryAfter` เป็นวินาที                                     |
 | `ServerError`              | 5xx ที่ไม่ใช่ 503                                                  |
-| `ServiceUnavailableError`  | 503 ระบบยังอยู่ แต่ตอบไม่ได้ชั่วคราว                                   |
+| `ServiceUnavailableError`  | 503 ระบบยังอยู่ แต่ตอบไม่ได้ชั่วคราว มี `reason` และ `retryAfter`       |
 | `ConnectionError`          | ไม่ได้รับคำตอบเลย (DNS, TLS, การเชื่อมต่อหลุด หรือเกิน `timeoutMs`)     |
 | `UnexpectedResponseError`  | สถานะที่ไม่มีคลาสของตัวเอง เช่น 413 หรือ 415                          |
 | `CheckslipError`           | status อื่น เช่น 413 หรือ 415                                      |
 
 รหัส error ทั้งหมดและวิธีแก้: [checkslip.com/docs/errors](https://checkslip.com/docs/errors)
+
+### ยังไม่ได้ผลว่าพบรายการหรือไม่ (503 `UNAVAILABLE`)
+
+ถ้าระบบธนาคารยังไม่ให้คำตอบที่ชี้ชัด การค้นครั้งนั้นจะโยน `ServiceUnavailableError` ที่มี `code` เป็น `"UNAVAILABLE"` และไม่หักเครดิต ช่อง `reason` บอกเหตุ และ `retryAfter` คือเวลาที่ API ขอให้รอ
+
+| `reason`        | หมายความว่า                                                        | `retryAfter` |
+| --------------- | ------------------------------------------------------------------ | ------------ |
+| `"NOT_SEEN"`    | ระบบธนาคารไม่แสดงรายการนี้ ณ เวลาที่ถาม รายการที่เพิ่งโอนอาจยังไม่ขึ้น | 60 วินาที     |
+| `"SOURCE_DOWN"` | ยังไม่ได้คำตอบที่ใช้ได้จากระบบธนาคาร                                  | 30 วินาที     |
+
+```ts
+import { ServiceUnavailableError } from "@checkslip/sdk";
+
+try {
+  await checkslip.slips.lookup({ qr });
+} catch (err) {
+  if (err instanceof ServiceUnavailableError && err.code === "UNAVAILABLE") {
+    if (err.reason === "NOT_SEEN") {
+      // ยังไม่มีรายการให้เห็น ถามใหม่ภายหลังด้วย idempotencyKey เดิม
+    }
+    console.log(`ถามใหม่ในอีก ${err.retryAfter ?? 30} วินาที`);
+  }
+  throw err;
+}
+```
+
+ถ้าไม่มีค่าใน `reason` หรือเจอค่าที่ไม่รู้จัก ให้ทำแบบเดียวกับ `"SOURCE_DOWN"` · `UNAVAILABLE` ที่เกิดจากความผิดพลาดของเราเองจะไม่มีเหตุติดมาด้วย และ API เพิ่มเหตุใหม่ที่ SDK รุ่นนี้ยังไม่รู้จักได้
+
+`slips.lookup` ส่ง `Idempotency-Key` ทุกครั้ง ก่อนที่ error จะมาถึงคุณ SDK จึงรอตาม `Retry-After` และถามซ้ำให้แล้ว (ค่าเริ่มต้น 2 ครั้ง) การค้นที่ได้ `NOT_SEEN` จึงใช้เวลากลับมาได้ราวสองนาที ถ้าอยากรอเองให้ตั้ง `maxRetries: 0`
 
 ## การลองใหม่อัตโนมัติ
 

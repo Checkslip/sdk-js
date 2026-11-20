@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { readFileSync } from "node:fs";
-import type { ApiRequestRecord, AuditEvent, SlipCheck } from "../src/index.js";
+import type { ApiRequestRecord, AuditEvent, Problem, SlipCheck } from "../src/index.js";
 
 // Fields that left the Checkslip API. latency_ms stayed, and is required on
 // ApiRequestRecord, so it is deliberately absent here.
@@ -50,6 +50,32 @@ describe("generated types", () => {
     const ms: number = request.latency_ms;
     void ms;
     expect(true).toBe(true);
+  });
+
+  // One Problem type covers every route (pm h-mwp0at15e9f): the members only
+  // some answers carry are optional, and each one's type comes from the route
+  // that sends it.
+  it("carries every route's problem members on one type", () => {
+    const p = {} as Problem;
+    const reason: string | undefined = p.reason;
+    const orderId: string | undefined = p.order_id;
+    const action: string | undefined = p.action;
+    void p.check;
+    expect([reason, orderId, action]).toHaveLength(3);
+  });
+
+  it("keeps the problem code open, so a new code still typechecks", () => {
+    // Narrowing code to one domain's list would fail this line. The API adds
+    // codes without warning (§10c-8), and so does a reason.
+    const fresh: Problem = {
+      type: "https://checkslip.com/problems/something-new",
+      title: "ยังไม่เคยเห็น",
+      status: 503,
+      code: "SOMETHING_NEW",
+      instance: "/api/slips/lookup",
+      reason: "A_REASON_FROM_LATER",
+    };
+    expect(fresh.code).toBe("SOMETHING_NEW");
   });
 
   it("holds back the fields being withdrawn from the API", () => {

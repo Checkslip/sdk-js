@@ -39,8 +39,38 @@ export type ResponseOf<K extends keyof operations> = operations[K]["responses"] 
 
 // Errors
 
-/** RFC 9457 problem body. Every error response has `type`, `title`, `status`, `code` and `instance`. */
-export type Problem = Schemas["Problem"];
+/**
+ * RFC 9457 problem body. Every error response has `type`, `title`, `status`,
+ * `code` and `instance`.
+ *
+ * One type covers every route. A member only some answers carry is optional
+ * here, and its type comes from the route that sends it, so none of them can
+ * drift from the API.
+ */
+export type Problem = Schemas["Problem"] & {
+  /**
+   * Why this lookup has not settled whether a matching transfer exists; only
+   * on `UNAVAILABLE`. `NOT_SEEN` means the banking system does not show this
+   * transfer at the time of the lookup. `SOURCE_DOWN` means no usable answer
+   * from the banking system. If the field is missing, or carries a value you
+   * do not know, handle it like `SOURCE_DOWN`. `Retry-After` differs by
+   * reason.
+   */
+  reason?: Schemas["verify.Problem"]["reason"];
+  /** The order a billing error is about, when the API names one. */
+  order_id?: Schemas["billing.Problem"]["order_id"];
+  /** The step-up action to ask for, when a billing call needs one. */
+  action?: Schemas["billing.Problem"]["action"];
+  /** The lookup a usage error is about, when the API names one. */
+  check?: Schemas["metering.Problem"]["check"];
+};
+
+/**
+ * The reasons a lookup answers `UNAVAILABLE`. The API can add more, so a
+ * value this version does not list is still a string: handle it, and a
+ * missing reason, like `SOURCE_DOWN`.
+ */
+export type UnavailableReason = "NOT_SEEN" | "SOURCE_DOWN";
 
 // Slips
 

@@ -1,7 +1,13 @@
 import { commaSeparatedQuery } from "../generated/query-style.js";
 import type { Problem } from "../types.js";
 import { VERSION } from "../version.js";
-import { type CheckslipError, ConnectionError, errorClassForStatus, RateLimitError } from "./errors.js";
+import {
+  type CheckslipError,
+  ConnectionError,
+  errorClassForStatus,
+  RateLimitError,
+  ServiceUnavailableError,
+} from "./errors.js";
 import { isBrowser, randomUUID, sleep } from "./runtime.js";
 
 /**
@@ -242,6 +248,13 @@ async function toError(response: Response): Promise<CheckslipError> {
   if (response.status === 429) {
     return new RateLimitError(message, {
       ...options,
+      retryAfter: parseRetryAfter(response.headers.get("retry-after")),
+    });
+  }
+  if (response.status === 503) {
+    return new ServiceUnavailableError(message, {
+      ...options,
+      reason: typeof problem?.reason === "string" ? problem.reason : undefined,
       retryAfter: parseRetryAfter(response.headers.get("retry-after")),
     });
   }

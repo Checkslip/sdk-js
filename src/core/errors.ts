@@ -1,4 +1,4 @@
-import type { Problem } from "../types.js";
+import type { Problem, UnavailableReason } from "../types.js";
 
 /** Options shared by every {@link CheckslipError}. */
 export interface CheckslipErrorOptions {
@@ -94,8 +94,40 @@ export class GoneError extends CheckslipError {}
 /** 5xx other than 503: the API or a bank behind it failed. Safe to retry with the same Idempotency-Key. */
 export class ServerError extends CheckslipError {}
 
-/** 503: the API is up but temporarily cannot serve the request. Retry after a pause. */
-export class ServiceUnavailableError extends CheckslipError {}
+/**
+ * 503: the API is up but temporarily cannot serve the request. Retry after a
+ * pause.
+ *
+ * A lookup the banking system does not settle arrives here with code
+ * `UNAVAILABLE`, and uses no credit. {@link ServiceUnavailableError.reason}
+ * says why, and {@link ServiceUnavailableError.retryAfter} how long the API
+ * asked us to wait.
+ */
+export class ServiceUnavailableError extends CheckslipError {
+  /**
+   * Why a lookup has not settled whether a matching transfer exists; sent
+   * with `UNAVAILABLE` only. `NOT_SEEN` means the banking system does not
+   * show this transfer at the time of the lookup. `SOURCE_DOWN` means no
+   * usable answer from the banking system. `undefined` when the API sent no
+   * reason, which is what an `UNAVAILABLE` from a failure of ours looks like;
+   * handle that, and a value you do not know, like `SOURCE_DOWN`.
+   */
+  readonly reason: UnavailableReason | (string & {}) | undefined;
+  /** Seconds to wait, from the `Retry-After` header. It differs by reason: 60 for `NOT_SEEN`, 30 for `SOURCE_DOWN`. */
+  readonly retryAfter: number | undefined;
+
+  constructor(
+    message: string,
+    options: CheckslipErrorOptions & {
+      reason?: string | undefined;
+      retryAfter?: number | undefined;
+    } = {},
+  ) {
+    super(message, options);
+    this.reason = options.reason;
+    this.retryAfter = options.retryAfter;
+  }
+}
 
 /**
  * The request never got a response: DNS, TLS, connection reset, and similar.
