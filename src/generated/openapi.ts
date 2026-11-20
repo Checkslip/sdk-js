@@ -764,20 +764,40 @@ export interface components {
             undo_of_event_id?: string | null;
         };
         Balance: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The account this balance belongs to.
+             */
             account_id: string;
+            /** @description All the credits the account has now, the sum of credits_left over every lot in `lots`. A slip lookup (looking up the transfer's data with the bank) uses 1 credit only when a matching transfer is found. */
             credits: number;
+            /** @description About how many credits this account would use in a year at its recent pace. null means there has not been enough recent use to tell. */
             credits_per_year: number | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description The latest expiry among lots that still have credits (after every lot has run out, it still gives the date of the last one). null means credits were never bought or given. For when the first lot runs out, read `next_expires_at`.
+             */
             expires_at: string | null;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The id of the latest credit entry this balance already counts (the same id as in the credit history). null means there are no entries yet.
+             */
             last_entry_id?: string | null;
+            /** @description The lots that still have credits, in the order they are charged, the next one first. `credits` is their sum. Lots with nothing left are not listed. */
             lots?: components["schemas"]["CreditLot"][];
+            /** @description true when `credits` is below `threshold`, meaning credits are running low. It is the same rule as the low-credit email and the web app, so read this value rather than working it out. */
             low: boolean;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description The soonest expiry among lots that still have credits, the date some of the credits start to expire. null means no credits are left.
+             */
             next_expires_at?: string | null;
+            /** @description The credit level below which this account counts as running low (`low`, and the low-credit email). It is set from this account's own use. 0 means no warning yet (`low` is false). */
             threshold: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When this balance last changed.
+             */
             updated_at: string;
         };
         Bank: {
@@ -893,10 +913,14 @@ export interface components {
             delta: number;
             /** Format: date-time */
             expires_at_after?: string | null;
+            /** @description Why that slip lookup used no credit, on SLIP_FREE entries only. What each value means is on the CustomerFreeReason type. The set is open, so we may add new values: when your code meets a value it does not know, treat it as no credit used rather than letting it break. */
             free_reason?: components["schemas"]["CustomerFreeReason"] | string;
             /** Format: uuid */
             id: string;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The lot this entry added to or took from, the same as an `id` in the balance's `lots`. null on entries that did not change credits (`delta` 0), on entries from before lots existed, and on entries that changed several lots at once (such as an account deletion or restore).
+             */
             lot_id?: string | null;
             reason: components["schemas"]["CreditReason"] | string;
             ref_id?: string;
@@ -906,18 +930,34 @@ export interface components {
         CreditEntryPage: components["schemas"]["PageMeta"] & {
             items: components["schemas"]["CreditEntry"][];
         };
+        /** @description One lot of credits with its own expiry. The account's credits are the sum of its lots. A credit is used only when a matching transfer is found, and it is taken from the usable lot that expires first; when two expire at the same moment, a campaign lot is used before a bought one. */
         CreditLot: {
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description The campaign that gave this lot, on CAMPAIGN lots only. null on other lots.
+             */
             campaign_id?: string | null;
+            /** @description The campaign's name in Thai and English, as the campaign had it when this account claimed (a later rename does not change it). Both languages always come; the client picks which one to show for its user. CAMPAIGN lots only; null on other lots. */
             campaign_name?: components["schemas"]["ThEn"] | null;
+            /** @description The credits this lot has left. */
             credits_left: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description When the credits left in this lot expire.
+             */
             expires_at: string;
+            /** @description On a CAMPAIGN lot, how many credits the campaign gave at the start; with `credits_left` it shows how many were used. On the PAID lot it is null, because that lot grows with every purchase. */
             granted?: number | null;
-            /** Format: uuid */
+            /**
+             * Format: uuid
+             * @description This lot's id, the same value as `lot_id` in the credit history.
+             */
             id: string;
+            /** @description The kind of lot. PAID holds every credit that did not come from a campaign (bought, trial, adjusted by our team) as one lot per account; a purchase sets its expiry to at least one year from the payment and never shortens it. CAMPAIGN holds credits a campaign gave, which expire on that campaign's own date and are not moved by a purchase. New kinds may be added: show an unknown kind as credits with their expiry. */
             kind: ("PAID" | "CAMPAIGN") | string;
+            /** @description true when a slip lookup can be charged to this lot now. false when it has expired (and is not yet gone from the list), our team has paused its use, or a campaign lot has used its daily number for today (it works again from 00:00 Thailand time). Meanwhile lookups are charged to another usable lot. */
             usable: boolean;
+            /** @description On a campaign lot with a daily number: the credits this lot can still give today, by the Thailand-time day, which starts again at 00:00. null means this lot has no daily limit. */
             usable_today?: number | null;
         };
         /** @enum {string} */
@@ -1259,6 +1299,7 @@ export interface components {
                 description: string;
                 quantity: number;
             }[];
+            /** @description The order code (ORD-XXXXX-XXXXX) of this receipt's order, the same as the order's `code`, for referring to the order. The receipt's legal number is `receipt_no`; never use this code in its place. Every receipt comes from an order and every order has a code, so it should always be set; null means the order's code could not be read at that moment. */
             order_code: string | null;
             /** Format: uuid */
             order_id: string;
@@ -1514,8 +1555,11 @@ export interface components {
             /** @constant */
             type?: "webhook.test";
         };
+        /** @description One text in two languages; both are always there. */
         ThEn: {
+            /** @description The text in English. */
             en: string;
+            /** @description The text in Thai. */
             th: string;
         };
         TransRef: string;
