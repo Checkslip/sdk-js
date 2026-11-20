@@ -5,6 +5,17 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.8.0](https://github.com/Checkslip/sdk-js/compare/v0.7.1...v0.8.0) (2026-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* five properties joined `required` (Order.code, Receipt.order_code, Package.offer, Party.account_masked and Receiver.account_masked). Reading them is unaffected. Building one of those objects by hand, as a test fixture does, now fails with TS2739 until the new property is supplied.
+
+### Features
+
+* read the reason a lookup has no definite answer ([809417a](https://github.com/Checkslip/sdk-js/commit/809417a673db19503e763fbe3b06593a4879f693))
+
 ## [0.7.1](https://github.com/Checkslip/sdk-js/compare/v0.7.0...v0.7.1) (2026-11-17)
 
 
