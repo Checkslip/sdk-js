@@ -5,6 +5,19 @@ All notable changes to this package are listed here. The format follows
 [Semantic Versioning](https://semver.org/). Until 1.0.0, a minor version may
 include breaking changes; they are listed under "Changed".
 
+## [0.8.0](https://github.com/Checkslip/sdk-js/compare/v0.7.1...v0.8.0) (2026-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* five properties joined `required` (Order.code, Receipt.order_code, Package.offer, Party.account_masked and Receiver.account_masked). Reading them is unaffected. Building one of those objects by hand, as a test fixture does, now fails with TS2739 until the new property is supplied.
+
+### Features
+
+* read the reason a lookup has no definite answer ([809417a](https://github.com/Checkslip/sdk-js/commit/809417a673db19503e763fbe3b06593a4879f693))
+* `ServiceUnavailableError` now carries `reason` (`NOT_SEEN` or `SOURCE_DOWN`, an open set) and `retryAfter`, and `Problem` is one type for every route: the members only some answers carry (`reason`, `order_id`, `action`, `check`) are optional on it.
+* the regenerated types also carry everything the published API document gained since 0.7.1, because that file is replaced whole: `Balance.lots` with the new `CreditLot` and `ThEn` schemas, `CreditEntry.lot_id`, the `CAMPAIGN_GRANT`, `CAMPAIGN_EXPIRE` and `CAMPAIGN_RECLAIM` credit reasons, billing's `CAMPAIGN_DAILY_LIMIT` code, `Order.code`, `Receipt.order_code`, `Package.offer`, `Party.account_masked`, `Receiver.account_masked`, and 112 field descriptions that arrive as JSDoc on the types.
+
 ## [0.7.1](https://github.com/Checkslip/sdk-js/compare/v0.7.0...v0.7.1) (2026-11-17)
 
 
